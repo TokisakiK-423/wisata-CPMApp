@@ -31,7 +31,7 @@ export class GaleriController {
     }),
   )
   create(
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() file: any,
     @Body() body: { wisataId: string; caption?: string },
   ) {
     return this.galeriService.create({

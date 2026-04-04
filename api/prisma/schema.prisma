@@ -7,6 +7,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum BookingStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model Admin {
   id        Int      @id @default(autoincrement())
   username  String   @unique
@@ -53,14 +59,14 @@ model Review {
 }
 
 model Booking {
-  id         Int      @id @default(autoincrement())
+  id         Int           @id @default(autoincrement())
   wisataId   Int
   nama       String
   noHp       String
   jumlahTiket Int
-  totalBayar Int
-  status     String   @default("pending")
-  createdAt  DateTime @default(now())
+  totalBayar  Int
+  status     BookingStatus @default(PENDING)
+  createdAt  DateTime      @default(now())
 
-  wisata     Wisata   @relation(fields: [wisataId], references: [id], onDelete: Cascade)
+  wisata     Wisata        @relation(fields: [wisataId], references: [id], onDelete: Cascade)
 }

@@ -1,36 +1,59 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
 generator client {
   provider = "prisma-client-js"
 }
 
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
-enum Role {
-  ADMIN
-  CUSTOMER
-}
-
-model User {
-  id       Int     @id @default(autoincrement())
-  email    String  @unique
-  password String
-  role     Role    @default(CUSTOMER)
-}
-
 model Wisata {
-  id          Int    @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   nama        String
   deskripsi   String
-  harga       Int
   lokasi      String
+  latitude    Float?
+  longitude   Float?
+  jamBuka     String?
+  hargaTiket  Int?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  galeri      Galeri[]
+  reviews     Review[]
+  bookings    Booking[]
+}
+
+model Galeri {
+  id        Int      @id @default(autoincrement())
+  wisataId  Int
+  url       String
+  caption   String?
+  createdAt DateTime @default(now())
+
+  wisata    Wisata   @relation(fields: [wisataId], references: [id], onDelete: Cascade)
 }
 
 model Review {
-  id        Int @id @default(autoincrement())
-  userId    Int
-  wisataId  Int
-  rating    Int
-  komentar  String
+  id         Int      @id @default(autoincrement())
+  wisataId   Int
+  nama       String
+  rating     Int
+  komentar   String
+  createdAt  DateTime @default(now())
+
+  wisata     Wisata   @relation(fields: [wisataId], references: [id], onDelete: Cascade)
+}
+
+model Booking {
+  id         Int      @id @default(autoincrement())
+  wisataId   Int
+  nama       String
+  noHp       String
+  jumlahTiket Int
+  totalBayar Int
+  status     String   @default("pending")
+  createdAt  DateTime @default(now())
+
+  wisata     Wisata   @relation(fields: [wisataId], references: [id], onDelete: Cascade)
 }

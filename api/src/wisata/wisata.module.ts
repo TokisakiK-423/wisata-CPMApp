@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { WisataService } from './wisata.service';
 import { WisataController } from './wisata.controller';
+import { WisataService } from './wisata.service';
 
 @Module({
   controllers: [WisataController],

@@ -1,12 +1,6 @@
-import { IsEnum } from 'class-validator';
-
-export enum BookingStatus {
-  PENDING = 'PENDING',
-  APPROVED = 'APPROVED',
-  REJECTED = 'REJECTED',
-}
+import { IsString } from 'class-validator';
 
 export class UpdateBookingStatusDto {
-  @IsEnum(BookingStatus)
-  status: BookingStatus;
+  @IsString()
+  status: string;
 }

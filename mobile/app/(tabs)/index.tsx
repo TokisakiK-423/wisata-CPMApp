@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -56,7 +56,12 @@ export default function HomeScreen() {
   const renderWisata = ({ item }: { item: WisataItem }) => (
     <TouchableOpacity
       style={styles.card}
-      onPress={() => router.push(`/wisata/${item.id}`)}>
+      activeOpacity={0.8}
+      onPress={() => {
+        console.log('Klik item:', item.id);
+        router.push(`/wisata/${item.id}`);
+      }}
+    >
       <Image
         source={{
           uri: item.galeri?.[0]
@@ -108,8 +113,11 @@ export default function HomeScreen() {
         data={wisata}
         renderItem={renderWisata}
         keyExtractor={(item) => item.id.toString()}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
         contentContainerStyle={styles.list}
+        showsVerticalScrollIndicator={false}
       />
     </SafeAreaView>
   );
@@ -117,17 +125,37 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f8f9fa' },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f8f9fa' },
-  header: { padding: 20, backgroundColor: 'white', borderBottomWidth: 1, borderBottomColor: '#e5e5e5' },
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f8f9fa',
+  },
+  header: {
+    padding: 20,
+    backgroundColor: 'white',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e5e5',
+  },
   title: { fontSize: 28, fontWeight: 'bold', color: '#1a1a1a' },
   subtitle: { fontSize: 16, color: '#666', marginTop: 4 },
   list: { padding: 16, paddingBottom: 100 },
-  card: { backgroundColor: 'white', borderRadius: 16, marginBottom: 16, overflow: 'hidden', elevation: 4 },
+  card: {
+    backgroundColor: 'white',
+    borderRadius: 16,
+    marginBottom: 16,
+    overflow: 'hidden',
+    elevation: 4,
+  },
   image: { width: '100%', height: 180 },
   content: { padding: 16 },
   nama: { fontSize: 20, fontWeight: '700', color: '#1a1a1a', marginBottom: 4 },
   lokasi: { fontSize: 15, color: '#666', marginBottom: 12 },
-  footer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   ratingContainer: { flexDirection: 'row', alignItems: 'center' },
   rating: { fontSize: 16, fontWeight: '600', color: '#FFD700', marginLeft: 4 },
   reviewCount: { fontSize: 14, color: '#666', marginLeft: 4 },

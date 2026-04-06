@@ -7,36 +7,46 @@ import {
   SafeAreaView,
   ActivityIndicator,
   Image,
+  TouchableOpacity,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 
 export default function HomeScreen() {
   const [wisata, setWisata] = useState([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     fetch('http://10.0.2.2:3000/wisata')
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         setWisata(data);
         console.log('Wisata loaded:', data.length);
       })
-      .catch(err => console.error('API Error:', err))
+      .catch((err) => console.error('API Error:', err))
       .finally(() => setLoading(false));
   }, []);
 
   const renderWisata = ({ item }) => (
-    <View style={styles.card}>
+    <TouchableOpacity
+      style={styles.card}
+      activeOpacity={0.85}
+      onPress={() => {
+        console.log('Klik item:', item.id);
+        router.push(`/wisata/${item.id}`);
+      }}
+    >
       <View style={styles.imageContainer}>
         <Image
           source={{
-            uri: item.galeri?.[0] 
+            uri: item.galeri?.[0]
               ? `http://10.0.2.2:3000${item.galeri[0].url}`
               : 'https://via.placeholder.com/300x200/007AFF/FFFFFF?text=Wisata',
           }}
           style={styles.image}
-          defaultSource={{ uri: 'https://via.placeholder.com/300x200/E0E0E0/FFFFFF?text=No+Image' }}
         />
       </View>
+
       <View style={styles.info}>
         <Text style={styles.nama} numberOfLines={1}>
           {item.nama}
@@ -49,11 +59,13 @@ export default function HomeScreen() {
             ⭐ {item.rataRataRating || 0} ({item.totalReview || 0})
           </Text>
           {item.hargaTiket && (
-            <Text style={styles.harga}>Rp {item.hargaTiket.toLocaleString()}</Text>
+            <Text style={styles.harga}>
+              Rp {item.hargaTiket.toLocaleString()}
+            </Text>
           )}
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   if (loading) {
@@ -71,11 +83,11 @@ export default function HomeScreen() {
         <Text style={styles.title}>🌊 CPMApp</Text>
         <Text style={styles.subtitle}>Wisata Lampung ({wisata.length})</Text>
       </View>
-      
+
       <FlatList
         data={wisata}
         renderItem={renderWisata}
-        keyExtractor={item => item.id.toString()}
+        keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
       />
@@ -85,21 +97,21 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f8f9fa' },
-  center: { 
-    flex: 1, 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    backgroundColor: '#f8f9fa' 
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f8f9fa',
   },
-  header: { 
-    padding: 20, 
-    backgroundColor: 'white', 
-    borderBottomWidth: 1, 
-    borderBottomColor: '#e5e5e5' 
+  header: {
+    padding: 20,
+    backgroundColor: 'white',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e5e5',
   },
   title: { fontSize: 28, fontWeight: 'bold', color: '#1a1a1a' },
   subtitle: { fontSize: 16, color: '#666', marginTop: 4 },
-  list: { padding: 16 },
+  list: { padding: 16, paddingBottom: 100 },
   card: {
     backgroundColor: 'white',
     borderRadius: 16,

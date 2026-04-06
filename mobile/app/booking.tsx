@@ -18,7 +18,7 @@ export default function BookingScreen() {
   const [jumlah, setJumlah] = useState('1');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { id: wisataId } = useLocalSearchParams();
+  const { id: wisataId } = useLocalSearchParams<{ id?: string }>();
 
   const bookWisata = async () => {
     if (!nama || !noHp || !jumlah) {
@@ -32,10 +32,10 @@ export default function BookingScreen() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          wisataId: parseInt(wisataId || '1'),
+          wisataId: parseInt(wisataId || '1', 10),
           nama,
           noHp,
-          jumlahTiket: parseInt(jumlah),
+          jumlahTiket: parseInt(jumlah, 10),
         }),
       });
 
@@ -91,8 +91,8 @@ export default function BookingScreen() {
             />
           </View>
 
-          <TouchableOpacity 
-            style={[styles.button, loading && styles.buttonDisabled]} 
+          <TouchableOpacity
+            style={[styles.button, loading && styles.buttonDisabled]}
             onPress={bookWisata}
             disabled={loading}
           >
@@ -109,29 +109,35 @@ export default function BookingScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f8f9fa' },
   scrollContainer: { flexGrow: 1, padding: 20 },
-  title: { fontSize: 32, fontWeight: 'bold', textAlign: 'center', marginBottom: 8, color: '#1a1a1a' },
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 8,
+    color: '#1a1a1a',
+  },
   subtitle: { fontSize: 16, textAlign: 'center', marginBottom: 40, color: '#666' },
   form: { flex: 1 },
-  inputGroup: { 
-    flexDirection: 'row', 
-    backgroundColor: 'white', 
-    borderRadius: 16, 
-    marginBottom: 20, 
+  inputGroup: {
+    flexDirection: 'row',
+    backgroundColor: 'white',
+    borderRadius: 16,
+    marginBottom: 20,
     paddingHorizontal: 16,
     shadowColor: '#000',
     shadowOpacity: 0.1,
     elevation: 3,
   },
   icon: { marginRight: 12, alignSelf: 'center' },
-  input: { 
-    flex: 1, 
-    paddingVertical: 16, 
+  input: {
+    flex: 1,
+    paddingVertical: 16,
     fontSize: 16,
   },
-  button: { 
-    backgroundColor: '#007AFF', 
-    padding: 20, 
-    borderRadius: 16, 
+  button: {
+    backgroundColor: '#007AFF',
+    padding: 20,
+    borderRadius: 16,
     alignItems: 'center',
     marginTop: 20,
   },

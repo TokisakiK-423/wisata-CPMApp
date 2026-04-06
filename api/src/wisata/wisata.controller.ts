@@ -1,9 +1,11 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { WisataService } from './wisata.service';
 import { CreateWisataDto } from './dto/create-wisata.dto';
 import { UpdateWisataDto } from './dto/update-wisata.dto';
+import { JwtAuthGuard } from '../auth/jwt.guard';
 
+@UseGuards(JwtAuthGuard)
 @ApiTags('wisata')
 @Controller('wisata')
 export class WisataController {

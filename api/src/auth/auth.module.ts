@@ -9,8 +9,8 @@ import { AuthService } from './auth.service';
   imports: [
     PassportModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: process.env.JWT_EXPIRES_IN || '24h' },
+      secret: 'supersecretkey123', // ← HARDCODE DULU
+      signOptions: { expiresIn: '24h' }, // ← HARDCODE DULU
     }),
   ],
   controllers: [AuthController],

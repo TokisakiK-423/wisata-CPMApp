@@ -1,21 +1,10 @@
 {
   "expo": {
-    "name": "CPMApp",
+    "name": "cpmapp",
     "slug": "cpmapp",
     "version": "1.0.0",
-    "scheme": "cpmapp"
-  },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#007AFF"
-      }
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    },
     "scheme": "cpmapp",
-    "experiments": {
-      "typedRoutes": true
-    }
+    "android": {},
+    "web": {}
   }
+}

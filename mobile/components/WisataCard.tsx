@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, Link } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Wisata } from '../lib/api';
 import { Ionicons } from '@expo/vector-icons';
+import type { Wisata } from '../lib/api';
 
 interface Props {
   item: Wisata;
@@ -10,23 +10,27 @@ interface Props {
 
 export default function WisataCard({ item }: Props) {
   const router = useRouter();
+  const firstImage = item.galeri?.[0]?.url;
 
   return (
     <TouchableOpacity
       style={styles.card}
-      onPress={() => router.push(`/wisata/${item.id}`)}>
-      {item.galeri[0] ? (
+      activeOpacity={0.85}
+      onPress={() => router.push(`/wisata/${item.id}`)}
+    >
+      {firstImage ? (
         <Image
-          source={{ uri: `http://10.0.2.2:3000${item.galeri[0].url}` }}
+          source={{ uri: `http://10.0.2.2:3000${firstImage}` }}
           style={styles.image}
-          defaultSource={{ uri: 'https://via.placeholder.com/300x200/007AFF/FFFFFF?text=No+Image' }}
+          resizeMode="cover"
         />
       ) : (
         <View style={[styles.image, styles.placeholderImage]}>
           <Ionicons name="image-outline" size={40} color="#ccc" />
+          <Text style={styles.placeholderText}>No Image</Text>
         </View>
       )}
-      
+
       <View style={styles.content}>
         <Text style={styles.nama} numberOfLines={1}>
           {item.nama}
@@ -34,13 +38,19 @@ export default function WisataCard({ item }: Props) {
         <Text style={styles.lokasi} numberOfLines={1}>
           📍 {item.lokasi}
         </Text>
+
         <View style={styles.footer}>
           <View style={styles.ratingContainer}>
-            <Text style={styles.rating}>⭐ {item.rataRataRating}</Text>
-            <Text style={styles.reviewCount}>({item.totalReview})</Text>
+            <Text style={styles.rating}>⭐ {item.rataRataRating ?? 0}</Text>
+            <Text style={styles.reviewCount}>
+              ({item.totalReview ?? 0})
+            </Text>
           </View>
-          {item.hargaTiket && (
-            <Text style={styles.harga}>Rp {item.hargaTiket.toLocaleString()}</Text>
+
+          {typeof item.hargaTiket === 'number' && (
+            <Text style={styles.harga}>
+              Rp {item.hargaTiket.toLocaleString()}
+            </Text>
           )}
         </View>
       </View>
@@ -53,6 +63,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 16,
     marginBottom: 16,
+    overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
@@ -62,13 +73,16 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: 200,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
+    backgroundColor: '#f0f0f0',
   },
   placeholderImage: {
-    backgroundColor: '#f0f0f0',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  placeholderText: {
+    marginTop: 8,
+    color: '#999',
+    fontSize: 14,
   },
   content: {
     padding: 16,

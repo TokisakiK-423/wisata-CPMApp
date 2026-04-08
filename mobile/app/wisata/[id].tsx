@@ -8,12 +8,9 @@ import {
   SafeAreaView,
   ActivityIndicator,
   TouchableOpacity,
-  Dimensions,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-
-const { width } = Dimensions.get('window');
 
 type WisataDetail = {
   id: number;
@@ -29,7 +26,7 @@ type WisataDetail = {
   telepon?: string;
 };
 
-export default function WisataDetail() {
+export default function WisataDetailScreen() {
   const { id } = useLocalSearchParams<{ id?: string }>();
   const router = useRouter();
   const [data, setData] = useState<WisataDetail | null>(null);
@@ -45,10 +42,7 @@ export default function WisataDetail() {
         return res.json();
       })
       .then(setData)
-      .catch((err) => {
-        console.error(err);
-        setError('Gagal memuat detail wisata');
-      })
+      .catch(() => setError('Gagal memuat detail wisata'))
       .finally(() => setLoading(false));
   }, [id]);
 
@@ -65,7 +59,10 @@ export default function WisataDetail() {
       <SafeAreaView style={styles.center}>
         <Ionicons name="alert-circle-outline" size={64} color="#FF3B30" />
         <Text style={styles.error}>{error || 'Data tidak ditemukan'}</Text>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
           <Text style={styles.backButtonText}>Kembali</Text>
         </TouchableOpacity>
       </SafeAreaView>
@@ -98,8 +95,12 @@ export default function WisataDetail() {
           <View style={styles.ratingContainer}>
             <Ionicons name="star" size={20} color="#FFD700" />
             <Text style={styles.rating}>{data.rataRataRating ?? 0}</Text>
-            <Text style={styles.reviewCount}> ({data.totalReview ?? 0} ulasan)</Text>
+            <Text style={styles.reviewCount}>
+              {' '}
+              ({data.totalReview ?? 0} ulasan)
+            </Text>
           </View>
+
           {typeof data.hargaTiket === 'number' && (
             <View style={styles.hargaContainer}>
               <Text style={styles.harga}>
@@ -135,21 +136,6 @@ export default function WisataDetail() {
           <Text style={styles.descTitle}>Deskripsi</Text>
           <Text style={styles.desc}>{data.deskripsi}</Text>
         </View>
-
-        {data.galeri && data.galeri.length > 1 && (
-          <View style={styles.galleryContainer}>
-            <Text style={styles.galleryTitle}>Galeri</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {data.galeri.slice(1).map((foto, index) => (
-                <Image
-                  key={index}
-                  source={{ uri: `http://10.0.2.2:3000${foto.url}` }}
-                  style={styles.galleryImage}
-                />
-              ))}
-            </ScrollView>
-          </View>
-        )}
       </ScrollView>
 
       <TouchableOpacity
@@ -201,7 +187,12 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   ratingContainer: { flexDirection: 'row', alignItems: 'center' },
-  rating: { fontSize: 20, fontWeight: 'bold', color: '#FFD700', marginLeft: 8 },
+  rating: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#FFD700',
+    marginLeft: 8,
+  },
   reviewCount: { fontSize: 14, color: '#666', marginLeft: 4 },
   hargaContainer: { justifyContent: 'center' },
   harga: { fontSize: 20, color: '#28a745', fontWeight: 'bold' },
@@ -237,22 +228,13 @@ const styles = StyleSheet.create({
     padding: 20,
     elevation: 4,
   },
-  descTitle: { fontSize: 20, fontWeight: '700', color: '#1a1a1a', marginBottom: 12 },
+  descTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1a1a1a',
+    marginBottom: 12,
+  },
   desc: { fontSize: 16, color: '#666', lineHeight: 24 },
-  galleryContainer: {
-    backgroundColor: 'white',
-    margin: 16,
-    borderRadius: 16,
-    padding: 20,
-    elevation: 4,
-  },
-  galleryTitle: { fontSize: 20, fontWeight: '700', color: '#1a1a1a', marginBottom: 16 },
-  galleryImage: {
-    width: 120,
-    height: 120,
-    borderRadius: 12,
-    marginRight: 12,
-  },
   bookButton: {
     backgroundColor: '#007AFF',
     padding: 20,
@@ -263,7 +245,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-  bookButtonText: { color: 'white', fontSize: 18, fontWeight: '700' },
+  bookButtonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: '700',
+  },
   error: {
     fontSize: 18,
     color: '#FF3B30',
@@ -277,5 +263,9 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 8,
   },
-  backButtonText: { color: 'white', fontSize: 16, fontWeight: '600' },
+  backButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+  },
 });

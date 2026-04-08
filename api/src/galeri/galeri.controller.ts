@@ -1,22 +1,17 @@
 import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  ParseIntPipe,
-  Post,
-  UploadedFile,
-  UseGuards,
-  UseInterceptors,
+  Body, Controller, Delete, Get, Param, ParseIntPipe, Post, UploadedFile,
+  UseGuards, UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { GaleriService } from './galeri.service';
-import { JwtAuthGuard } from '../auth/jwt.guard';
+import { JwtAuthGuard } from '../auth/jwt.guard';  // ← IMPORT BENAR
+import { RolesGuard } from '../auth/roles.guard';  // ← IMPORT BARU
+import { Roles } from '../auth/roles.decorator';   // ← IMPORT BARU
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('admin')
 @Controller('galeri')
 export class GaleriController {
   constructor(private readonly galeriService: GaleriService) {}

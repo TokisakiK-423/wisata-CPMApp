@@ -1,8 +1,12 @@
-import { IsInt, IsString, Min } from 'class-validator';
+import { IsInt, IsString, IsOptional, Min } from 'class-validator';
 
 export class CreateBookingDto {
   @IsInt()
   wisataId: number;
+
+  @IsOptional()
+  @IsInt()
+  customerId?: number;
 
   @IsString()
   nama: string;
@@ -10,10 +14,7 @@ export class CreateBookingDto {
   @IsString()
   noHp: string;
 
-  @IsInt()
   @Min(1)
-  jumlahTiket: number;
-
   @IsInt()
-  totalBayar: number;
+  jumlahTiket: number;
 }

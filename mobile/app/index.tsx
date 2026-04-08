@@ -1,135 +1,77 @@
 import React, { useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  StyleSheet,
-  SafeAreaView,
-  ActivityIndicator,
-  Image,
-  TouchableOpacity,
-} from 'react-native';
-import { useRouter } from 'expo-router';
+import { Redirect } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { View, ActivityIndicator, Text } from 'react-native';
+import { StyleSheet } from 'react-native';
 
-export default function HomeScreen() {
-  const [wisata, setWisata] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
+export default function Index() {
+  const [target, setTarget] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('http://10.0.2.2:3000/wisata')
-      .then((res) => res.json())
-      .then((data) => {
-        setWisata(data);
-        console.log('Wisata loaded:', data.length);
-      })
-      .catch((err) => console.error('API Error:', err))
-      .finally(() => setLoading(false));
+    let mounted = true;
+
+    const load = async () => {
+      console.log('🔍 INDEX: Checking auth...');
+      
+      const [token, role, userStr] = await Promise.all([
+        AsyncStorage.getItem('token'),
+        AsyncStorage.getItem('role'),
+        AsyncStorage.getItem('user'),
+      ]);
+
+      console.log('🔑 INDEX:', { 
+        token: !!token, 
+        role, 
+        user: userStr ? JSON.parse(userStr) : null 
+      });
+
+      if (!mounted) return;
+
+      if (!token) {
+        console.log('➡️ No token → login');
+        setTarget('/login');
+      } else if (role === 'admin') {
+        console.log('➡️ Admin token → /admin');
+        setTarget('/admin');
+      } else if (role === 'customer') {
+        console.log('➡️ Customer token → /customer');
+        setTarget('/customer');
+      } else {
+        console.log('❌ Invalid role → clear & login');
+        await AsyncStorage.multiRemove(['token', 'role', 'user']);
+        setTarget('/login');
+      }
+    };
+
+    load();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
-  const renderWisata = ({ item }) => (
-    <TouchableOpacity
-      style={styles.card}
-      activeOpacity={0.85}
-      onPress={() => {
-        console.log('Klik item:', item.id);
-        router.push(`/wisata/${item.id}`);
-      }}
-    >
-      <View style={styles.imageContainer}>
-        <Image
-          source={{
-            uri: item.galeri?.[0]
-              ? `http://10.0.2.2:3000${item.galeri[0].url}`
-              : 'https://via.placeholder.com/300x200/007AFF/FFFFFF?text=Wisata',
-          }}
-          style={styles.image}
-        />
-      </View>
-
-      <View style={styles.info}>
-        <Text style={styles.nama} numberOfLines={1}>
-          {item.nama}
-        </Text>
-        <Text style={styles.lokasi} numberOfLines={1}>
-          📍 {item.lokasi}
-        </Text>
-        <View style={styles.footer}>
-          <Text style={styles.rating}>
-            ⭐ {item.rataRataRating || 0} ({item.totalReview || 0})
-          </Text>
-          {item.hargaTiket && (
-            <Text style={styles.harga}>
-              Rp {item.hargaTiket.toLocaleString()}
-            </Text>
-          )}
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
-
-  if (loading) {
+  if (!target) {
     return (
-      <SafeAreaView style={styles.center}>
+      <View style={styles.splash}>
         <ActivityIndicator size="large" color="#007AFF" />
-        <Text style={styles.loading}>Memuat wisata...</Text>
-      </SafeAreaView>
+        <Text style={styles.loading}>Loading...</Text>
+      </View>
     );
   }
 
-  return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>🌊 CPMApp</Text>
-        <Text style={styles.subtitle}>Wisata Lampung ({wisata.length})</Text>
-      </View>
-
-      <FlatList
-        data={wisata}
-        renderItem={renderWisata}
-        keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={styles.list}
-        showsVerticalScrollIndicator={false}
-      />
-    </SafeAreaView>
-  );
+  return <Redirect href={target as any} />;
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8f9fa' },
-  center: {
+  splash: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#f8f9fa',
   },
-  header: {
-    padding: 20,
-    backgroundColor: 'white',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e5e5',
+  loading: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#666',
   },
-  title: { fontSize: 28, fontWeight: 'bold', color: '#1a1a1a' },
-  subtitle: { fontSize: 16, color: '#666', marginTop: 4 },
-  list: { padding: 16, paddingBottom: 100 },
-  card: {
-    backgroundColor: 'white',
-    borderRadius: 16,
-    marginBottom: 16,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  imageContainer: { height: 180 },
-  image: { width: '100%', height: '100%' },
-  info: { padding: 16 },
-  nama: { fontSize: 20, fontWeight: '700', color: '#1a1a1a', marginBottom: 4 },
-  lokasi: { fontSize: 15, color: '#666', marginBottom: 12 },
-  footer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  rating: { fontSize: 16, color: '#FFD700', fontWeight: '600' },
-  harga: { fontSize: 16, color: '#28a745', fontWeight: '700' },
-  loading: { marginTop: 16, fontSize: 16, color: '#666' },
 });

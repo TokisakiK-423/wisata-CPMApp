@@ -14,24 +14,35 @@ export class AuthService {
       throw new BadRequestException('username dan password wajib diisi');
     }
 
-    const admin = await this.prisma.admin.findUnique({
-      where: { username },
-    });
+    // Cek admin
+    let user = await this.prisma.admin.findUnique({ where: { username } });
+    let role = 'admin';
 
-    if (!admin || admin.password !== password) {
-      throw new UnauthorizedException('Username atau password salah');
+    if (!user || user.password !== password) {
+      // Cek customer
+      user = await this.prisma.customer.findUnique({ where: { username } });
+      if (!user || user.password !== password) {
+        throw new UnauthorizedException('Username atau password salah');
+      }
+      role = 'customer';
     }
 
-    const payload = { sub: admin.id, username: admin.username };
+    const payload = { 
+      sub: user.id, 
+      username: user.username,
+      role 
+    };
     const token = await this.jwtService.signAsync(payload);
 
     return {
       message: 'Login berhasil',
       access_token: token,
-      admin: {
-        id: admin.id,
-        username: admin.username,
-      },
+      role,
+      user: { 
+        id: user.id, 
+        username: user.username,
+        role 
+      }
     };
   }
 }

@@ -1,20 +1,14 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { 
+  Controller, Get, Post, Patch, Delete, Body, Param, ParseIntPipe, UseGuards 
+} from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/jwt.guard';  // ← IMPORT BENAR
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';  // ← IMPORT BARU
 import { WisataService } from './wisata.service';
-import { CreateWisataDto } from './dto/create-wisata.dto';
-import { UpdateWisataDto } from './dto/update-wisata.dto';
-import { JwtAuthGuard } from '../auth/jwt.guard';
 
-@UseGuards(JwtAuthGuard)
-@ApiTags('wisata')
 @Controller('wisata')
 export class WisataController {
   constructor(private readonly wisataService: WisataService) {}
-
-  @Post()
-  create(@Body() dto: CreateWisataDto) {
-    return this.wisataService.create(dto);
-  }
 
   @Get()
   findAll() {
@@ -26,11 +20,22 @@ export class WisataController {
     return this.wisataService.findOne(id);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  @Post()
+  create(@Body() dto: any) {
+    return this.wisataService.create(dto);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   @Patch(':id')
-  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateWisataDto) {
+  update(@Param('id', ParseIntPipe) id: number, @Body() dto: any) {
     return this.wisataService.update(id, dto);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.wisataService.remove(id);

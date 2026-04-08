@@ -6,7 +6,7 @@ import { CreateReviewDto } from './dto/create-review.dto';
 export class ReviewService {
   constructor(private prisma: PrismaService) {}
 
-  create(data: CreateReviewDto) {
+  create(data: CreateReviewDto) {  // Accept customerId
     return this.prisma.review.create({ data });
   }
 

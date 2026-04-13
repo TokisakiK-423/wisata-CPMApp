@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
-import { GaleriController } from './galeri.controller';
 import { GaleriService } from './galeri.service';
+import { GaleriController } from './galeri.controller';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Module({
   controllers: [GaleriController],
-  providers: [GaleriService],
+  providers: [GaleriService, PrismaService],
 })
 export class GaleriModule {}

@@ -1,271 +1,157 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
   Image,
   ScrollView,
-  StyleSheet,
-  SafeAreaView,
   ActivityIndicator,
   TouchableOpacity,
-} from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+} from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 
-type WisataDetail = {
-  id: number;
-  nama: string;
-  lokasi: string;
-  deskripsi: string;
-  alamat: string;
-  jamBuka: string;
-  rataRataRating?: number;
-  totalReview?: number;
-  hargaTiket?: number;
-  galeri?: { url: string }[];
-  telepon?: string;
-};
+import { styles, COLORS } from "@/app/lib/wisata/style";
+import { fetchWisataDetail } from "@/app/lib/wisata/utils/wisata";
 
 export default function WisataDetailScreen() {
-  const { id } = useLocalSearchParams<{ id?: string }>();
+  const { id } = useLocalSearchParams();
   const router = useRouter();
-  const [data, setData] = useState<WisataDetail | null>(null);
+
+  const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+
+  // 🔥 HITUNG RATING
+  const getRating = (reviews?: any[]) => {
+    if (!reviews || reviews.length === 0) {
+      return { avg: 0, total: 0 };
+    }
+
+    const total = reviews.length;
+    const avg = reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / total;
+
+    return { avg, total };
+  };
 
   useEffect(() => {
     if (!id) return;
 
-    fetch(`http://10.0.2.2:3000/wisata/${id}`)
-      .then((res) => {
-        if (!res.ok) throw new Error('Wisata tidak ditemukan');
-        return res.json();
-      })
-      .then(setData)
-      .catch(() => setError('Gagal memuat detail wisata'))
-      .finally(() => setLoading(false));
+    const load = async () => {
+      const res = await fetchWisataDetail(id as string);
+      setData(res);
+      setLoading(false);
+    };
+
+    load();
   }, [id]);
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.center}>
-        <ActivityIndicator size="large" color="#007AFF" />
-      </SafeAreaView>
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={COLORS.white} />
+      </View>
     );
   }
 
-  if (error || !data) {
+  if (!data) {
     return (
-      <SafeAreaView style={styles.center}>
-        <Ionicons name="alert-circle-outline" size={64} color="#FF3B30" />
-        <Text style={styles.error}>{error || 'Data tidak ditemukan'}</Text>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
-          <Text style={styles.backButtonText}>Kembali</Text>
-        </TouchableOpacity>
-      </SafeAreaView>
+      <View style={styles.center}>
+        <Text style={{ color: "#fff" }}>Data tidak ditemukan</Text>
+      </View>
     );
   }
+
+  const { avg, total } = getRating(data?.reviews);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.scrollView}>
+    <LinearGradient
+      colors={[COLORS.primary, COLORS.secondary]}
+      style={styles.container}
+    >
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={{ paddingBottom: 120 }}
+      >
+        {/* HEADER */}
         <View style={styles.header}>
           <TouchableOpacity
-            style={styles.backButtonHeader}
+            style={styles.backBtn}
             onPress={() => router.back()}
           >
-            <Ionicons name="arrow-back" size={24} color="white" />
+            <Ionicons name="arrow-back" size={22} color="#fff" />
           </TouchableOpacity>
-          <Text style={styles.nama}>{data.nama}</Text>
+
+          <Text style={styles.headerTitle} numberOfLines={1}>
+            Detail Wisata
+          </Text>
         </View>
 
+        {/* IMAGE */}
         <Image
           source={{
             uri: data.galeri?.[0]?.url
               ? `http://10.0.2.2:3000${data.galeri[0].url}`
-              : 'https://via.placeholder.com/600x400?text=No+Image',
+              : "https://via.placeholder.com/400",
           }}
-          style={styles.heroImage}
+          style={styles.image}
         />
 
-        <View style={styles.ratingSection}>
-          <View style={styles.ratingContainer}>
-            <Ionicons name="star" size={20} color="#FFD700" />
-            <Text style={styles.rating}>{data.rataRataRating ?? 0}</Text>
-            <Text style={styles.reviewCount}>
-              {' '}
-              ({data.totalReview ?? 0} ulasan)
+        {/* 🔥 CARD UTAMA (GABUNG INFO + DESKRIPSI) */}
+        <View style={styles.card}>
+          <Text style={styles.nama}>{data.nama}</Text>
+
+          {/* INFO */}
+          <View style={styles.row}>
+            <Ionicons name="location-outline" size={16} color="#666" />
+            <Text style={styles.infoText}>{data.lokasi}</Text>
+          </View>
+
+          <View style={styles.row}>
+            <Ionicons name="home-outline" size={16} color="#666" />
+            <Text style={styles.infoText}>{data.alamat}</Text>
+          </View>
+
+          <View style={styles.row}>
+            <Ionicons name="time-outline" size={16} color="#666" />
+            <Text style={styles.infoText}>{data.jamBuka}</Text>
+          </View>
+
+          {/* PRICE + RATING */}
+          <View style={styles.bottomRow}>
+            <Text style={styles.price}>
+              Rp {Number(data.hargaTiket || 0).toLocaleString()}
             </Text>
-          </View>
 
-          {typeof data.hargaTiket === 'number' && (
-            <View style={styles.hargaContainer}>
-              <Text style={styles.harga}>
-                Rp {data.hargaTiket.toLocaleString()}
-              </Text>
+            <View style={styles.ratingBox}>
+              <Ionicons name="star" size={14} color="#FFD700" />
+              <Text style={styles.rating}>{Number(avg).toFixed(1)}</Text>
+              <Text style={styles.review}>({total})</Text>
             </View>
-          )}
-        </View>
-
-        <View style={styles.infoContainer}>
-          <View style={styles.infoRow}>
-            <Ionicons name="location-outline" size={20} color="#007AFF" />
-            <Text style={styles.infoLabel}>Lokasi:</Text>
-            <Text style={styles.infoValue}>{data.lokasi}</Text>
           </View>
 
-          <View style={styles.infoRow}>
-            <Ionicons name="time-outline" size={20} color="#007AFF" />
-            <Text style={styles.infoLabel}>Jam Buka:</Text>
-            <Text style={styles.infoValue}>{data.jamBuka}</Text>
-          </View>
+          {/* 🔥 GARIS PEMISAH HALUS */}
+          <View
+            style={{
+              height: 1,
+              backgroundColor: "#eee",
+              marginVertical: 15,
+            }}
+          />
 
-          {data.telepon && (
-            <View style={styles.infoRow}>
-              <Ionicons name="call-outline" size={20} color="#007AFF" />
-              <Text style={styles.infoLabel}>Telepon:</Text>
-              <Text style={styles.infoValue}>{data.telepon}</Text>
-            </View>
-          )}
-        </View>
-
-        <View style={styles.descContainer}>
+          {/* DESKRIPSI */}
           <Text style={styles.descTitle}>Deskripsi</Text>
           <Text style={styles.desc}>{data.deskripsi}</Text>
         </View>
       </ScrollView>
 
+      {/* BUTTON */}
       <TouchableOpacity
-        style={styles.bookButton}
+        style={styles.bookBtn}
         onPress={() => router.push(`/booking?id=${data.id}`)}
       >
-        <Ionicons name="calendar-outline" size={20} color="white" />
-        <Text style={styles.bookButtonText}>Pesan Tiket</Text>
+        <Ionicons name="calendar-outline" size={20} color="#fff" />
+        <Text style={styles.bookText}>Pesan Tiket</Text>
       </TouchableOpacity>
-    </SafeAreaView>
+    </LinearGradient>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8f9fa' },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f8f9fa',
-    padding: 20,
-  },
-  scrollView: { flex: 1 },
-  header: {
-    minHeight: 120,
-    backgroundColor: '#007AFF',
-    justifyContent: 'flex-end',
-    padding: 20,
-    paddingTop: 60,
-  },
-  backButtonHeader: {
-    position: 'absolute',
-    top: 60,
-    left: 20,
-    zIndex: 1,
-    backgroundColor: 'rgba(0,0,0,0.2)',
-    borderRadius: 20,
-    padding: 8,
-  },
-  nama: { fontSize: 24, fontWeight: 'bold', color: 'white', marginTop: 8 },
-  heroImage: { width: '100%', height: 280 },
-  ratingSection: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    padding: 20,
-    backgroundColor: 'white',
-    margin: 16,
-    borderRadius: 16,
-    elevation: 4,
-  },
-  ratingContainer: { flexDirection: 'row', alignItems: 'center' },
-  rating: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#FFD700',
-    marginLeft: 8,
-  },
-  reviewCount: { fontSize: 14, color: '#666', marginLeft: 4 },
-  hargaContainer: { justifyContent: 'center' },
-  harga: { fontSize: 20, color: '#28a745', fontWeight: 'bold' },
-  infoContainer: {
-    backgroundColor: 'white',
-    margin: 16,
-    borderRadius: 16,
-    padding: 20,
-    elevation: 4,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 16,
-  },
-  infoLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1a1a1a',
-    marginLeft: 12,
-    flex: 0.3,
-  },
-  infoValue: {
-    fontSize: 16,
-    color: '#666',
-    flex: 0.7,
-    marginLeft: 4,
-  },
-  descContainer: {
-    backgroundColor: 'white',
-    margin: 16,
-    borderRadius: 16,
-    padding: 20,
-    elevation: 4,
-  },
-  descTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#1a1a1a',
-    marginBottom: 12,
-  },
-  desc: { fontSize: 16, color: '#666', lineHeight: 24 },
-  bookButton: {
-    backgroundColor: '#007AFF',
-    padding: 20,
-    margin: 16,
-    borderRadius: 16,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 8,
-  },
-  bookButtonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: '700',
-  },
-  error: {
-    fontSize: 18,
-    color: '#FF3B30',
-    textAlign: 'center',
-    marginTop: 16,
-    marginBottom: 24,
-  },
-  backButton: {
-    backgroundColor: '#007AFF',
-    paddingHorizontal: 32,
-    paddingVertical: 12,
-    borderRadius: 8,
-  },
-  backButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-});

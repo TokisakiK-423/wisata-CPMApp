@@ -1,48 +1,36 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import * as jwt from 'jsonwebtoken';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private prisma: PrismaService,
-    private jwtService: JwtService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
   async login(username: string, password: string) {
-    if (!username || !password) {
-      throw new BadRequestException('username dan password wajib diisi');
+    const secret = process.env.JWT_SECRET as string;
+
+    const admin = await this.prisma.admin.findUnique({
+      where: { username },
+    });
+
+    if (admin && admin.password === password) {
+      return {
+        token: jwt.sign({ id: admin.id, role: 'admin' }, secret),
+        role: 'admin',
+      };
     }
 
-    // Cek admin
-    let user = await this.prisma.admin.findUnique({ where: { username } });
-    let role = 'admin';
+    const customer = await this.prisma.customer.findUnique({
+      where: { username },
+    });
 
-    if (!user || user.password !== password) {
-      // Cek customer
-      user = await this.prisma.customer.findUnique({ where: { username } });
-      if (!user || user.password !== password) {
-        throw new UnauthorizedException('Username atau password salah');
-      }
-      role = 'customer';
+    if (customer && customer.password === password) {
+      return {
+        token: jwt.sign({ id: customer.id, role: 'customer' }, secret),
+        role: 'customer',
+      };
     }
 
-    const payload = { 
-      sub: user.id, 
-      username: user.username,
-      role 
-    };
-    const token = await this.jwtService.signAsync(payload);
-
-    return {
-      message: 'Login berhasil',
-      access_token: token,
-      role,
-      user: { 
-        id: user.id, 
-        username: user.username,
-        role 
-      }
-    };
+    throw new UnauthorizedException('Login gagal');
   }
 }

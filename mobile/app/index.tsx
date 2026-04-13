@@ -31,11 +31,11 @@ export default function Index() {
         console.log('➡️ No token → login');
         setTarget('/login');
       } else if (role === 'admin') {
-        console.log('➡️ Admin token → /admin');
-        setTarget('/admin');
+  console.log('➡️ Admin token → /admin/tabs');
+  setTarget('/admin/tabs');
       } else if (role === 'customer') {
         console.log('➡️ Customer token → /customer');
-        setTarget('/customer');
+        setTarget('/customer/tabs');
       } else {
         console.log('❌ Invalid role → clear & login');
         await AsyncStorage.multiRemove(['token', 'role', 'user']);

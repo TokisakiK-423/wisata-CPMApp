@@ -38,6 +38,7 @@ model Wisata {
   alamat     String
   jamBuka    String
   hargaTiket Int?
+  status     Boolean   @default(true)
   telepon    String?
   galeri     Galeri[]
   reviews    Review[]
@@ -63,6 +64,7 @@ model Review {
   nama       String
   rating     Int
   komentar   String?
+  image      String?
   createdAt  DateTime @default(now())
 
   customer Customer? @relation(fields: [customerId], references: [id])

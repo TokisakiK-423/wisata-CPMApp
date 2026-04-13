@@ -1,43 +1,83 @@
-import { 
-  Controller, Get, Post, Patch, Delete, Body, Param, ParseIntPipe, UseGuards 
+import {
+  Controller,
+  Get,
+  Post,
+  Delete,
+  Param,
+  Body,
+  UseInterceptors,
+  UploadedFile,
+  Patch,
 } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/jwt.guard';  // ← IMPORT BENAR
-import { RolesGuard } from '../auth/roles.guard';
-import { Roles } from '../auth/roles.decorator';  // ← IMPORT BARU
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 import { WisataService } from './wisata.service';
+import type { Express } from 'express';
 
 @Controller('wisata')
 export class WisataController {
-  constructor(private readonly wisataService: WisataService) {}
+  constructor(private readonly service: WisataService) {}
+
+  @Post()
+  @UseInterceptors(
+    FileInterceptor('image', {
+      storage: diskStorage({
+        destination: './public/uploads',
+        filename: (req, file, cb) => {
+          const uniqueName =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(null, uniqueName + extname(file.originalname));
+        },
+      }),
+    }),
+  )
+  create(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body: any,
+  ) {
+    return this.service.create(body, file);
+  }
 
   @Get()
   findAll() {
-    return this.wisataService.findAll();
+    return this.service.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.wisataService.findOne(id);
+  findOne(@Param('id') id: string) {
+    return this.service.findOne(Number(id));
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin')
-  @Post()
-  create(@Body() dto: any) {
-    return this.wisataService.create(dto);
-  }
-
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin')
   @Patch(':id')
-  update(@Param('id', ParseIntPipe) id: number, @Body() dto: any) {
-    return this.wisataService.update(id, dto);
+  @UseInterceptors(
+    FileInterceptor('image', {
+      storage: diskStorage({
+        destination: './public/uploads',
+        filename: (req, file, cb) => {
+          const uniqueName =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(null, uniqueName + extname(file.originalname));
+        },
+      }),
+    }),
+  )
+  update(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body: any,
+  ) {
+    return this.service.update(Number(id), body, file);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin')
+  // 🔥 INI KUNCI FITUR AKTIF / NONAKTIF
+  @Patch(':id/status')
+  toggleStatus(@Param('id') id: string) {
+    return this.service.toggleStatus(Number(id));
+  }
+
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.wisataService.remove(id);
+  remove(@Param('id') id: string) {
+    return this.service.delete(Number(id));
   }
 }

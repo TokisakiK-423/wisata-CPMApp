@@ -1,46 +1,46 @@
-import { 
-  Body, Controller, Get, Post, Patch, Delete, Param, ParseIntPipe, 
-  UseGuards, Req, UsePipes, ValidationPipe 
+import {
+  Controller,
+  Post,
+  Get,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { BookingService } from './booking.service';
-import { CreateBookingDto } from './dto/create-booking.dto';
-import { UpdateBookingStatusDto } from './dto/update-booking-status.dto';
-import { JwtAuthGuard } from '../auth/jwt.guard';
-import { RolesGuard } from '../auth/roles.guard';
-import { Roles } from '../auth/roles.decorator';
+import { JwtGuard } from '../auth/jwt.guard';
 
 @Controller('booking')
 export class BookingController {
-  constructor(private readonly bookingService: BookingService) {}
+  constructor(private service: BookingService) {}
 
+  @UseGuards(JwtGuard)
   @Post()
-  @UsePipes(new ValidationPipe())
-  create(@Body() dto: CreateBookingDto, @Req() req?: any) {
-    const data = {
-      ...dto,
-      customerId: req?.user?.role === 'customer' ? req.user.userId : null,
-    };
-    return this.bookingService.create(data);
+  create(@Body() body, @Req() req) {
+    return this.service.create(body, req.user);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin')
+  @UseGuards(JwtGuard)
+  @Get('my')
+  findMy(@Req() req) {
+    return this.service.findMy(req.user);
+  }
+
+  @UseGuards(JwtGuard)
   @Get()
   findAll() {
-    return this.bookingService.findAll();
+    return this.service.findAll();
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin')
-  @Patch(':id/status')
-  updateStatus(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateBookingStatusDto) {
-    return this.bookingService.updateStatus(id, dto);
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() body) {
+    return this.service.update(+id, body.status);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin')
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.bookingService.remove(id);
+  delete(@Param('id') id: string) {
+    return this.service.delete(+id);
   }
 }

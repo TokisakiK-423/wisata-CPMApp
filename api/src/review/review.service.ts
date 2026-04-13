@@ -1,25 +1,45 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateReviewDto } from './dto/create-review.dto';
 
 @Injectable()
 export class ReviewService {
   constructor(private prisma: PrismaService) {}
 
-  create(data: CreateReviewDto) {  // Accept customerId
-    return this.prisma.review.create({ data });
+  async create(data: any, customerId: number, file?: Express.Multer.File) {
+    const customer = await this.prisma.customer.findUnique({
+      where: { id: customerId },
+    });
+
+    if (!customer) {
+      throw new BadRequestException('Customer tidak ditemukan');
+    }
+
+    return this.prisma.review.create({
+      data: {
+        wisataId: Number(data.wisataId),
+        customerId: customerId,
+        nama: customer.nama,
+        rating: Number(data.rating),
+        komentar: data.komentar,
+
+        // 🔥 INI BAGIAN PENTING
+        image: file ? `/uploads/${file.filename}` : null,
+      },
+    });
   }
 
   findAll() {
     return this.prisma.review.findMany({
-      include: { wisata: true },
-      orderBy: { id: 'desc' },
+      include: {
+        wisata: true,
+      },
+      orderBy: { createdAt: 'desc' },
     });
   }
 
-  async remove(id: number) {
-    const data = await this.prisma.review.findUnique({ where: { id } });
-    if (!data) throw new NotFoundException('Review tidak ditemukan');
-    return this.prisma.review.delete({ where: { id } });
+  delete(id: number) {
+    return this.prisma.review.delete({
+      where: { id },
+    });
   }
 }

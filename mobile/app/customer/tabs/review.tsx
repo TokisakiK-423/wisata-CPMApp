@@ -26,6 +26,8 @@ export default function CustomerReview() {
   const [wisataList, setWisataList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [userId, setUserId] = useState<number | null>(null);
+
   const [image, setImage] = useState<any>(null);
   const [collapsed, setCollapsed] = useState(false);
 
@@ -37,7 +39,19 @@ export default function CustomerReview() {
 
   const insets = useSafeAreaInsets();
 
-  //  FETCH 
+  //  LOAD USER + DATA
+  useEffect(() => {
+    const init = async () => {
+      const id = await AsyncStorage.getItem("userId");
+      setUserId(id ? Number(id) : null);
+
+      await loadData();
+    };
+
+    init();
+  }, []);
+
+  //  FETCH
   const loadData = async () => {
     setLoading(true);
     const { reviews, wisata } = await fetchReviewData();
@@ -46,11 +60,7 @@ export default function CustomerReview() {
     setLoading(false);
   };
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  //  IMAGE 
+  //  IMAGE PICKER
   const pickImage = async () => {
     const res = await ImagePicker.launchImageLibraryAsync({
       quality: 0.7,
@@ -59,7 +69,7 @@ export default function CustomerReview() {
     if (!res.canceled) setImage(res.assets[0]);
   };
 
-  //  SUBMIT 
+  //  SUBMIT
   const handleSubmit = async () => {
     if (!form.wisataId) {
       Alert.alert("Error", "Pilih wisata dulu");
@@ -81,7 +91,7 @@ export default function CustomerReview() {
     loadData();
   };
 
-  //  DELETE 
+  //  DELETE
   const handleDelete = (id: number) => {
     Alert.alert("Hapus", "Yakin hapus review?", [
       { text: "Batal" },
@@ -95,7 +105,9 @@ export default function CustomerReview() {
     ]);
   };
 
-  if (loading) return <ActivityIndicator style={{ marginTop: 50 }} />;
+  if (loading) {
+    return <ActivityIndicator style={{ marginTop: 50 }} />;
+  }
 
   return (
     <LinearGradient
@@ -133,7 +145,6 @@ export default function CustomerReview() {
             {/* FORM */}
             {!collapsed && (
               <View style={styles.formBox}>
-                {/* PILIH WISATA */}
                 <FlatList
                   horizontal
                   data={wisataList}
@@ -162,7 +173,6 @@ export default function CustomerReview() {
                   )}
                 />
 
-                {/* INPUT */}
                 <TextInput
                   placeholder="Tulis komentar..."
                   style={styles.input}
@@ -170,7 +180,6 @@ export default function CustomerReview() {
                   onChangeText={(t) => setForm({ ...form, komentar: t })}
                 />
 
-                {/* RATING */}
                 <View style={styles.ratingRow}>
                   {[1, 2, 3, 4, 5].map((r) => (
                     <TouchableOpacity
@@ -188,7 +197,6 @@ export default function CustomerReview() {
                   ))}
                 </View>
 
-                {/* IMAGE */}
                 <TouchableOpacity style={styles.imageBtn} onPress={pickImage}>
                   <Text>Pilih Gambar</Text>
                 </TouchableOpacity>
@@ -197,7 +205,6 @@ export default function CustomerReview() {
                   <Image source={{ uri: image.uri }} style={styles.preview} />
                 )}
 
-                {/* SUBMIT */}
                 <TouchableOpacity
                   style={styles.submitBtn}
                   onPress={handleSubmit}
@@ -210,13 +217,19 @@ export default function CustomerReview() {
         }
         renderItem={({ item }) => (
           <View style={styles.reviewCard}>
-            <Text style={styles.reviewTitleCard}>{item.wisata?.nama}</Text>
+            <Text style={styles.reviewTitleCard}>
+              {item.wisata?.nama}
+            </Text>
 
-            <Text style={styles.ratingText}>{"★".repeat(item.rating)}</Text>
+            <Text style={styles.ratingText}>
+              {"★".repeat(item.rating)}
+            </Text>
 
             <Text style={styles.reviewName}>{item.nama}</Text>
 
-            <Text style={styles.reviewComment}>{item.komentar}</Text>
+            <Text style={styles.reviewComment}>
+              {item.komentar}
+            </Text>
 
             {item.image && (
               <Image
@@ -227,12 +240,15 @@ export default function CustomerReview() {
               />
             )}
 
-            <TouchableOpacity
-              style={styles.deleteBtn}
-              onPress={() => handleDelete(item.id)}
-            >
-              <Text style={{ color: "#fff" }}>Hapus</Text>
-            </TouchableOpacity>
+            {/*  HANYA MILIK SENDIRI */}
+            {userId === item.customerId && (
+              <TouchableOpacity
+                style={styles.deleteBtn}
+                onPress={() => handleDelete(item.id)}
+              >
+                <Text style={{ color: "#fff" }}>Hapus</Text>
+              </TouchableOpacity>
+            )}
           </View>
         )}
       />

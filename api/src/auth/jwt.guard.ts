@@ -8,27 +8,24 @@ export class JwtGuard implements CanActivate {
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
-      console.log('❌ Tidak ada Authorization header');
+      console.log(process.env.AUTH_FAILED);
       return false;
     }
 
     if (!authHeader.startsWith('Bearer ')) {
-      console.log('❌ Format token salah:', authHeader);
+      console.log(process.env.WRONG_TOKEN, authHeader);
       return false;
     }
 
     try {
       const token = authHeader.split(' ')[1];
 
-      const decoded = jwt.verify(
-        token,
-        process.env.JWT_SECRET as string,
-      );
+      const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
 
       req.user = decoded;
       return true;
     } catch (err) {
-      console.log('❌ Token error:', err.message);
+      console.log(process.env.TOKEN_EROR, err.message);
       return false;
     }
   }

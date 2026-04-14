@@ -1,33 +1,46 @@
-
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateBookingDto } from './dto/create-booking.dto';
-import { UpdateBookingStatusDto } from './dto/update-booking-status.dto';
 
 @Injectable()
 export class BookingService {
   constructor(private prisma: PrismaService) {}
 
-  create(data: CreateBookingDto) {
-    return this.prisma.booking.create({ data });
+  create(dto, user) {
+    return this.prisma.booking.create({
+      data: {
+        wisataId: dto.wisataId,
+        nama: dto.nama,
+        noHp: dto.noHp,
+        jumlahTiket: dto.jumlahTiket,
+        customerId: user.id,
+      },
+    });
   }
 
   findAll() {
     return this.prisma.booking.findMany({
-      include: { wisata: true },
-      orderBy: { id: 'desc' },
+      include: { wisata: true, customer: true },
+      orderBy: { createdAt: 'desc' },
     });
   }
 
-  async updateStatus(id: number, data: UpdateBookingStatusDto) {
-    const booking = await this.prisma.booking.findUnique({ where: { id } });
-    if (!booking) throw new NotFoundException('Booking tidak ditemukan');
-    return this.prisma.booking.update({ where: { id }, data });
+  findMy(user) {
+    return this.prisma.booking.findMany({
+      where: { customerId: user.id },
+      include: { wisata: true },
+    });
   }
 
-  async remove(id: number) {
-    const booking = await this.prisma.booking.findUnique({ where: { id } });
-    if (!booking) throw new NotFoundException('Booking tidak ditemukan');
-    return this.prisma.booking.delete({ where: { id } });
+  update(id: number, status: string) {
+    return this.prisma.booking.update({
+      where: { id },
+      data: { status },
+    });
+  }
+
+  delete(id: number) {
+    return this.prisma.booking.delete({
+      where: { id },
+    });
   }
 }

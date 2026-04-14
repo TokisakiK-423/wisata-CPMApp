@@ -11,7 +11,7 @@ export class ReviewService {
     });
 
     if (!customer) {
-      throw new BadRequestException('Customer tidak ditemukan');
+      throw new BadRequestException(process.env.CUSTOMER_FAILED);
     }
 
     return this.prisma.review.create({
@@ -37,7 +37,20 @@ export class ReviewService {
     });
   }
 
-  delete(id: number) {
+  async delete(id: number, userId: number) {
+    const review = await this.prisma.review.findUnique({
+      where: { id },
+    });
+
+    if (!review) {
+      throw new BadRequestException(process.env.RIVIEW_FAILED);
+    }
+
+    //  VALIDASI PEMILIK
+    if (review.customerId !== userId) {
+      throw new BadRequestException(process.env.USERS_DO_NOT);
+    }
+
     return this.prisma.review.delete({
       where: { id },
     });

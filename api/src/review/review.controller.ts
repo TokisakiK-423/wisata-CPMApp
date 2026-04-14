@@ -42,7 +42,7 @@ export class ReviewController {
     @Body() body: any,
     @Req() req: any,
   ) {
-    console.log('FILE MASUK:', file);
+    console.log(process.env.FILE_SUCCES, file);
 
     return this.service.create(body, req.user.id, file);
   }
@@ -52,8 +52,9 @@ export class ReviewController {
     return this.service.findAll();
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.service.delete(+id);
-  }
+  @UseGuards(JwtGuard)
+@Delete(':id')
+remove(@Param('id') id: string, @Req() req: any) {
+  return this.service.delete(+id, req.user.id);
+}
 }

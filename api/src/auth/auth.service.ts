@@ -31,6 +31,32 @@ export class AuthService {
       };
     }
 
-    throw new UnauthorizedException('Login gagal');
+    throw new UnauthorizedException(process.env.LOGIN_FAILED);
+  }
+
+  // FIX REGISTER KE CUSTOMER
+  async register(data: any) {
+    const { username, password, nama } = data;
+
+    const existing = await this.prisma.customer.findUnique({
+      where: { username },
+    });
+
+    if (existing) {
+      throw new Error(process.env.USER_SUCCES);
+    }
+
+    const customer = await this.prisma.customer.create({
+      data: {
+        username,
+        password,
+        nama: nama || username,
+      },
+    });
+
+    return {
+      message: process.env.REGISTER_SUCCES,
+      customer,
+    };
   }
 }

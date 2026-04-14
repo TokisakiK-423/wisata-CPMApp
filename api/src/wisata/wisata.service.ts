@@ -18,7 +18,7 @@ export class WisataService {
         alamat: data.alamat,
         jamBuka: data.jamBuka,
         hargaTiket: Number(data.hargaTiket),
-        status: true, // 🔥 default aktif
+        status: true, 
       },
     });
 
@@ -71,7 +71,7 @@ export class WisataService {
     });
 
     if (!wisata) {
-      throw new BadRequestException('Data tidak ditemukan');
+      throw new BadRequestException(process.env.WISATA_FAILED);
     }
 
     await this.prisma.wisata.update({
@@ -87,7 +87,7 @@ export class WisataService {
     });
 
     if (file) {
-      // 🔥 hapus file lama
+      // hapus file lama
       for (const g of wisata.galeri) {
         const filePath = path.join(process.cwd(), 'public', g.url);
 
@@ -96,12 +96,12 @@ export class WisataService {
         }
       }
 
-      // 🔥 hapus data galeri
+      //  hapus data galeri
       await this.prisma.galeri.deleteMany({
         where: { wisataId: id },
       });
 
-      // 🔥 simpan gambar baru
+      //  simpan gambar baru
       await this.prisma.galeri.create({
         data: {
           wisataId: id,
@@ -120,9 +120,12 @@ export class WisataService {
     });
 
     if (count > 0) {
-      throw new BadRequestException(
-        `Wisata tidak bisa dihapus karena masih ada ${count} booking`,
+      const message = process.env.DELETE_WISATA_ERROR?.replace(
+        '{count}',
+        count.toString(),
       );
+
+      throw new BadRequestException(message);
     }
 
     const galeri = await this.prisma.galeri.findMany({
@@ -153,7 +156,7 @@ export class WisataService {
     });
 
     if (!wisata) {
-      throw new BadRequestException('Data tidak ditemukan');
+      throw new BadRequestException(process.env.WISATA_FAILED);
     }
 
     await this.prisma.wisata.update({

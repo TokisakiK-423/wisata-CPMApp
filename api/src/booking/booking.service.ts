@@ -1,12 +1,20 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class BookingService {
   constructor(private prisma: PrismaService) {}
 
-  create(dto, user) {
-    return this.prisma.booking.create({
+  async create(dto, user) {
+    const wisata = await this.prisma.wisata.findUnique({
+      where: { id: dto.wisataId },
+    });
+
+    if (!wisata) {
+      throw new BadRequestException(process.env.IDWISATA_FAILED);
+    }
+
+    const booking = await this.prisma.booking.create({
       data: {
         wisataId: dto.wisataId,
         nama: dto.nama,
@@ -15,6 +23,11 @@ export class BookingService {
         customerId: user.id,
       },
     });
+
+    return {
+      message: process.env.BOOKING_SUCCES,
+      data: booking,
+    };
   }
 
   findAll() {
@@ -31,16 +44,38 @@ export class BookingService {
     });
   }
 
-  update(id: number, status: string) {
+  async update(id: number, status: string) {
+    const booking = await this.prisma.booking.findUnique({
+      where: { id },
+    });
+
+    if (!booking) {
+      throw new BadRequestException(process.env.UPBOOKING_FAILED);
+    }
+
     return this.prisma.booking.update({
       where: { id },
       data: { status },
     });
   }
 
-  delete(id: number) {
-    return this.prisma.booking.delete({
+  async delete(id: number) {
+    const booking = await this.prisma.booking.findUnique({
       where: { id },
     });
+
+    if (!booking) {
+      throw new BadRequestException(process.env.IDWISATA_FAILED);
+    }
+
+    // simpan hasil delete
+    const deleted = await this.prisma.booking.delete({
+      where: { id },
+    });
+
+    return {
+      message: process.env.DELBOOKING_SUCCES,
+      data: deleted,
+    };
   }
 }

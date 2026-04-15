@@ -39,7 +39,7 @@ export default function CustomerReview() {
 
   const insets = useSafeAreaInsets();
 
-  //  LOAD USER + DATA
+  // LOAD USER + DATA
   useEffect(() => {
     const init = async () => {
       const id = await AsyncStorage.getItem("userId");
@@ -51,7 +51,7 @@ export default function CustomerReview() {
     init();
   }, []);
 
-  //  FETCH
+  // FETCH
   const loadData = async () => {
     setLoading(true);
     const { reviews, wisata } = await fetchReviewData();
@@ -60,7 +60,7 @@ export default function CustomerReview() {
     setLoading(false);
   };
 
-  //  IMAGE PICKER
+  // IMAGE PICKER
   const pickImage = async () => {
     const res = await ImagePicker.launchImageLibraryAsync({
       quality: 0.7,
@@ -69,7 +69,7 @@ export default function CustomerReview() {
     if (!res.canceled) setImage(res.assets[0]);
   };
 
-  //  SUBMIT
+  // SUBMIT
   const handleSubmit = async () => {
     if (!form.wisataId) {
       Alert.alert("Error", "Pilih wisata dulu");
@@ -91,7 +91,7 @@ export default function CustomerReview() {
     loadData();
   };
 
-  //  DELETE
+  // DELETE
   const handleDelete = (id: number) => {
     Alert.alert("Hapus", "Yakin hapus review?", [
       { text: "Batal" },
@@ -240,7 +240,7 @@ export default function CustomerReview() {
               />
             )}
 
-            {/*  HANYA MILIK SENDIRI */}
+            {/* HANYA MILIK SENDIRI */}
             {userId === item.customerId && (
               <TouchableOpacity
                 style={styles.deleteBtn}

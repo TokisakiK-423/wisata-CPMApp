@@ -22,11 +22,11 @@ export const loginUser = async (username: string, password: string) => {
     throw new Error("Token tidak diterima");
   }
 
-  // 🔥 simpan token & role
+  // simpan token & role
   await AsyncStorage.setItem("token", data.token);
   await AsyncStorage.setItem("role", data.role);
 
-  // 🔥 decode token (AMAN)
+  // decode token (AMAN)
   try {
     const decoded: any = jwtDecode(data.token);
 
@@ -44,7 +44,7 @@ export const loginUser = async (username: string, password: string) => {
   return data.role;
 };
 
-// 🔥 REGISTER
+// REGISTER
 export const registerUser = async (username: string, password: string) => {
   const res = await fetch(`${BASE_URL}/auth/register`, {
     method: "POST",
@@ -54,7 +54,7 @@ export const registerUser = async (username: string, password: string) => {
     body: JSON.stringify({
       username,
       password,
-      role: "customer", // default
+      role: "customer", 
     }),
   });
 

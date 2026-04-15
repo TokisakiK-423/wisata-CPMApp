@@ -10,28 +10,38 @@ export class WisataService {
 
   //  CREATE
   async create(data: any, file?: Express.Multer.File) {
-    const wisata = await this.prisma.wisata.create({
-      data: {
-        nama: data.nama,
-        lokasi: data.lokasi,
-        deskripsi: data.deskripsi,
-        alamat: data.alamat,
-        jamBuka: data.jamBuka,
-        hargaTiket: Number(data.hargaTiket),
-        status: true, 
-      },
-    });
-
-    if (file) {
-      await this.prisma.galeri.create({
+    try {
+      const wisata = await this.prisma.wisata.create({
         data: {
-          url: `/uploads/${file.filename}`,
-          wisataId: wisata.id,
+          nama: data.nama,
+          lokasi: data.lokasi,
+          deskripsi: data.deskripsi,
+          alamat: data.alamat,
+          jamBuka: data.jamBuka,
+          hargaTiket: Number(data.hargaTiket),
+          status: true,
         },
       });
-    }
 
-    return this.findOne(wisata.id);
+      if (file) {
+        await this.prisma.galeri.create({
+          data: {
+            url: `/uploads/${file.filename}`,
+            wisataId: wisata.id,
+          },
+        });
+      }
+
+      const result = await this.findOne(wisata.id);
+
+      return {
+        message: process.env.POSWISATA_SUCCES,
+        data: result,
+      };
+    } catch (error) {
+      console.log(error);
+      throw new BadRequestException(process.env.POSWISATA_FAILED);
+    }
   }
 
   //  GET ALL

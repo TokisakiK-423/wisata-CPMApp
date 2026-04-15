@@ -59,9 +59,15 @@ export const submitWisataAPI = async (
       body: formData,
     });
 
-    return await res.json();
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data?.message || 'Gagal simpan data');
+    }
+
+    return data;
   } catch (e) {
     console.log('SUBMIT ERROR:', e);
-    return { error: true };
+    throw e; 
   }
 };

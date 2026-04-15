@@ -11,7 +11,7 @@ const getHeaders = async (isJson = false) => {
   };
 };
 
-// 🔥 GET ALL
+//  GET ALL
 export const getWisata = async () => {
   const res = await fetch(`${BASE_URL}/wisata`, {
     headers: await getHeaders(),
@@ -20,17 +20,23 @@ export const getWisata = async () => {
   return res.json();
 };
 
-// 🔥 DELETE
+// DELETE
 export const deleteWisata = async (id: number) => {
   const res = await fetch(`${BASE_URL}/wisata/${id}`, {
     method: "DELETE",
     headers: await getHeaders(),
   });
 
-  return res.json();
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data?.message || "Gagal hapus data");
+  }
+
+  return data;
 };
 
-// 🔥 TOGGLE STATUS
+// STATUS
 export const toggleWisataStatus = async (id: number, current: boolean) => {
   const res = await fetch(`${BASE_URL}/wisata/${id}/status`, {
     method: "PATCH",

@@ -96,7 +96,7 @@ export default function RegisterScreen() {
           )}
         </TouchableOpacity>
 
-        {/* 🔥 KEMBALI KE LOGIN */}
+        {/* KEMBALI KE LOGIN */}
         <TouchableOpacity
           style={styles.secondaryButton}
           onPress={() => router.replace("/login")}

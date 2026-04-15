@@ -46,7 +46,7 @@ export default function CustomerBooking() {
     setRefreshing(false);
   };
 
-  // 🔥 DELETE
+  // DELETE
   const handleDelete = (id: number) => {
     Alert.alert("Hapus Booking", "Yakin ingin menghapus booking ini?", [
       { text: "Batal", style: "cancel" },
@@ -70,7 +70,7 @@ export default function CustomerBooking() {
 
     return (
       <View style={styles.bookingCard}>
-        {/* 🔥 JUDUL SAJA */}
+        {/* JUDUL SAJA */}
         <Text style={styles.bookingWisata}>
           {item.wisata?.nama || "Wisata tidak ditemukan"}
         </Text>
@@ -85,7 +85,7 @@ export default function CustomerBooking() {
           📞 {item.noHp} • 🎫 {item.jumlahTiket}
         </Text>
 
-        {/* 🔥 STATUS + DELETE SEJAJAR */}
+        {/* STATUS + DELETE SEJAJAR */}
         <View
           style={{
             flexDirection: "row",

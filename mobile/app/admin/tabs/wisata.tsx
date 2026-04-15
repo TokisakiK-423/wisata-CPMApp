@@ -26,7 +26,7 @@ export default function AdminWisata() {
 
   const insets = useSafeAreaInsets();
 
-  // 🔥 FETCH DATA
+  //  FETCH DATA
   const fetchWisata = async () => {
     try {
       setLoading(true);
@@ -40,31 +40,30 @@ export default function AdminWisata() {
   useFocusEffect(
     useCallback(() => {
       fetchWisata();
-    }, [])
+    }, []),
   );
 
-  // 🔥 DELETE
+  //  DELETE (FIX)
   const handleDelete = (id: number) => {
     Alert.alert("Konfirmasi", "Hapus data ini?", [
       { text: "Batal" },
       {
         text: "Hapus",
         onPress: async () => {
-          const result = await deleteWisataApi(id);
+          try {
+            await deleteWisataApi(id);
 
-          if (result?.message) {
-            Alert.alert("Gagal", result.message);
-            return;
+            Alert.alert("Sukses", "Data berhasil dihapus");
+            fetchWisata();
+          } catch (e: any) {
+            Alert.alert("Gagal", e.message);
           }
-
-          Alert.alert("Sukses", "Data berhasil dihapus");
-          fetchWisata();
         },
       },
     ]);
   };
 
-  // 🔥 TOGGLE STATUS
+  // TOGGLE STATUS
   const handleToggle = async (id: number, current: boolean) => {
     await toggleWisataStatus(id, current);
     fetchWisata();
@@ -134,9 +133,7 @@ export default function AdminWisata() {
 
                   <TouchableOpacity
                     style={styles.editBtn}
-                    onPress={() =>
-                      router.push(`/admin/tabs/edit?id=${item.id}`)
-                    }
+                    onPress={() => router.push(`/admin/edit?id=${item.id}`)}
                   >
                     <Text style={styles.btnText}>Edit</Text>
                   </TouchableOpacity>

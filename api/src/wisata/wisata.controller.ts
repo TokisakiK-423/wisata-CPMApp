@@ -70,7 +70,7 @@ export class WisataController {
     return this.service.update(Number(id), body, file);
   }
 
-  // 🔥 INI KUNCI FITUR AKTIF / NONAKTIF
+  // INI KUNCI FITUR AKTIF / NONAKTIF
   @Patch(':id/status')
   toggleStatus(@Param('id') id: string) {
     return this.service.toggleStatus(Number(id));

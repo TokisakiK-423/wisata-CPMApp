@@ -67,12 +67,11 @@ model Review {
   nama       String
   rating     Int
   komentar   String?
+  image      String? // 🔥 WAJIB ADA
   createdAt  DateTime @default(now())
 
-  customer   Customer? @relation(fields: [customerId], references: [id])
-  wisata     Wisata    @relation(fields: [wisataId], references: [id], onDelete: Cascade)
-
-  @@map("reviews")
+  wisata   Wisata    @relation(fields: [wisataId], references: [id])
+  customer Customer? @relation(fields: [customerId], references: [id])
 }
 
 model Booking {

@@ -19,11 +19,7 @@ export class ReviewService {
 
   findAll() {
     return this.prisma.review.findMany({
-      include: {
-        wisata: true,
-        customer: true,
-      },
-      orderBy: { createdAt: 'desc' },
+      include: { wisata: true, customer: true },
     });
   }
 

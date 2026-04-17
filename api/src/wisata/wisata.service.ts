@@ -46,14 +46,18 @@ export class WisataService {
 }
 
   async findOne(id: number) {
-    return this.prisma.wisata.findUnique({
-      where: { id },
-      include: {
-        galeri: true,
-        reviews: true,
+  return this.prisma.wisata.findUnique({
+    where: { id },
+    include: {
+      galeri: true,
+      _count: {
+        select: {
+          bookings: true,
+        },
       },
-    });
-  }
+    },
+  });
+}
 
   async update(id: number, data: any, file?: Express.Multer.File) {
     const wisata = await this.prisma.wisata.findUnique({

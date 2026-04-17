@@ -44,7 +44,7 @@ Authorization: Bearer <token>
 
 ## 🏗 Arsitektur Proyek
 - `/api` → Backend (NestJS, Prisma, Database, JWT)  
-- `/mobile` → Mobile App (React Native Expo)  
+- `/user` → Mobile App (React Native Expo)  
 
 ---
 

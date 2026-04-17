@@ -1,4 +1,3 @@
-
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
 
@@ -12,8 +11,13 @@ export class JwtGuard implements CanActivate {
 
     try {
       const token = auth.split(' ')[1];
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      const secret = process.env.JWT_SECRET;
+      if (!secret) return false;
+
+      const decoded = jwt.verify(token, secret);
       req.user = decoded;
+
       return true;
     } catch {
       return false;

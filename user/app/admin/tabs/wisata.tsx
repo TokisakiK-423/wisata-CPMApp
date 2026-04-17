@@ -59,20 +59,30 @@ export default function AdminWisata() {
     ]);
   };
 
-  const toggleStatus = async (id: number, current: boolean) => {
+  const toggleStatus = async (id: number) => {
+  try {
     const token = await AsyncStorage.getItem('token');
 
-    await fetch(`http://10.0.2.2:3000/wisata/${id}/status`, {
+    const res = await fetch(`http://10.0.2.2:3000/wisata/${id}/status`, {
       method: 'PATCH',
       headers: {
-        'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ status: !current }),
     });
 
+    const result = await res.json();
+
+    if (!res.ok) {
+      Alert.alert('Error', result.message);
+      return;
+    }
+
     fetchWisata();
-  };
+  } catch (err) {
+    console.log(err);
+    Alert.alert('Error', 'Gagal update status');
+  }
+};
 
   if (loading) return <ActivityIndicator style={{ marginTop: 50 }} />;
 

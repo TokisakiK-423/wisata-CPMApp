@@ -6,7 +6,6 @@ import { join } from 'path';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  // 🔥 cukup ini saja
   app.useStaticAssets(join(process.cwd(), 'public'), {
     prefix: '/',
   });

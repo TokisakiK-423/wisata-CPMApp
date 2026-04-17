@@ -33,13 +33,17 @@ export class WisataService {
   }
 
   async findAll() {
-    return this.prisma.wisata.findMany({
-      include: {
-        galeri: true,
-        reviews: true,
+  return this.prisma.wisata.findMany({
+    include: {
+      galeri: true,
+      _count: {
+        select: {
+          bookings: true,
+        },
       },
-    });
-  }
+    },
+  });
+}
 
   async findOne(id: number) {
     return this.prisma.wisata.findUnique({

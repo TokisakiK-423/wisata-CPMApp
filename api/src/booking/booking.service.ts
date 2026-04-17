@@ -1,4 +1,3 @@
-
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -20,10 +19,7 @@ export class BookingService {
 
   findAll() {
     return this.prisma.booking.findMany({
-      include: {
-        wisata: true,
-        customer: true,
-      },
+      include: { wisata: true, customer: true },
       orderBy: { createdAt: 'desc' },
     });
   }
@@ -32,11 +28,10 @@ export class BookingService {
     return this.prisma.booking.findMany({
       where: { customerId: user.id },
       include: { wisata: true },
-      orderBy: { createdAt: 'desc' },
     });
   }
 
-  updateStatus(id: number, status: string) {
+  update(id: number, status: string) {
     return this.prisma.booking.update({
       where: { id },
       data: { status },

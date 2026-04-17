@@ -104,7 +104,7 @@ export default function AdminWisata() {
                   <TouchableOpacity
                     style={styles.editBtn}
                     onPress={() =>
-                      router.push(`/admin/tabs/edit?id=${item.id}`)
+                      router.push(`/admin/edit?id=${item.id}`) // ✅ FIX DISINI
                     }
                   >
                     <Text style={styles.btnText}>Edit</Text>
@@ -128,7 +128,7 @@ export default function AdminWisata() {
 
       <TouchableOpacity
         style={styles.fab}
-        onPress={() => router.push("/admin/tabs/edit")}
+        onPress={() => router.push("/admin/edit")} // ✅ FIX DISINI
       >
         <Text style={styles.fabText}>＋</Text>
       </TouchableOpacity>

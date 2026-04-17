@@ -5,17 +5,17 @@ import { PrismaService } from '../prisma/prisma.service';
 export class ReviewService {
   constructor(private prisma: PrismaService) {}
 
-  create(dto, user) {
-    return this.prisma.review.create({
-      data: {
-        wisataId: dto.wisataId,
-        rating: dto.rating,
-        komentar: dto.komentar,
-        nama: dto.nama,
-        customerId: user.id,
-      },
-    });
-  }
+  async create(data: any) {
+  return this.prisma.review.create({
+    data: {
+      wisataId: data.wisataId,
+      customerId: data.customerId || null,
+      nama: data.nama,
+      rating: Number(data.rating),
+      komentar: data.komentar,
+    },
+  });
+}
 
   findAll() {
     return this.prisma.review.findMany({

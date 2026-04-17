@@ -2,11 +2,9 @@ import {
   Controller,
   Post,
   Get,
-  Delete,
-  Param,
   Body,
-  UseGuards,
   Req,
+  UseGuards,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -19,7 +17,7 @@ export class ReviewController {
   constructor(private service: ReviewService) {}
 
   @UseGuards(JwtGuard)
-  @UseInterceptors(FileInterceptor('image')) // 🔥 DI SINI
+  @UseInterceptors(FileInterceptor('image')) // 🔥 INI PENTING
   @Post()
   create(
     @UploadedFile() file: Express.Multer.File,
@@ -32,10 +30,5 @@ export class ReviewController {
   @Get()
   findAll() {
     return this.service.findAll();
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.service.delete(+id);
   }
 }

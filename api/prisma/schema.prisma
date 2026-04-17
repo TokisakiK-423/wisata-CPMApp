@@ -4,3 +4,17 @@ model Booking {
   wisataId  Int
   wisata    Wisata @relation(fields: [wisataId], references: [id], onDelete: Cascade)
 }
+
+model Wisata {
+  id          Int       @id @default(autoincrement())
+  nama        String
+  lokasi      String
+  deskripsi   String
+  alamat      String
+  jamBuka     String
+  hargaTiket  Int
+  status      Boolean   @default(true) // 🔥 true = aktif, false = nonaktif
+
+  galeri      Galeri[]
+  bookings    Booking[]
+}

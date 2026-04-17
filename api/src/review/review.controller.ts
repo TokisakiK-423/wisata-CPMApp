@@ -1,15 +1,21 @@
 import {
   Controller,
   Post,
+  Get,
+  Delete,
+  Param,
   Body,
-  Req,
   UseGuards,
+  Req,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { diskStorage } from 'multer';          // 🔥 WAJIB
+import { extname } from 'path';                // 🔥 WAJIB
+
+import { ReviewService } from './review.service';
+import { JwtGuard } from '../auth/jwt.guard';
 
 @Controller('review')
 export class ReviewController {
@@ -24,7 +30,9 @@ export class ReviewController {
           const uniqueName =
             Date.now() + '-' + Math.round(Math.random() * 1e9);
 
-          cb(null, uniqueName + extname(file.originalname));
+          const ext = extname(file.originalname);
+
+          cb(null, uniqueName + ext);
         },
       }),
     }),
@@ -35,6 +43,18 @@ export class ReviewController {
     @Body() body: any,
     @Req() req: any,
   ) {
+    console.log('FILE MASUK:', file); // 🔥 DEBUG WAJIB
+
     return this.service.create(body, req.user.id, file);
+  }
+
+  @Get()
+  findAll() {
+    return this.service.findAll();
+  }
+
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.service.delete(+id);
   }
 }

@@ -67,6 +67,11 @@ export class WisataController {
     return this.service.update(Number(id), body, file);
   }
 
+  @Patch(':id/status')
+  toggleStatus(@Param('id') id: string) {
+    return this.service.toggleStatus(Number(id));
+  }
+
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.service.delete(Number(id));

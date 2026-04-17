@@ -4,6 +4,7 @@ import {
 } from '@nestjs/common';
 import { WisataService } from './wisata.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+import type { Express } from 'express';
 
 @Controller('wisata')
 export class WisataController {
@@ -28,7 +29,7 @@ export class WisataController {
     return this.service.findOne(Number(id));
   }
 
-  // 🔥 INI YANG BELUM ADA
+  // 🔥 INI WAJIB ADA (yang bikin error kamu tadi)
   @Patch(':id')
   @UseInterceptors(FileInterceptor('image'))
   update(

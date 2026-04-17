@@ -17,6 +17,15 @@ export class WisataService {
       },
     });
   }
+  async findOne(id: number) {
+  return this.prisma.wisata.findUnique({
+    where: { id },
+    include: {
+      galeri: true,
+      reviews: true,
+    },
+  });
+}
 
   delete(id: number) {
     return this.prisma.wisata.delete({

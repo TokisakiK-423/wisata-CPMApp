@@ -5,16 +5,30 @@ import * as jwt from 'jsonwebtoken';
 export class JwtGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const req = context.switchToHttp().getRequest();
-    const auth = req.headers.authorization;
+    const authHeader = req.headers.authorization;
 
-    if (!auth) return false;
+    if (!authHeader) {
+      console.log('❌ Tidak ada Authorization header');
+      return false;
+    }
+
+    if (!authHeader.startsWith('Bearer ')) {
+      console.log('❌ Format token salah:', authHeader);
+      return false;
+    }
 
     try {
-      const token = auth.split(' ')[1];
-      const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
+      const token = authHeader.split(' ')[1];
+
+      const decoded = jwt.verify(
+        token,
+        process.env.JWT_SECRET as string,
+      );
+
       req.user = decoded;
       return true;
-    } catch {
+    } catch (err) {
+      console.log('❌ Token error:', err.message);
       return false;
     }
   }

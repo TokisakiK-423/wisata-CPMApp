@@ -3,88 +3,36 @@ import {
   View,
   Text,
   FlatList,
-  StyleSheet,
-  SafeAreaView,
   ActivityIndicator,
   TouchableOpacity,
-  Alert,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { styles } from '@/app/lib/admin/styles';
+import {
+  fetchBookingsAPI,
+  updateBookingStatusAPI,
+  deleteBookingAPI,
+} from '@/app/lib/admin/utils/booking';
 
 export default function AdminBooking() {
   const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchBookings = async () => {
-    try {
-      const token = await AsyncStorage.getItem('token');
+  const insets = useSafeAreaInsets();
 
-      const res = await fetch('http://10.0.2.2:3000/booking', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await res.json();
-      console.log('ADMIN BOOKING:', data);
-
-      setBookings(Array.isArray(data) ? data : []);
-    } catch (e) {
-      console.log('ERROR FETCH:', e);
-      setBookings([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const updateStatus = async (id: number, status: string) => {
-    try {
-      const token = await AsyncStorage.getItem('token');
-
-      await fetch(`http://10.0.2.2:3000/booking/${id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ status }),
-      });
-
-      fetchBookings();
-    } catch (e) {
-      console.log('UPDATE ERROR:', e);
-    }
-  };
-
-  const deleteBooking = async (id: number) => {
-    Alert.alert('Hapus', 'Yakin hapus booking ini?', [
-      { text: 'Batal' },
-      {
-        text: 'Hapus',
-        onPress: async () => {
-          try {
-            const token = await AsyncStorage.getItem('token');
-
-            await fetch(`http://10.0.2.2:3000/booking/${id}`, {
-              method: 'DELETE',
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            });
-
-            fetchBookings();
-          } catch (e) {
-            console.log('DELETE ERROR:', e);
-          }
-        },
-      },
-    ]);
+  const fetchData = async () => {
+    setLoading(true);
+    const data = await fetchBookingsAPI();
+    setBookings(Array.isArray(data) ? data : []);
+    setLoading(false);
   };
 
   useFocusEffect(
     useCallback(() => {
-      fetchBookings();
+      fetchData();
     }, [])
   );
 
@@ -93,92 +41,62 @@ export default function AdminBooking() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Semua Booking</Text>
+    <LinearGradient
+      colors={['#7b2ff7', '#f107a3']}
+      style={[styles.bookingContainer, { paddingTop: insets.top + 70 }]}
+    >
+      <Text style={styles.bookingTitle}>Semua Booking</Text>
 
       <FlatList
         data={bookings}
         keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={{ paddingBottom: 100 }}
         renderItem={({ item }) => (
-          <View style={styles.card}>
-            <Text style={styles.name}>{item.nama}</Text>
+          <View style={styles.bookingCard}>
+            <Text style={styles.bookingName}>{item.nama}</Text>
 
-            <Text>📍 Wisata: {item.wisata?.nama || '-'}</Text>
-            <Text>📞 No HP: {item.noHp}</Text>
-            <Text>🎫 Tiket: {item.jumlahTiket}</Text>
-            <Text>👤 Customer: {item.customer?.username || '-'}</Text>
+            <Text>📍 {item.wisata?.nama || '-'}</Text>
+            <Text>📞 {item.noHp}</Text>
+            <Text>🎫 {item.jumlahTiket}</Text>
+            <Text>👤 {item.customer?.username || '-'}</Text>
 
-            <Text style={styles.status}>
+            <Text style={styles.bookingStatus}>
               Status: {item.status}
             </Text>
 
-            <View style={styles.actions}>
+            <View style={styles.bookingActions}>
               <TouchableOpacity
-                style={[styles.btn, { backgroundColor: 'green' }]}
-                onPress={() => updateStatus(item.id, 'approved')}
+                style={[styles.bookingBtn, { backgroundColor: 'green' }]}
+                onPress={() => {
+                  updateBookingStatusAPI(item.id, 'approved');
+                  fetchData();
+                }}
               >
-                <Text style={styles.btnText}>Approve</Text>
+                <Text style={styles.bookingBtnText}>Approve</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[styles.btn, { backgroundColor: 'orange' }]}
-                onPress={() => updateStatus(item.id, 'pending')}
+                style={[styles.bookingBtn, { backgroundColor: 'orange' }]}
+                onPress={() => {
+                  updateBookingStatusAPI(item.id, 'pending');
+                  fetchData();
+                }}
               >
-                <Text style={styles.btnText}>Pending</Text>
+                <Text style={styles.bookingBtnText}>Pending</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[styles.btn, { backgroundColor: 'red' }]}
-                onPress={() => deleteBooking(item.id)}
+                style={[styles.bookingBtn, { backgroundColor: 'red' }]}
+                onPress={() =>
+                  deleteBookingAPI(item.id, fetchData)
+                }
               >
-                <Text style={styles.btnText}>Hapus</Text>
+                <Text style={styles.bookingBtnText}>Hapus</Text>
               </TouchableOpacity>
             </View>
           </View>
         )}
       />
-    </SafeAreaView>
+    </LinearGradient>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 15,
-  },
-  card: {
-    padding: 15,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 10,
-    marginBottom: 12,
-    backgroundColor: '#fff',
-  },
-  name: {
-    fontWeight: 'bold',
-    fontSize: 16,
-    marginBottom: 5,
-  },
-  status: {
-    marginTop: 5,
-    fontWeight: 'bold',
-  },
-  actions: {
-    flexDirection: 'row',
-    marginTop: 10,
-    gap: 8,
-  },
-  btn: {
-    padding: 8,
-    borderRadius: 6,
-  },
-  btnText: {
-    color: '#fff',
-    fontSize: 12,
-  },
-});

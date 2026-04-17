@@ -3,13 +3,15 @@ import {
   Get,
   Post,
   Delete,
-  Patch,
   Param,
   Body,
   UseInterceptors,
   UploadedFile,
+  Patch,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 import { WisataService } from './wisata.service';
 import type { Express } from 'express';
 
@@ -18,11 +20,23 @@ export class WisataController {
   constructor(private readonly service: WisataService) {}
 
   @Post()
-  @UseInterceptors(FileInterceptor('image'))
+  @UseInterceptors(
+    FileInterceptor('image', {
+      storage: diskStorage({
+        destination: './public/uploads',
+        filename: (req, file, cb) => {
+          const uniqueName =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(null, uniqueName + extname(file.originalname));
+        },
+      }),
+    }),
+  )
   create(
     @UploadedFile() file: Express.Multer.File,
     @Body() body: any,
   ) {
+    console.log('FILE MASUK:', file); // 🔥 DEBUG
     return this.service.create(body, file);
   }
 
@@ -37,21 +51,24 @@ export class WisataController {
   }
 
   @Patch(':id')
-  @UseInterceptors(FileInterceptor('image'))
+  @UseInterceptors(
+    FileInterceptor('image', {
+      storage: diskStorage({
+        destination: './public/uploads',
+        filename: (req, file, cb) => {
+          const uniqueName =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(null, uniqueName + extname(file.originalname));
+        },
+      }),
+    }),
+  )
   update(
     @Param('id') id: string,
     @UploadedFile() file: Express.Multer.File,
     @Body() body: any,
   ) {
     return this.service.update(Number(id), body, file);
-  }
-
-  @Patch(':id/status')
-  updateStatus(
-    @Param('id') id: string,
-    @Body() body: { status: boolean },
-  ) {
-    return this.service.updateStatus(Number(id), body.status);
   }
 
   @Delete(':id')

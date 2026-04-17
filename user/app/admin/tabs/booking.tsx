@@ -65,24 +65,26 @@ export default function AdminBooking() {
             </Text>
 
             <View style={styles.bookingActions}>
+              {/*  GABUNG APPROVE + PENDING */}
               <TouchableOpacity
-                style={[styles.bookingBtn, { backgroundColor: 'green' }]}
+                style={[
+                  styles.bookingBtn,
+                  {
+                    backgroundColor:
+                      item.status === 'pending' ? 'green' : 'orange',
+                  },
+                ]}
                 onPress={() => {
-                  updateBookingStatusAPI(item.id, 'approved');
-                  fetchData();
-                }}
-              >
-                <Text style={styles.bookingBtnText}>Approve</Text>
-              </TouchableOpacity>
+                  const newStatus =
+                    item.status === 'pending' ? 'approved' : 'pending';
 
-              <TouchableOpacity
-                style={[styles.bookingBtn, { backgroundColor: 'orange' }]}
-                onPress={() => {
-                  updateBookingStatusAPI(item.id, 'pending');
+                  updateBookingStatusAPI(item.id, newStatus);
                   fetchData();
                 }}
               >
-                <Text style={styles.bookingBtnText}>Pending</Text>
+                <Text style={styles.bookingBtnText}>
+                  {item.status === 'pending' ? 'Approve' : 'Pending'}
+                </Text>
               </TouchableOpacity>
 
               <TouchableOpacity

@@ -36,7 +36,6 @@ export class WisataController {
     @UploadedFile() file: Express.Multer.File,
     @Body() body: any,
   ) {
-    console.log('FILE MASUK:', file); // 🔥 DEBUG
     return this.service.create(body, file);
   }
 
@@ -69,6 +68,12 @@ export class WisataController {
     @Body() body: any,
   ) {
     return this.service.update(Number(id), body, file);
+  }
+
+  // 🔥 INI KUNCI FITUR AKTIF / NONAKTIF
+  @Patch(':id/status')
+  toggleStatus(@Param('id') id: string) {
+    return this.service.toggleStatus(Number(id));
   }
 
   @Delete(':id')

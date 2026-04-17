@@ -1,97 +1,124 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
   FlatList,
-  StyleSheet,
-  SafeAreaView,
   ActivityIndicator,
   RefreshControl,
+  TouchableOpacity,
+  Alert,
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { LinearGradient } from "expo-linear-gradient";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
 
-type Booking = {
-  id: number;
-  wisata?: { nama: string; status?: boolean };
-  nama: string;
-  noHp: string;
-  jumlahTiket: number;
-  status: string;
-  createdAt: string;
-};
+import { COLORS } from "@/app/lib/customer/colors";
+import { styles } from "@/app/lib/customer/styles";
+import {
+  fetchMyBookings,
+  deleteBooking,
+  getStatusColor,
+  formatStatus,
+} from "@/app/lib/customer/utils/booking";
 
 export default function CustomerBooking() {
-  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  const fetchBookings = async () => {
-    try {
-      const token = await AsyncStorage.getItem("token");
+  const insets = useSafeAreaInsets();
 
-      if (!token) {
-        setBookings([]);
-        return;
-      }
-
-      const res = await fetch("http://10.0.2.2:3000/booking/my", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await res.json();
-      console.log("MY BOOKING:", data);
-
-      setBookings(Array.isArray(data) ? data : []);
-    } catch (e) {
-      console.log("FETCH ERROR:", e);
-      setBookings([]);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
+  const loadData = async () => {
+    setLoading(true);
+    const data = await fetchMyBookings();
+    setBookings(data);
+    setLoading(false);
   };
 
   useEffect(() => {
-    fetchBookings();
+    loadData();
   }, []);
 
-  const onRefresh = () => {
+  const onRefresh = async () => {
     setRefreshing(true);
-    fetchBookings();
+    const data = await fetchMyBookings();
+    setBookings(data);
+    setRefreshing(false);
   };
 
-  const renderBooking = ({ item }: { item: Booking }) => {
+  // 🔥 DELETE
+  const handleDelete = (id: number) => {
+    Alert.alert("Hapus Booking", "Yakin ingin menghapus booking ini?", [
+      { text: "Batal", style: "cancel" },
+      {
+        text: "Hapus",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await deleteBooking(id);
+            loadData();
+          } catch (e: any) {
+            Alert.alert("Error", e.message);
+          }
+        },
+      },
+    ]);
+  };
+
+  const renderItem = ({ item }: any) => {
     const isNonaktif = item.wisata?.status === false;
 
     return (
-      <View style={styles.card}>
-        <Text style={styles.wisata}>
+      <View style={styles.bookingCard}>
+        {/* 🔥 JUDUL SAJA */}
+        <Text style={styles.bookingWisata}>
           {item.wisata?.nama || "Wisata tidak ditemukan"}
         </Text>
 
         {isNonaktif && (
-          <Text style={styles.nonaktif}>
-            ⚠️ Wisata ini sedang nonaktif
-          </Text>
+          <Text style={{ color: "red", fontWeight: "bold" }}>⚠️ Nonaktif</Text>
         )}
 
-        <Text style={styles.nama}>{item.nama}</Text>
+        <Text style={styles.bookingNama}>{item.nama}</Text>
 
-        <Text style={styles.detail}>
-          📞 {item.noHp} | 🎫 {item.jumlahTiket} tiket
+        <Text style={styles.bookingDetail}>
+          📞 {item.noHp} • 🎫 {item.jumlahTiket}
         </Text>
 
+        {/* 🔥 STATUS + DELETE SEJAJAR */}
         <View
-          style={[
-            styles.status,
-            { backgroundColor: getStatusColor(item.status) },
-          ]}
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginTop: 8,
+          }}
         >
-          <Text style={styles.statusText}>
-            {formatStatus(item.status)}
-          </Text>
+          {/* STATUS */}
+          <View
+            style={[
+              styles.bookingStatus,
+              { backgroundColor: getStatusColor(item.status) },
+            ]}
+          >
+            <Text style={styles.bookingStatusText}>
+              {formatStatus(item.status)}
+            </Text>
+          </View>
+
+          {/* DELETE ICON */}
+          {item.status === "pending" && (
+            <TouchableOpacity
+              onPress={() => handleDelete(item.id)}
+              style={{
+                backgroundColor: "#ef4444",
+                padding: 6,
+                borderRadius: 20,
+              }}
+            >
+              <Ionicons name="trash-outline" size={20} color="#fff" />
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     );
@@ -99,132 +126,41 @@ export default function CustomerBooking() {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.center}>
-        <ActivityIndicator size="large" color="#007AFF" />
-        <Text style={styles.loading}>Memuat booking...</Text>
-      </SafeAreaView>
+      <LinearGradient
+        colors={[COLORS.primary, COLORS.secondary]}
+        style={[
+          styles.container,
+          { justifyContent: "center", alignItems: "center" },
+        ]}
+      >
+        <ActivityIndicator color="#fff" />
+        <Text style={styles.loadingText}>Memuat booking...</Text>
+      </LinearGradient>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>📋 Booking Saya</Text>
-      <Text style={styles.subtitle}>{bookings.length} booking</Text>
+    <LinearGradient
+      colors={[COLORS.primary, COLORS.secondary]}
+      style={[styles.container, { paddingTop: insets.top + 60 }]}
+    >
+      <Text style={styles.bookingTitle}>📋 Booking Saya</Text>
+      <Text style={styles.bookingSubtitle}>{bookings.length} data</Text>
 
       <FlatList
         data={bookings}
-        renderItem={renderBooking}
+        renderItem={renderItem}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.list}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
         ListEmptyComponent={
-          <View style={styles.empty}>
+          <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>Belum ada booking</Text>
           </View>
         }
       />
-    </SafeAreaView>
+    </LinearGradient>
   );
 }
-
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case "approved":
-      return "#28a745";
-    case "pending":
-      return "#ffc107";
-    default:
-      return "#6c757d";
-  }
-};
-
-const formatStatus = (status: string) => {
-  switch (status) {
-    case "approved":
-      return "DISETUJUI";
-    case "pending":
-      return "MENUNGGU";
-    default:
-      return status.toUpperCase();
-  }
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f8f9fa",
-    padding: 20,
-  },
-  center: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: "#666",
-    marginBottom: 20,
-  },
-  list: {
-    paddingBottom: 100,
-  },
-  card: {
-    backgroundColor: "white",
-    padding: 20,
-    borderRadius: 16,
-    marginBottom: 16,
-    elevation: 2,
-  },
-  wisata: {
-    fontSize: 18,
-    fontWeight: "700",
-    marginBottom: 4,
-  },
-  nonaktif: {
-    color: "red",
-    fontWeight: "bold",
-    marginBottom: 6,
-  },
-  nama: {
-    fontSize: 16,
-    color: "#666",
-    marginBottom: 4,
-  },
-  detail: {
-    fontSize: 14,
-    color: "#999",
-    marginBottom: 12,
-  },
-  status: {
-    alignSelf: "flex-start",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-  },
-  statusText: {
-    color: "white",
-    fontWeight: "600",
-    fontSize: 12,
-  },
-  empty: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  emptyText: {
-    fontSize: 16,
-    color: "#666",
-  },
-  loading: {
-    marginTop: 16,
-    fontSize: 16,
-    color: "#666",
-  },
-});

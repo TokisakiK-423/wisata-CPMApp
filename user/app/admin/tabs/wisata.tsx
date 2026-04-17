@@ -1,19 +1,23 @@
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
   FlatList,
-  StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
   Image,
   Alert,
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect, router } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+import { styles } from "@/app/lib/admin/styles";
+import {
+  getWisata,
+  deleteWisata as deleteWisataApi,
+  toggleWisataStatus,
+} from "@/app/lib/admin/utils/wisata";
 
 export default function AdminWisata() {
   const [wisata, setWisata] = useState<any[]>([]);
@@ -22,16 +26,11 @@ export default function AdminWisata() {
 
   const insets = useSafeAreaInsets();
 
+  // 🔥 FETCH DATA
   const fetchWisata = async () => {
     try {
       setLoading(true);
-      const token = await AsyncStorage.getItem("token");
-
-      const res = await fetch("http://10.0.2.2:3000/wisata", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      const data = await res.json();
+      const data = await getWisata();
       setWisata(Array.isArray(data) ? data : []);
     } finally {
       setLoading(false);
@@ -44,22 +43,16 @@ export default function AdminWisata() {
     }, [])
   );
 
-  const deleteWisata = async (id: number) => {
-    const token = await AsyncStorage.getItem("token");
-
+  // 🔥 DELETE
+  const handleDelete = (id: number) => {
     Alert.alert("Konfirmasi", "Hapus data ini?", [
       { text: "Batal" },
       {
         text: "Hapus",
         onPress: async () => {
-          const res = await fetch(`http://10.0.2.2:3000/wisata/${id}`, {
-            method: "DELETE",
-            headers: { Authorization: `Bearer ${token}` },
-          });
+          const result = await deleteWisataApi(id);
 
-          const result = await res.json();
-
-          if (!res.ok) {
+          if (result?.message) {
             Alert.alert("Gagal", result.message);
             return;
           }
@@ -71,18 +64,9 @@ export default function AdminWisata() {
     ]);
   };
 
-  const toggleStatus = async (id: number, current: boolean) => {
-    const token = await AsyncStorage.getItem("token");
-
-    await fetch(`http://10.0.2.2:3000/wisata/${id}/status`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ status: !current }),
-    });
-
+  // 🔥 TOGGLE STATUS
+  const handleToggle = async (id: number, current: boolean) => {
+    await toggleWisataStatus(id, current);
     fetchWisata();
   };
 
@@ -141,7 +125,7 @@ export default function AdminWisata() {
                       styles.statusBtn,
                       { backgroundColor: item.status ? "orange" : "green" },
                     ]}
-                    onPress={() => toggleStatus(item.id, item.status)}
+                    onPress={() => handleToggle(item.id, item.status)}
                   >
                     <Text style={styles.btnText}>
                       {item.status ? "Nonaktifkan" : "Aktifkan"}
@@ -159,7 +143,7 @@ export default function AdminWisata() {
 
                   <TouchableOpacity
                     style={styles.deleteBtn}
-                    onPress={() => deleteWisata(item.id)}
+                    onPress={() => handleDelete(item.id)}
                   >
                     <Text style={styles.btnText}>Hapus</Text>
                   </TouchableOpacity>

@@ -1,36 +1,16 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Delete,
-  Param,
-  Body,
-  UseInterceptors,
-  UploadedFile,
+  Controller, Get, Post, Delete, Param, Body,
+  Patch, UseInterceptors, UploadedFile
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
-import type { Express } from 'express';
 import { WisataService } from './wisata.service';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('wisata')
 export class WisataController {
-  constructor(private readonly service: WisataService) {}
+  constructor(private service: WisataService) {}
 
   @Post()
-  @UseInterceptors(
-    FileInterceptor('image', {
-      storage: diskStorage({
-        destination: './public/uploads', // 🔥 sesuai folder kamu
-        filename: (req, file, cb) => {
-          const uniqueName =
-            Date.now() + '-' + Math.round(Math.random() * 1e9);
-          cb(null, uniqueName + extname(file.originalname));
-        },
-      }),
-    }),
-  )
+  @UseInterceptors(FileInterceptor('image'))
   create(
     @UploadedFile() file: Express.Multer.File,
     @Body() body: any,
@@ -46,6 +26,17 @@ export class WisataController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.service.findOne(Number(id));
+  }
+
+  // 🔥 INI YANG BELUM ADA
+  @Patch(':id')
+  @UseInterceptors(FileInterceptor('image'))
+  update(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body: any,
+  ) {
+    return this.service.update(Number(id), body, file);
   }
 
   @Delete(':id')

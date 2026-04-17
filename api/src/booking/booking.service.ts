@@ -36,6 +36,14 @@ export class BookingService {
       include: { wisata: true },
     });
   }
+  async activate(id: number) {
+  return this.prisma.wisata.update({
+    where: { id },
+    data: {
+      status: true,
+    },
+  });
+}
 
   update(id: number, status: string) {
     return this.prisma.booking.update({

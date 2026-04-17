@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Image,
+  Alert,
 } from "react-native";
 import { useFocusEffect, router } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
@@ -14,8 +15,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { styles } from "@/app/lib/admin/styles";
 import {
   getWisata,
-  removeWisata,
-  updateStatusWisata,
+  deleteWisata as deleteWisataApi,
+  toggleWisataStatus,
 } from "@/app/lib/admin/utils/wisata";
 
 export default function AdminWisata() {
@@ -25,25 +26,55 @@ export default function AdminWisata() {
 
   const insets = useSafeAreaInsets();
 
-  const loadData = async () => {
-    setLoading(true);
-    const data = await getWisata();
-    setWisata(data);
-    setLoading(false);
+  //  FETCH DATA
+  const fetchWisata = async () => {
+    try {
+      setLoading(true);
+      const data = await getWisata();
+      setWisata(Array.isArray(data) ? data : []);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useFocusEffect(
     useCallback(() => {
-      loadData();
-    }, [])
+      fetchWisata();
+    }, []),
   );
+
+  //  DELETE (FIX)
+  const handleDelete = (id: number) => {
+    Alert.alert("Konfirmasi", "Hapus data ini?", [
+      { text: "Batal" },
+      {
+        text: "Hapus",
+        onPress: async () => {
+          try {
+            await deleteWisataApi(id);
+
+            Alert.alert("Sukses", "Data berhasil dihapus");
+            fetchWisata();
+          } catch (e: any) {
+            Alert.alert("Gagal", e.message);
+          }
+        },
+      },
+    ]);
+  };
+
+  // TOGGLE STATUS
+  const handleToggle = async (id: number, current: boolean) => {
+    await toggleWisataStatus(id, current);
+    fetchWisata();
+  };
 
   if (loading) return <ActivityIndicator style={{ marginTop: 50 }} />;
 
   return (
     <LinearGradient
       colors={["#7b2ff7", "#f107a3"]}
-      style={[styles.container, { paddingTop: insets.top + 80 }]}
+      style={[styles.container, { paddingTop: insets.top + 70 }]}
     >
       <Text style={styles.title}>Data Wisata</Text>
 
@@ -77,11 +108,13 @@ export default function AdminWisata() {
                   {item.status ? "AKTIF" : "NONAKTIF"}
                 </Text>
 
+                <Text>📊 Booking: {item._count?.bookings ?? 0} orang</Text>
+
                 {isExpanded && (
                   <View style={styles.detail}>
-                    <Text>{item.alamat}</Text>
-                    <Text>{item.jamBuka}</Text>
-                    <Text>{item.deskripsi}</Text>
+                    <Text>📍 {item.alamat}</Text>
+                    <Text>🕒 {item.jamBuka}</Text>
+                    <Text>📝 {item.deskripsi}</Text>
                   </View>
                 )}
 
@@ -91,10 +124,7 @@ export default function AdminWisata() {
                       styles.statusBtn,
                       { backgroundColor: item.status ? "orange" : "green" },
                     ]}
-                    onPress={async () => {
-                      await updateStatusWisata(item.id, item.status);
-                      loadData();
-                    }}
+                    onPress={() => handleToggle(item.id, item.status)}
                   >
                     <Text style={styles.btnText}>
                       {item.status ? "Nonaktifkan" : "Aktifkan"}
@@ -103,19 +133,14 @@ export default function AdminWisata() {
 
                   <TouchableOpacity
                     style={styles.editBtn}
-                    onPress={() =>
-                      router.push(`/admin/edit?id=${item.id}`) // ✅ FIX DISINI
-                    }
+                    onPress={() => router.push(`/admin/edit?id=${item.id}`)}
                   >
                     <Text style={styles.btnText}>Edit</Text>
                   </TouchableOpacity>
 
                   <TouchableOpacity
                     style={styles.deleteBtn}
-                    onPress={async () => {
-                      await removeWisata(item.id);
-                      loadData();
-                    }}
+                    onPress={() => handleDelete(item.id)}
                   >
                     <Text style={styles.btnText}>Hapus</Text>
                   </TouchableOpacity>
@@ -128,7 +153,7 @@ export default function AdminWisata() {
 
       <TouchableOpacity
         style={styles.fab}
-        onPress={() => router.push("/admin/edit")} // ✅ FIX DISINI
+        onPress={() => router.push("/admin/edit")}
       >
         <Text style={styles.fabText}>＋</Text>
       </TouchableOpacity>

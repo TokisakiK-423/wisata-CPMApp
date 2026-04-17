@@ -41,6 +41,15 @@ export class WisataService {
     },
   });
 }
+  async findAllActive() {
+  return this.prisma.wisata.findMany({
+    where: { status: true },
+    include: {
+      galeri: true,
+      reviews: true,
+    },
+  });
+}
 
   async findOne(id: number) {
     return this.prisma.wisata.findUnique({

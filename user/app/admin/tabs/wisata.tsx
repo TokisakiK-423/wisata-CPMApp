@@ -11,20 +11,6 @@ export default function AdminWisata() {
   const [wisata, setWisata] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<number | null>(null);
-  const toggleStatus = async (id: number, current: boolean) => {
-  const token = await AsyncStorage.getItem('token');
-
-  await fetch(`http://10.0.2.2:3000/wisata/${id}/status`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({ status: !current }),
-  });
-
-  fetchWisata();
-};
 
   const fetchWisata = async () => {
     try {
@@ -37,8 +23,6 @@ export default function AdminWisata() {
 
       const data = await res.json();
       setWisata(Array.isArray(data) ? data : []);
-    } catch (err) {
-      console.log('ERROR FETCH:', err);
     } finally {
       setLoading(false);
     }
@@ -49,119 +33,134 @@ export default function AdminWisata() {
   }, []));
 
   const deleteWisata = async (id: number) => {
-  const token = await AsyncStorage.getItem('token');
+    const token = await AsyncStorage.getItem('token');
 
-  Alert.alert('Konfirmasi', 'Hapus data ini?', [
-    { text: 'Batal' },
-    {
-      text: 'Hapus',
-      onPress: async () => {
-        const res = await fetch(`http://10.0.2.2:3000/wisata/${id}`, {
-          method: 'DELETE',
-          headers: { Authorization: `Bearer ${token}` },
-        });
+    Alert.alert('Konfirmasi', 'Hapus data ini?', [
+      { text: 'Batal' },
+      {
+        text: 'Hapus',
+        onPress: async () => {
+          const res = await fetch(`http://10.0.2.2:3000/wisata/${id}`, {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${token}` },
+          });
 
-        const result = await res.json();
+          const result = await res.json();
 
-        if (!res.ok) {
-          Alert.alert('Gagal', result.message);
-          return;
+          if (!res.ok) {
+            Alert.alert('Gagal', result.message);
+            return;
+          }
+
+          Alert.alert('Sukses', 'Data berhasil dihapus');
+          fetchWisata();
         }
+      }
+    ]);
+  };
 
-        Alert.alert('Sukses', 'Data berhasil dihapus');
-        fetchWisata();
+  const toggleStatus = async (id: number, current: boolean) => {
+    const token = await AsyncStorage.getItem('token');
+
+    await fetch(`http://10.0.2.2:3000/wisata/${id}/status`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
       },
-    },
-  ]);
-};
+      body: JSON.stringify({ status: !current }),
+    });
+
+    fetchWisata();
+  };
 
   if (loading) return <ActivityIndicator style={{ marginTop: 50 }} />;
 
   return (
-    renderItem={({ item }) => {
-  const isExpanded = expandedId === item.id;
+    <LinearGradient colors={['#7b2ff7', '#f107a3']} style={styles.container}>
+      <Text style={styles.title}>Data Wisata</Text>
 
-  return (
-    <TouchableOpacity
-      style={styles.card}
-      onPress={() => setExpandedId(isExpanded ? null : item.id)}
-    >
-      <Image
-        source={{
-          uri: item.galeri?.[0]?.url
-            ? `http://10.0.2.2:3000${item.galeri[0].url}`
-            : 'https://via.placeholder.com/150',
-        }}
-        style={styles.cardImage}
-      />
+      <FlatList
+        data={wisata}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => {
+          const isExpanded = expandedId === item.id;
 
-      <View style={{ flex: 1 }}>
-        <Text style={styles.nama}>{item.nama}</Text>
-        <Text>{item.lokasi}</Text>
-        <Text>Rp {item.hargaTiket}</Text>
+          return (
+            <TouchableOpacity
+              style={styles.card}
+              onPress={() =>
+                setExpandedId(isExpanded ? null : item.id)
+              }
+            >
+              <Image
+                source={{
+                  uri: item.galeri?.[0]?.url
+                    ? `http://10.0.2.2:3000${item.galeri[0].url}`
+                    : 'https://via.placeholder.com/150',
+                }}
+                style={styles.cardImage}
+              />
 
-        {/* 🔥 STATUS */}
-        <Text style={{ color: item.status ? 'green' : 'red' }}>
-          {item.status ? 'AKTIF' : 'NONAKTIF'}
-        </Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.nama}>{item.nama}</Text>
+                <Text>{item.lokasi}</Text>
+                <Text>Rp {item.hargaTiket}</Text>
 
-        {/* 🔥 JUMLAH BOOKING */}
-        <Text>📊 Booking: {item._count?.bookings || 0}</Text>
+                <Text style={{ color: item.status ? 'green' : 'red' }}>
+                  {item.status ? 'AKTIF' : 'NONAKTIF'}
+                </Text>
 
-        {isExpanded && (
-          <View style={styles.detail}>
-            <Text>📍 {item.alamat}</Text>
-            <Text>🕒 {item.jamBuka}</Text>
-            <Text>📝 {item.deskripsi}</Text>
-          </View>
-        )}
+                <Text>📊 Booking: {item._count?.bookings || 0}</Text>
 
-        <View style={styles.row}>
-          {/* EDIT */}
-          <TouchableOpacity
-            style={styles.editBtn}
-            onPress={() =>
-              router.push(`/admin/tabs/edit?id=${item.id}`)
-            }
-          >
-            <Text style={styles.btnText}>Edit</Text>
-          </TouchableOpacity>
+                {isExpanded && (
+                  <View style={styles.detail}>
+                    <Text>📍 {item.alamat}</Text>
+                    <Text>🕒 {item.jamBuka}</Text>
+                    <Text>📝 {item.deskripsi}</Text>
+                  </View>
+                )}
 
-          {/* DELETE */}
-          <TouchableOpacity
-            style={[
-              styles.deleteBtn,
-              item._count?.bookings > 0 && { backgroundColor: 'gray' },
-            ]}
-            disabled={item._count?.bookings > 0}
-            onPress={() => deleteWisata(item.id)}
-          >
-            <Text style={styles.btnText}>Hapus</Text>
-          </TouchableOpacity>
+                <View style={styles.row}>
+                  <TouchableOpacity
+                    style={styles.editBtn}
+                    onPress={() =>
+                      router.push(`/admin/tabs/edit?id=${item.id}`)
+                    }
+                  >
+                    <Text style={styles.btnText}>Edit</Text>
+                  </TouchableOpacity>
 
-          {/* TOGGLE STATUS */}
-          <TouchableOpacity
-            style={{
-              backgroundColor: item.status ? 'orange' : 'green',
-              padding: 6,
-              borderRadius: 6,
-            }}
-            onPress={() => toggleStatus(item.id, item.status)}
-          >
-            <Text style={styles.btnText}>
-              {item.status ? 'Nonaktifkan' : 'Aktifkan'}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
-}}}
+                  <TouchableOpacity
+                    style={[
+                      styles.deleteBtn,
+                      item._count?.bookings > 0 && { backgroundColor: 'gray' }
+                    ]}
+                    disabled={item._count?.bookings > 0}
+                    onPress={() => deleteWisata(item.id)}
+                  >
+                    <Text style={styles.btnText}>Hapus</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={{
+                      backgroundColor: item.status ? 'orange' : 'green',
+                      padding: 6,
+                      borderRadius: 6,
+                    }}
+                    onPress={() => toggleStatus(item.id, item.status)}
+                  >
+                    <Text style={styles.btnText}>
+                      {item.status ? 'Nonaktifkan' : 'Aktifkan'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </TouchableOpacity>
           );
         }}
       />
 
-      {/* FAB */}
       <TouchableOpacity
         style={styles.fab}
         onPress={() => router.push('/admin/tabs/edit')}
@@ -174,77 +173,15 @@ export default function AdminWisata() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16 },
-
-  title: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 10,
-  },
-
-  card: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
-    padding: 12,
-    borderRadius: 12,
-    marginBottom: 10,
-  },
-
-  cardImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 10,
-    marginRight: 10,
-  },
-
-  nama: {
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-
-  detail: {
-    marginTop: 6,
-    backgroundColor: '#f5f5f5',
-    padding: 8,
-    borderRadius: 8,
-  },
-
-  row: {
-    flexDirection: 'row',
-    marginTop: 8,
-    gap: 10,
-  },
-
-  editBtn: {
-    backgroundColor: '#7b2ff7',
-    padding: 6,
-    borderRadius: 6,
-  },
-
-  deleteBtn: {
-    backgroundColor: 'red',
-    padding: 6,
-    borderRadius: 6,
-  },
-
-  btnText: {
-    color: '#fff',
-  },
-
-  fab: {
-    position: 'absolute',
-    right: 20,
-    bottom: 20,
-    backgroundColor: '#000',
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-
-  fabText: {
-    color: '#fff',
-    fontSize: 30,
-  },
+  title: { fontSize: 22, fontWeight: 'bold', color: '#fff', marginBottom: 10 },
+  card: { flexDirection: 'row', backgroundColor: '#fff', padding: 12, borderRadius: 12, marginBottom: 10 },
+  cardImage: { width: 80, height: 80, borderRadius: 10, marginRight: 10 },
+  nama: { fontWeight: 'bold', fontSize: 16 },
+  detail: { marginTop: 6, backgroundColor: '#f5f5f5', padding: 8, borderRadius: 8 },
+  row: { flexDirection: 'row', marginTop: 8, gap: 10 },
+  editBtn: { backgroundColor: '#7b2ff7', padding: 6, borderRadius: 6 },
+  deleteBtn: { backgroundColor: 'red', padding: 6, borderRadius: 6 },
+  btnText: { color: '#fff' },
+  fab: { position: 'absolute', right: 20, bottom: 20, backgroundColor: '#000', width: 60, height: 60, borderRadius: 30, justifyContent: 'center', alignItems: 'center' },
+  fabText: { color: '#fff', fontSize: 30 },
 });

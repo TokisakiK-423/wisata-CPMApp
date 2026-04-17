@@ -53,45 +53,61 @@ export default function AdminWisata() {
     <LinearGradient colors={['#7b2ff7', '#f107a3']} style={styles.container}>
       <Text style={styles.title}>Data Wisata</Text>
 
-      <FlatList
-        data={wisata}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.card}>
-            <Image
-              source={{
-                uri: item.galeri?.[0]?.url
-                  ? `http://10.0.2.2:3000${item.galeri[0].url}`
-                  : 'https://via.placeholder.com/150',
-              }}
-              style={styles.cardImage}
-            />
+      renderItem={({ item }) => {
+  const isExpanded = expandedId === item.id;
 
-            <View style={{ flex: 1 }}>
-              <Text style={styles.nama}>{item.nama}</Text>
-              <Text>{item.lokasi}</Text>
-              <Text>Rp {item.hargaTiket}</Text>
+  return (
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() =>
+        setExpandedId(isExpanded ? null : item.id)
+      }
+    >
+      <Image
+        source={{
+          uri: item.galeri?.[0]?.url
+            ? `http://10.0.2.2:3000${item.galeri[0].url}`
+            : 'https://via.placeholder.com/150',
+        }}
+        style={styles.cardImage}
+      />
 
-              {/* 🔥 ACTION BUTTON */}
-              <View style={styles.row}>
-                <TouchableOpacity
-                  style={styles.editBtn}
-                  onPress={() => router.push(`/admin/tabs/edit?id=${item.id}`)}
-                >
-                  <Text style={styles.btnText}>Edit</Text>
-                </TouchableOpacity>
+      <View style={{ flex: 1 }}>
+        <Text style={styles.nama}>{item.nama}</Text>
+        <Text>{item.lokasi}</Text>
+        <Text>Rp {item.hargaTiket}</Text>
 
-                <TouchableOpacity
-                  style={styles.deleteBtn}
-                  onPress={() => deleteWisata(item.id)}
-                >
-                  <Text style={styles.btnText}>Hapus</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
+        {/* 🔥 DETAIL EXPAND */}
+        {isExpanded && (
+          <View style={styles.detail}>
+            <Text>📍 {item.alamat}</Text>
+            <Text>🕒 {item.jamBuka}</Text>
+            <Text>📝 {item.deskripsi}</Text>
           </View>
         )}
-      />
+
+        {/* 🔥 ACTION */}
+        <View style={styles.row}>
+          <TouchableOpacity
+            style={styles.editBtn}
+            onPress={() =>
+              router.push(`/admin/tabs/edit?id=${item.id}`)
+            }
+          >
+            <Text style={styles.btnText}>Edit</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.deleteBtn}
+            onPress={() => deleteWisata(item.id)}
+          >
+            <Text style={styles.btnText}>Hapus</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+}}
 
       {/* FAB */}
       <TouchableOpacity

@@ -3,17 +3,16 @@ import {
   Get,
   Post,
   Delete,
+  Patch,
   Param,
   Body,
-  Patch,
   UseInterceptors,
   UploadedFile,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { WisataService } from './wisata.service';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
-import type { Express } from 'express';
-import { WisataService } from './wisata.service';
 
 @Controller('wisata')
 export class WisataController {
@@ -25,9 +24,8 @@ export class WisataController {
       storage: diskStorage({
         destination: './public/uploads',
         filename: (req, file, cb) => {
-          const uniqueName =
-            Date.now() + '-' + Math.round(Math.random() * 1e9);
-          cb(null, uniqueName + extname(file.originalname));
+          const name = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(null, name + extname(file.originalname));
         },
       }),
     }),
@@ -47,29 +45,13 @@ export class WisataController {
   }
 
   @Patch(':id')
-  @UseInterceptors(
-    FileInterceptor('image', {
-      storage: diskStorage({
-        destination: './public/uploads',
-        filename: (req, file, cb) => {
-          const uniqueName =
-            Date.now() + '-' + Math.round(Math.random() * 1e9);
-          cb(null, uniqueName + extname(file.originalname));
-        },
-      }),
-    }),
-  )
+  @UseInterceptors(FileInterceptor('image'))
   update(
     @Param('id') id: string,
     @UploadedFile() file: Express.Multer.File,
     @Body() body: any,
   ) {
     return this.service.update(Number(id), body, file);
-  }
-
-  @Patch(':id/status')
-  toggleStatus(@Param('id') id: string) {
-    return this.service.toggleStatus(Number(id));
   }
 
   @Delete(':id')

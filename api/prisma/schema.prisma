@@ -2,7 +2,7 @@
 model Booking {
   id        Int     @id @default(autoincrement())
   wisataId  Int
-  wisata    Wisata @relation(fields: [wisataId], references: [id], onDelete: Cascade)
+  wisata    Wisata @relation(fields: [wisataId], references: [id])
 }
 
 model Wisata {

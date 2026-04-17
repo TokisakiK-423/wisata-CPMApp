@@ -20,7 +20,14 @@ export class ReviewController {
   create(@Body() body, @Req() req) {
     return this.service.create(body, req.user);
   }
-
+@Post()
+create(
+  @Body() body: any,
+  @Req() req: any,
+) {
+  const user = req.user; // dari auth guard
+  return this.service.create(body, user.id);
+}
   @Get()
   findAll() {
     return this.service.findAll();

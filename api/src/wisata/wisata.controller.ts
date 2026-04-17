@@ -1,38 +1,83 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Delete,
+  Param,
+  Body,
+  UseInterceptors,
+  UploadedFile,
+  Patch,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 import { WisataService } from './wisata.service';
-import { CreateWisataDto } from './dto/create-wisata.dto';
-import { UpdateWisataDto } from './dto/update-wisata.dto';
-import { JwtAuthGuard } from '../auth/jwt.guard';
+import type { Express } from 'express';
 
-@UseGuards(JwtAuthGuard)
-@ApiTags('wisata')
 @Controller('wisata')
 export class WisataController {
-  constructor(private readonly wisataService: WisataService) {}
+  constructor(private readonly service: WisataService) {}
 
   @Post()
-  create(@Body() dto: CreateWisataDto) {
-    return this.wisataService.create(dto);
+  @UseInterceptors(
+    FileInterceptor('image', {
+      storage: diskStorage({
+        destination: './public/uploads',
+        filename: (req, file, cb) => {
+          const uniqueName =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(null, uniqueName + extname(file.originalname));
+        },
+      }),
+    }),
+  )
+  create(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body: any,
+  ) {
+    return this.service.create(body, file);
   }
 
   @Get()
   findAll() {
-    return this.wisataService.findAll();
+    return this.service.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.wisataService.findOne(id);
+  findOne(@Param('id') id: string) {
+    return this.service.findOne(Number(id));
   }
 
   @Patch(':id')
-  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateWisataDto) {
-    return this.wisataService.update(id, dto);
+  @UseInterceptors(
+    FileInterceptor('image', {
+      storage: diskStorage({
+        destination: './public/uploads',
+        filename: (req, file, cb) => {
+          const uniqueName =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(null, uniqueName + extname(file.originalname));
+        },
+      }),
+    }),
+  )
+  update(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body: any,
+  ) {
+    return this.service.update(Number(id), body, file);
+  }
+
+  // 🔥 INI KUNCI FITUR AKTIF / NONAKTIF
+  @Patch(':id/status')
+  toggleStatus(@Param('id') id: string) {
+    return this.service.toggleStatus(Number(id));
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.wisataService.remove(id);
+  remove(@Param('id') id: string) {
+    return this.service.delete(Number(id));
   }
 }

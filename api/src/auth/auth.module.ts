@@ -1,20 +1,10 @@
 import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
-import { PassportModule } from '@nestjs/passport';
-import { JwtStrategy } from './jwt.strategy';
-import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { AuthController } from './auth.controller';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Module({
-  imports: [
-    PassportModule,
-    JwtModule.register({
-      secret: 'supersecretkey123', // ← HARDCODE DULU
-      signOptions: { expiresIn: '24h' }, // ← HARDCODE DULU
-    }),
-  ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
-  exports: [JwtStrategy, PassportModule],
+  providers: [AuthService, PrismaService],
 })
 export class AuthModule {}

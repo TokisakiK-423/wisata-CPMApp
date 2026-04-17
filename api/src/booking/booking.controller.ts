@@ -1,36 +1,46 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import {
+  Controller,
+  Post,
+  Get,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { BookingService } from './booking.service';
-import { CreateBookingDto } from './dto/create-booking.dto';
-import { UpdateBookingStatusDto } from './dto/update-booking-status.dto';
-import { JwtAuthGuard } from '../auth/jwt.guard';
+import { JwtGuard } from '../auth/jwt.guard';
 
-@ApiTags('booking')
 @Controller('booking')
 export class BookingController {
-  constructor(private readonly bookingService: BookingService) {}
+  constructor(private service: BookingService) {}
 
+  @UseGuards(JwtGuard)
   @Post()
-  create(@Body() dto: CreateBookingDto) {
-    return this.bookingService.create(dto);
+  create(@Body() body, @Req() req) {
+    return this.service.create(body, req.user);
   }
 
+  @UseGuards(JwtGuard)
+  @Get('my')
+  findMy(@Req() req) {
+    return this.service.findMy(req.user);
+  }
+
+  @UseGuards(JwtGuard)
   @Get()
   findAll() {
-    return this.bookingService.findAll();
+    return this.service.findAll();
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Patch(':id/status')
-  updateStatus(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() dto: UpdateBookingStatusDto,
-  ) {
-    return this.bookingService.updateStatus(id, dto);
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() body) {
+    return this.service.update(+id, body.status);
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.bookingService.remove(id);
+  delete(@Param('id') id: string) {
+    return this.service.delete(+id);
   }
 }

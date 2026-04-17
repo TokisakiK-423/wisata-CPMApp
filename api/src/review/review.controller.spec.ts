@@ -12,7 +12,7 @@ describe('ReviewController', () => {
     controller = module.get<ReviewController>(ReviewController);
   });
 
-  it('should be defined', () => {
+  it(process.env.DEFINISIKAN, () => {
     expect(controller).toBeDefined();
   });
 });

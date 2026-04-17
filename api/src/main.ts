@@ -7,12 +7,9 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   // 🔥 WAJIB: arahkan ke public/uploads
-  app.useStaticAssets(
-    join(process.cwd(), 'public', 'uploads'),
-    {
-      prefix: '/uploads/',
-    },
-  );
+  app.useStaticAssets(join(process.cwd(), 'public'), {
+  prefix: '/',
+});
 
   await app.listen(3000);
 }

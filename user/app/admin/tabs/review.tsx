@@ -14,14 +14,18 @@ export default function AdminReview() {
   const [reviews, setReviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const BASE_URL = 'http://10.0.2.2:3000';
+
+  useEffect(() => {
+    fetchReviews();
+  }, []);
+
   const fetchReviews = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
 
-      const res = await fetch('http://10.0.2.2:3000/review', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const res = await fetch(`${BASE_URL}/review`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       const data = await res.json();
@@ -34,12 +38,33 @@ export default function AdminReview() {
     }
   };
 
-  useEffect(() => {
-    fetchReviews();
-  }, []);
+  const renderItem = ({ item }: any) => {
+    const imageUrl =
+      item.image && item.image !== '/uploads/undefined'
+        ? `${BASE_URL}${item.image}`
+        : null;
 
-  const renderStars = (rating: number) => {
-    return '★'.repeat(rating) + '☆'.repeat(5 - rating);
+    return (
+      <View style={styles.card}>
+        <Text style={styles.wisata}>
+          {item.wisata?.nama || '-'}
+        </Text>
+
+        <Text style={styles.rating}>
+          {'★'.repeat(item.rating)}{'☆'.repeat(5 - item.rating)}
+        </Text>
+
+        <Text style={styles.nama}>{item.nama}</Text>
+
+        <Text style={styles.komentar}>
+          {item.komentar || '-'}
+        </Text>
+
+        {imageUrl && (
+          <Image source={{ uri: imageUrl }} style={styles.image} />
+        )}
+      </View>
+    );
   };
 
   if (loading) {
@@ -48,98 +73,75 @@ export default function AdminReview() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>📊 Review Customer</Text>
+      <Text style={styles.title}>Review Customer</Text>
 
       <FlatList
         data={reviews}
         keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={{ paddingBottom: 100 }}
+        renderItem={renderItem}
+        contentContainerStyle={{ paddingBottom: 80 }}
         ListEmptyComponent={
-          <Text style={{ textAlign: 'center', marginTop: 20 }}>
-            Belum ada review
-          </Text>
+          <Text style={styles.empty}>Belum ada review</Text>
         }
-        renderItem={({ item }) => (
-          <View style={styles.card}>
-            {/* Nama Wisata */}
-            <Text style={styles.wisata}>
-              {item.wisata?.nama || '-'}
-            </Text>
-
-            {/* Rating */}
-            <Text style={styles.rating}>
-              {renderStars(item.rating)}
-            </Text>
-
-            {/* Nama Customer */}
-            <Text style={styles.nama}>
-              {item.nama}
-            </Text>
-
-            {/* Komentar */}
-            <Text style={styles.komentar}>
-              {item.komentar || '-'}
-            </Text>
-
-            {/* Gambar (jika ada) */}
-            {item.image && item.image !== '/uploads/undefined' && (
-              <Image
-                source={{
-                  uri: `http://10.0.2.2:3000${item.image}`,
-                }}
-                style={styles.image}
-              />
-            )}
-          </View>
-        )}
       />
     </SafeAreaView>
   );
 }
 
+const PRIMARY = '#2563eb'; // biru modern
+const BG = '#f1f5f9';
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: BG,
     padding: 16,
   },
 
   title: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 10,
+    color: PRIMARY,
+    marginBottom: 12,
   },
 
   card: {
     backgroundColor: '#fff',
     padding: 14,
-    borderRadius: 12,
+    borderRadius: 14,
     marginBottom: 12,
     elevation: 2,
   },
 
   wisata: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 15,
+    fontWeight: '600',
   },
 
   rating: {
-    color: '#FFD700',
+    color: '#facc15',
     marginVertical: 4,
   },
 
   nama: {
-    fontWeight: '600',
+    fontWeight: '500',
+    marginTop: 2,
   },
 
   komentar: {
-    color: '#555',
+    color: '#475569',
     marginTop: 4,
   },
 
   image: {
     height: 140,
-    marginTop: 10,
     borderRadius: 10,
+    marginTop: 10,
+  },
+
+  empty: {
+    textAlign: 'center',
+    marginTop: 20,
+    color: '#64748b',
   },
 });

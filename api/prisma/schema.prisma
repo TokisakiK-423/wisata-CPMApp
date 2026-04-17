@@ -24,9 +24,8 @@ model Customer {
   email     String?
   telp      String?
   createdAt DateTime  @default(now())
-
   bookings  Booking[]
-  reviews   Review[]
+  reviews   Review[] // ← TAMBAH INI
 
   @@map("customers")
 }
@@ -39,9 +38,8 @@ model Wisata {
   alamat     String
   jamBuka    String
   hargaTiket Int?
-  status     Boolean   @default(true) // true = aktif
+  status     Boolean   @default(true)
   telepon    String?
-
   galeri     Galeri[]
   reviews    Review[]
   bookings   Booking[]
@@ -54,8 +52,7 @@ model Galeri {
   wisataId Int
   url      String
   caption  String?
-
-  wisata   Wisata  @relation(fields: [wisataId], references: [id], onDelete: Cascade)
+  wisata   Wisata  @relation(fields: [wisataId], references: [id])
 
   @@map("galeris")
 }
@@ -63,30 +60,31 @@ model Galeri {
 model Review {
   id         Int      @id @default(autoincrement())
   wisataId   Int
-  customerId Int?
+  customerId Int? // ← Nullable
   nama       String
   rating     Int
   komentar   String?
-  image      String?   // 🔥 WAJIB ADA INI
+  image      String?
   createdAt  DateTime @default(now())
 
   customer Customer? @relation(fields: [customerId], references: [id])
   wisata   Wisata    @relation(fields: [wisataId], references: [id])
+
+  @@map("reviews")
 }
 
 model Booking {
   id          Int      @id @default(autoincrement())
   wisataId    Int
   customerId  Int?
-
   nama        String
   noHp        String
   jumlahTiket Int
   status      String   @default("pending")
   createdAt   DateTime @default(now())
 
-  wisata      Wisata   @relation(fields: [wisataId], references: [id])
-  customer    Customer? @relation(fields: [customerId], references: [id])
+  customer Customer? @relation(fields: [customerId], references: [id])
+  wisata   Wisata    @relation(fields: [wisataId], references: [id])
 
   @@map("bookings")
 }

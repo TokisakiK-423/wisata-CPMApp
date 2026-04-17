@@ -1,155 +1,110 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
-  View, Text, FlatList, StyleSheet, SafeAreaView,
-  ActivityIndicator, RefreshControl, TouchableOpacity, Image,
-} from 'react-native';
-import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+  Text,
+  FlatList,
+  ActivityIndicator,
+  RefreshControl,
+  TouchableOpacity,
+  Image,
+  View,
+} from "react-native";
+import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-type WisataItem = {
-  id: number;
-  nama: string;
-  lokasi: string;
-  hargaTiket?: number;
-  status: boolean;
-  galeri?: { url: string }[];
-  reviews?: { rating: number }[];
-};
+import { styles, COLORS } from "@/app/lib/customer/styles";
+import { fetchWisata, getRating } from "@/app/lib/customer/utils";
 
 export default function CustomerHomeScreen() {
-  const [wisata, setWisata] = useState<WisataItem[]>([]);
+  const [wisata, setWisata] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
-  const fetchWisata = useCallback(async () => {
-    try {
-      const res = await fetch('http://10.0.2.2:3000/wisata');
-      const data = await res.json();
-
-      // 🔥 FILTER hanya aktif
-      const filtered = Array.isArray(data)
-        ? data.filter((w) => w.status === true)
-        : [];
-
-      setWisata(filtered);
-    } catch {
-      setWisata([]);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchWisata();
-  }, []);
-
-  const getRating = (reviews?: { rating: number }[]) => {
-    if (!reviews || reviews.length === 0) return { avg: 0, total: 0 };
-    const total = reviews.length;
-    const avg =
-      reviews.reduce((sum, r) => sum + r.rating, 0) / total;
-    return { avg, total };
+  const loadData = async () => {
+    setLoading(true);
+    const data = await fetchWisata();
+    setWisata(data);
+    setLoading(false);
   };
 
-  const renderWisata = ({ item }: { item: WisataItem }) => {
-  const { avg, total } = getRating(item.reviews);
-  const isNonaktif = item.status === false;
+  useEffect(() => {
+    loadData();
+  }, []);
 
-  return (
-    <TouchableOpacity
-      style={[
-        styles.card,
-        isNonaktif && { opacity: 0.5 }
-      ]}
-      onPress={() => {
-        if (isNonaktif) {
-          Alert.alert("Info", "Wisata ini sedang nonaktif!");
-          return;
-        }
-        router.push(`/wisata/${item.id}`);
-      }}
-    >
-      <Image
-        source={{
-          uri: item.galeri?.[0]?.url
-            ? `http://10.0.2.2:3000${item.galeri[0].url}`
-            : 'https://via.placeholder.com/300x200',
-        }}
-        style={styles.image}
-      />
+  const onRefresh = async () => {
+    setRefreshing(true);
+    const data = await fetchWisata();
+    setWisata(data);
+    setRefreshing(false);
+  };
 
-      <View style={styles.content}>
-        <Text style={styles.nama}>{item.nama || '-'}</Text>
-        <Text style={styles.lokasi}>📍 {item.lokasi || '-'}</Text>
+  const renderItem = ({ item }: any) => {
+    const { avg, total } = getRating(item.reviews);
 
-        {isNonaktif && (
-          <Text style={{ color: 'red', fontWeight: 'bold' }}>
-            NONAKTIF
-          </Text>
-        )}
+    return (
+      <TouchableOpacity
+        style={styles.cardHorizontal}
+        onPress={() => router.push(`/wisata/${item.id}`)}
+      >
+        <Image
+          source={{
+            uri: item.galeri?.[0]?.url
+              ? `http://10.0.2.2:3000${item.galeri[0].url}`
+              : "https://via.placeholder.com/300x200",
+          }}
+          style={styles.imageHorizontal}
+        />
 
-        <View style={styles.footer}>
-          <View style={styles.ratingContainer}>
-            <Ionicons name="star" size={16} color="#FFD700" />
-            <Text style={styles.rating}>
-              {Number(avg || 0).toFixed(1)}
-            </Text>
-            <Text style={styles.reviewCount}>
-              ({total})
+        <View style={styles.contentHorizontal}>
+          <View style={styles.topRow}>
+            <Text style={styles.namaHorizontal} numberOfLines={2}>
+              Wisata: {item.nama}
             </Text>
           </View>
 
-          {item.hargaTiket !== null &&
-            item.hargaTiket !== undefined && (
-              <Text style={styles.harga}>
-                Rp {Number(item.hargaTiket).toLocaleString()}
-              </Text>
-            )}
+          <Text style={styles.desc} numberOfLines={1}>
+            📍 {item.lokasi}
+          </Text>
+
+          <View style={styles.ratingRow}>
+            <Ionicons name="star" size={14} color="#FFD700" />
+            <Text>{Number(avg).toFixed(1)}</Text>
+            <Text style={{ color: "#666" }}>({total})</Text>
+          </View>
+
+          <Text style={styles.price}>
+            Rp {Number(item.hargaTiket).toLocaleString()}
+          </Text>
         </View>
-      </View>
-    </TouchableOpacity>
-  );
-};
+      </TouchableOpacity>
+    );
+  };
 
   if (loading) {
     return <ActivityIndicator style={{ marginTop: 50 }} />;
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <LinearGradient
+      colors={[COLORS.primary, COLORS.secondary]}
+      style={[styles.container, { paddingTop: insets.top + 60 }]}
+    >
       <FlatList
         data={wisata}
-        renderItem={renderWisata}
+        renderItem={renderItem}
         keyExtractor={(item) => item.id.toString()}
+        ListHeaderComponent={() => (
+          <Text style={styles.sectionTitle}>Wisata Bisa Dikunjungi</Text>
+        )}
+        contentContainerStyle={styles.list}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={fetchWisata} />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       />
-    </SafeAreaView>
+    </LinearGradient>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8f9fa' },
-  card: {
-    backgroundColor: 'white',
-    margin: 12,
-    borderRadius: 12,
-    overflow: 'hidden',
-  },
-  image: { height: 180 },
-  content: { padding: 12 },
-  nama: { fontSize: 18, fontWeight: 'bold' },
-  lokasi: { color: '#666' },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 8,
-  },
-  ratingContainer: { flexDirection: 'row' },
-  rating: { color: '#FFD700' },
-  reviewCount: { color: '#666' },
-  harga: { color: 'green', fontWeight: 'bold' },
-});

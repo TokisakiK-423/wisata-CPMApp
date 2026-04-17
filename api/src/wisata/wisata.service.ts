@@ -50,10 +50,8 @@ export class WisataService {
     where: { id },
     include: {
       galeri: true,
-      _count: {
-        select: {
-          bookings: true,
-        },
+      reviews: {
+        orderBy: { createdAt: 'desc' },
       },
     },
   });

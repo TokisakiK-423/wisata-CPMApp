@@ -10,15 +10,15 @@ model Booking {
 }
 
 model Wisata {
-  id          Int       @id @default(autoincrement())
-  nama        String
-  lokasi      String
-  deskripsi   String
-  alamat      String
-  jamBuka     String
-  hargaTiket  Int
-  status      Boolean   @default(true) // 🔥 true = aktif, false = nonaktif
+  id        Int        @id @default(autoincrement())
+  nama      String
+  lokasi    String
+  deskripsi String
+  alamat    String
+  jamBuka   String
+  hargaTiket Int
 
-  galeri      Galeri[]
-  bookings    Booking[]
+  status    String     @default("aktif") // 🔥 tambahan kamu tadi
+  bookings  Booking[]  // 🔥 relasi balik
+  galeri    Galeri[]
 }

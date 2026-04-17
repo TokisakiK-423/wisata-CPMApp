@@ -11,26 +11,18 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { WisataService } from './wisata.service';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
+import type { Express } from 'express';
 
 @Controller('wisata')
 export class WisataController {
   constructor(private readonly service: WisataService) {}
 
   @Post()
-  @UseInterceptors(
-    FileInterceptor('image', {
-      storage: diskStorage({
-        destination: './public/uploads',
-        filename: (req, file, cb) => {
-          const name = Date.now() + '-' + Math.round(Math.random() * 1e9);
-          cb(null, name + extname(file.originalname));
-        },
-      }),
-    }),
-  )
-  create(@UploadedFile() file: Express.Multer.File, @Body() body: any) {
+  @UseInterceptors(FileInterceptor('image'))
+  create(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body: any,
+  ) {
     return this.service.create(body, file);
   }
 
@@ -53,10 +45,14 @@ export class WisataController {
   ) {
     return this.service.update(Number(id), body, file);
   }
+
   @Patch(':id/status')
-updateStatus(@Param('id') id: string, @Body() body: any) {
-  return this.service.updateStatus(Number(id), body.status);
-}
+  updateStatus(
+    @Param('id') id: string,
+    @Body() body: { status: boolean },
+  ) {
+    return this.service.updateStatus(Number(id), body.status);
+  }
 
   @Delete(':id')
   remove(@Param('id') id: string) {

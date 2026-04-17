@@ -1,35 +1,24 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+async create(data: any, file?: Express.Multer.File) {
+  const wisata = await this.prisma.wisata.create({
+    data: {
+      nama: data.nama,
+      lokasi: data.lokasi,
+      deskripsi: data.deskripsi,
+      alamat: data.alamat,
+      jamBuka: data.jamBuka,
+      hargaTiket: Number(data.hargaTiket),
+    },
+  });
 
-@Injectable()
-export class WisataService {
-  constructor(private prisma: PrismaService) {}
-
-  create(dto) {
-    return this.prisma.wisata.create({ data: dto });
-  }
-
-  findAll() {
-    return this.prisma.wisata.findMany({
-      include: {
-        galeri: true,
-        reviews: true,
+  // simpan gambar ke galeri
+  if (file) {
+    await this.prisma.galeri.create({
+      data: {
+        url: `/uploads/${file.filename}`,
+        wisataId: wisata.id,
       },
     });
   }
-  async findOne(id: number) {
-  return this.prisma.wisata.findUnique({
-    where: { id },
-    include: {
-      galeri: true,
-      reviews: true,
-    },
-  });
-}
 
-  delete(id: number) {
-    return this.prisma.wisata.delete({
-      where: { id },
-    });
-  }
+  return wisata;
 }

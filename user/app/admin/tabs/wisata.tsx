@@ -103,3 +103,72 @@ export default function AdminWisata() {
     </LinearGradient>
   );
 }
+const styles = StyleSheet.create({
+  container: { flex: 1, padding: 16 },
+
+  title: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 10,
+  },
+
+  card: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 10,
+  },
+
+  cardImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 10,
+    marginRight: 10,
+  },
+
+  nama: {
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+
+  row: {
+    flexDirection: 'row',
+    marginTop: 8,
+    gap: 10,
+  },
+
+  editBtn: {
+    backgroundColor: '#7b2ff7',
+    padding: 6,
+    borderRadius: 6,
+  },
+
+  deleteBtn: {
+    backgroundColor: 'red',
+    padding: 6,
+    borderRadius: 6,
+  },
+
+  btnText: {
+    color: '#fff',
+  },
+
+  fab: {
+    position: 'absolute',
+    right: 20,
+    bottom: 20,
+    backgroundColor: '#000',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  fabText: {
+    color: '#fff',
+    fontSize: 30,
+  },
+});

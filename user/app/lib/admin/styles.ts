@@ -1,18 +1,106 @@
-import { StyleSheet } from 'react-native';
-import { COLORS } from './colors';
+import { StyleSheet } from "react-native";
+
+export const COLORS = {
+  primary: "#7b2ff7",
+  secondary: "#f107a3",
+  white: "#ffffff",
+  gray: "#f5f5f5",
+  text: "#333",
+  danger: "#ef4444",
+  success: "#22c55e",
+  warning: "#f59e0b",
+};
 
 export const styles = StyleSheet.create({
+  // 🔥 BACKGROUND GLOBAL
   background: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+  },
+
+  container: {
+    flex: 1,
+    padding: 16,
+  },
+
+  title: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: COLORS.white,
+    marginBottom: 10,
+  },
+
+  card: {
+    flexDirection: "row",
+    backgroundColor: COLORS.white,
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 10,
+  },
+
+  cardImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 10,
+    marginRight: 10,
+  },
+
+  nama: {
+    fontWeight: "bold",
+    fontSize: 16,
+    color: COLORS.text,
+  },
+
+  detail: {
+    marginTop: 6,
+    backgroundColor: COLORS.gray,
+    padding: 8,
+    borderRadius: 8,
+  },
+
+  row: {
+    flexDirection: "row",
+    marginTop: 8,
+    gap: 10,
+  },
+
+  statusBtn: {
+    padding: 6,
+    borderRadius: 6,
+  },
+
+  deleteBtn: {
+    backgroundColor: COLORS.danger,
+    padding: 6,
+    borderRadius: 6,
+  },
+
+  btnText: {
+    color: COLORS.white,
+  },
+
+  fab: {
+    position: "absolute",
+    right: 20,
+    bottom: 20,
+    backgroundColor: "#000",
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  fabText: {
+    color: COLORS.white,
+    fontSize: 30,
   },
 
   tabBar: {
-    backgroundColor: COLORS.white,
+    backgroundColor: "#fff",
+    height: 70,
     borderTopWidth: 0,
-    height: 65,
-    paddingBottom: 8,
   },
 
   headerRight: {

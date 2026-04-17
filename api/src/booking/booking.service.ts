@@ -17,12 +17,18 @@ export class BookingService {
     });
   }
 
-  findAll() {
-    return this.prisma.booking.findMany({
-      include: { wisata: true, customer: true },
-      orderBy: { createdAt: 'desc' },
-    });
-  }
+ async findAll() {
+  const data = await this.prisma.wisata.findMany({
+    include: {
+      galeri: true,
+      _count: {
+        select: { bookings: true },
+      },
+    },
+  });
+
+  return data;
+}
 
   findMy(user) {
     return this.prisma.booking.findMany({

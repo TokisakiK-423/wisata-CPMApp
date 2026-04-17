@@ -10,13 +10,13 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
+import type { Express } from 'express';
 import { WisataService } from './wisata.service';
 
 @Controller('wisata')
 export class WisataController {
   constructor(private readonly service: WisataService) {}
 
-  // ✅ CREATE + UPLOAD GAMBAR
   @Post()
   @UseInterceptors(
     FileInterceptor('image', {
@@ -36,19 +36,16 @@ export class WisataController {
     return this.service.create(body, file);
   }
 
-  // ✅ GET ALL
   @Get()
   findAll() {
     return this.service.findAll();
   }
 
-  // ✅ GET BY ID
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.service.findOne(Number(id));
   }
 
-  // ✅ DELETE
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.service.delete(Number(id));

@@ -1,21 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  View,
-  Text,
-  FlatList,
-  StyleSheet,
-  SafeAreaView,
-  TextInput,
-  TouchableOpacity,
-  Alert,
-  ActivityIndicator,
+  View, Text, FlatList, StyleSheet, SafeAreaView,
+  TextInput, TouchableOpacity, Alert, ActivityIndicator, Image,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as ImagePicker from 'expo-image-picker';
 
 export default function CustomerReview() {
   const [reviews, setReviews] = useState<any[]>([]);
   const [wisataList, setWisataList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const [image, setImage] = useState<any>(null);
 
   const [form, setForm] = useState({
     wisataId: 0,
@@ -23,6 +19,7 @@ export default function CustomerReview() {
     komentar: '',
   });
 
+  // ================= FETCH =================
   const fetchData = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
@@ -34,11 +31,8 @@ export default function CustomerReview() {
         fetch('http://10.0.2.2:3000/wisata'),
       ]);
 
-      const reviewData = await r1.json();
-      const wisataData = await r2.json();
-
-      setReviews(Array.isArray(reviewData) ? reviewData : []);
-      setWisataList(Array.isArray(wisataData) ? wisataData : []);
+      setReviews(await r1.json());
+      setWisataList(await r2.json());
     } catch (e) {
       console.log(e);
       setReviews([]);
@@ -51,6 +45,19 @@ export default function CustomerReview() {
     fetchData();
   }, []);
 
+  // ================= PICK IMAGE =================
+  const pickImage = async () => {
+    const res = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 0.7,
+    });
+
+    if (!res.canceled) {
+      setImage(res.assets[0]);
+    }
+  };
+
+  // ================= SUBMIT =================
   const addReview = async () => {
     if (!form.wisataId) {
       Alert.alert('Error', 'Pilih wisata dulu');
@@ -60,17 +67,26 @@ export default function CustomerReview() {
     try {
       const token = await AsyncStorage.getItem('token');
 
+      const formData = new FormData();
+
+      formData.append('wisataId', String(form.wisataId));
+      formData.append('rating', String(form.rating));
+      formData.append('komentar', form.komentar);
+
+      if (image) {
+        formData.append('image', {
+          uri: image.uri,
+          name: 'review.jpg',
+          type: 'image/jpeg',
+        } as any);
+      }
+
       const res = await fetch('http://10.0.2.2:3000/review', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          wisataId: form.wisataId,
-          rating: form.rating,
-          komentar: form.komentar,
-        }),
+        body: formData,
       });
 
       const result = await res.json();
@@ -80,34 +96,31 @@ export default function CustomerReview() {
         return;
       }
 
-      Alert.alert('Sukses', 'Review berhasil ditambahkan');
+      Alert.alert('Sukses', 'Review terkirim');
 
-      setForm({
-        wisataId: 0,
-        rating: 5,
-        komentar: '',
-      });
+      setForm({ wisataId: 0, rating: 5, komentar: '' });
+      setImage(null);
 
       fetchData();
     } catch (e) {
       console.log(e);
-      Alert.alert('Error', 'Gagal tambah review');
+      Alert.alert('Error', 'Gagal kirim');
     }
   };
 
-  if (loading) {
-    return <ActivityIndicator style={{ marginTop: 50 }} />;
-  }
+  if (loading) return <ActivityIndicator style={{ marginTop: 50 }} />;
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Review Wisata</Text>
+      <Text style={styles.title}>📝 Review Wisata</Text>
 
-      {/* pilih wisata */}
+      {/* PILIH WISATA */}
       <FlatList
         horizontal
         data={wisataList}
         keyExtractor={(item) => item.id.toString()}
+        showsHorizontalScrollIndicator={false}
+        style={{ marginBottom: 10 }}
         renderItem={({ item }) => (
           <TouchableOpacity
             style={[
@@ -116,36 +129,72 @@ export default function CustomerReview() {
             ]}
             onPress={() => setForm({ ...form, wisataId: item.id })}
           >
-            <Text>{item.nama || '-'}</Text>
+            <Text style={{ color: form.wisataId === item.id ? '#fff' : '#000' }}>
+              {item.nama}
+            </Text>
           </TouchableOpacity>
         )}
       />
 
+      {/* KOMENTAR */}
       <TextInput
-        placeholder="Komentar"
+        placeholder="Tulis komentar..."
         style={styles.input}
         value={form.komentar}
         onChangeText={(t) => setForm({ ...form, komentar: t })}
       />
 
-      <TouchableOpacity style={styles.btn} onPress={addReview}>
-        <Text style={{ color: '#fff' }}>Kirim Review</Text>
+      {/* RATING SIMPLE */}
+      <View style={styles.ratingRow}>
+        {[1,2,3,4,5].map((r) => (
+          <TouchableOpacity key={r} onPress={() => setForm({ ...form, rating: r })}>
+            <Text style={r <= form.rating ? styles.starActive : styles.star}>
+              ★
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {/* PICK IMAGE */}
+      <TouchableOpacity style={styles.imageBtn} onPress={pickImage}>
+        <Text>Pilih Gambar</Text>
       </TouchableOpacity>
 
+      {image && (
+        <Image source={{ uri: image.uri }} style={styles.preview} />
+      )}
+
+      {/* SUBMIT */}
+      <TouchableOpacity style={styles.btn} onPress={addReview}>
+        <Text style={{ color: '#fff' }}>Kirim</Text>
+      </TouchableOpacity>
+
+      {/* LIST REVIEW */}
       <FlatList
         data={reviews}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <View style={styles.card}>
-            <Text style={{ fontWeight: 'bold' }}>
-              {item.wisata?.nama || '-'}
+            <Text style={styles.cardTitle}>
+              {item.wisata?.nama}
             </Text>
 
-            <Text>{'★'.repeat(Number(item.rating || 0))}</Text>
+            <Text style={styles.ratingText}>
+              {'★'.repeat(item.rating)}
+            </Text>
 
-            <Text>{item.nama || '-'}</Text>
+            <Text style={styles.name}>{item.nama}</Text>
 
-            <Text>{item.komentar || '-'}</Text>
+            <Text style={styles.comment}>
+              {item.komentar}
+            </Text>
+
+            {item.image && (
+              <Image
+                source={{ uri: `http://10.0.2.2:3000${item.image}` }}
+                style={styles.reviewImage}
+              />
+            )}
           </View>
         )}
       />
@@ -154,44 +203,98 @@ export default function CustomerReview() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20 },
+  container: { flex: 1, padding: 16, backgroundColor: '#f8f9fa' },
 
   title: {
-    fontSize: 20,
-    marginBottom: 10,
+    fontSize: 22,
     fontWeight: 'bold',
+    marginBottom: 10,
   },
 
   input: {
-    borderWidth: 1,
-    marginVertical: 5,
+    backgroundColor: '#fff',
     padding: 10,
-    borderRadius: 8,
+    borderRadius: 10,
+    marginBottom: 10,
   },
 
   btn: {
-    backgroundColor: 'blue',
+    backgroundColor: '#000',
     padding: 12,
+    borderRadius: 10,
     alignItems: 'center',
-    marginVertical: 10,
-    borderRadius: 8,
-  },
-
-  card: {
-    padding: 10,
-    borderWidth: 1,
-    marginVertical: 5,
-    borderRadius: 8,
+    marginBottom: 10,
   },
 
   wisataBtn: {
     padding: 10,
+    borderRadius: 20,
     borderWidth: 1,
-    marginRight: 5,
-    borderRadius: 6,
+    marginRight: 8,
   },
 
   active: {
+    backgroundColor: '#000',
+  },
+
+  ratingRow: {
+    flexDirection: 'row',
+    marginBottom: 10,
+  },
+
+  star: {
+    fontSize: 24,
+    color: '#ccc',
+    marginRight: 5,
+  },
+
+  starActive: {
+    fontSize: 24,
+    color: '#FFD700',
+    marginRight: 5,
+  },
+
+  imageBtn: {
     backgroundColor: '#ddd',
+    padding: 10,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+
+  preview: {
+    height: 120,
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+
+  card: {
+    backgroundColor: '#fff',
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 10,
+  },
+
+  cardTitle: {
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+
+  ratingText: {
+    color: '#FFD700',
+  },
+
+  name: {
+    fontWeight: '600',
+  },
+
+  comment: {
+    color: '#555',
+  },
+
+  reviewImage: {
+    height: 120,
+    marginTop: 8,
+    borderRadius: 10,
   },
 });

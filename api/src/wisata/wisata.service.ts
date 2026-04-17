@@ -1,8 +1,8 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import type { Express } from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
+import type { Express } from 'express';
 
 @Injectable()
 export class WisataService {
@@ -29,16 +29,14 @@ export class WisataService {
       });
     }
 
-    return wisata;
+    return this.findOne(wisata.id); // 🔥 penting: biar include galeri
   }
 
   async findAll() {
     return this.prisma.wisata.findMany({
       include: {
         galeri: true,
-        _count: {
-          select: { bookings: true },
-        },
+        reviews: true,
       },
     });
   }
@@ -48,6 +46,7 @@ export class WisataService {
       where: { id },
       include: {
         galeri: true,
+        reviews: true,
       },
     });
   }
@@ -60,20 +59,6 @@ export class WisataService {
 
     if (!wisata) {
       throw new BadRequestException('Data tidak ditemukan');
-    }
-
-    // 🔥 hapus gambar lama jika upload baru
-    if (file && wisata.galeri.length > 0) {
-      for (const g of wisata.galeri) {
-        const filePath = path.join(process.cwd(), 'public', g.url);
-        if (fs.existsSync(filePath)) {
-          fs.unlinkSync(filePath);
-        }
-      }
-
-      await this.prisma.galeri.deleteMany({
-        where: { wisataId: id },
-      });
     }
 
     const updated = await this.prisma.wisata.update({
@@ -89,6 +74,25 @@ export class WisataService {
     });
 
     if (file) {
+      // 🔥 hapus file lama
+      for (const g of wisata.galeri) {
+        const filePath = path.join(
+          process.cwd(),
+          'public',
+          g.url.replace('/uploads/', 'uploads/')
+        );
+
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+        }
+      }
+
+      // 🔥 hapus galeri lama
+      await this.prisma.galeri.deleteMany({
+        where: { wisataId: id },
+      });
+
+      // 🔥 simpan baru
       await this.prisma.galeri.create({
         data: {
           wisataId: id,
@@ -97,7 +101,7 @@ export class WisataService {
       });
     }
 
-    return updated;
+    return this.findOne(id);
   }
 
   async delete(id: number) {
@@ -116,7 +120,12 @@ export class WisataService {
     });
 
     for (const g of galeri) {
-      const filePath = path.join(process.cwd(), 'public', g.url);
+      const filePath = path.join(
+        process.cwd(),
+        'public',
+        g.url.replace('/uploads/', 'uploads/')
+      );
+
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
       }
@@ -128,13 +137,6 @@ export class WisataService {
 
     return this.prisma.wisata.delete({
       where: { id },
-    });
-  }
-
-  async updateStatus(id: number, status: boolean) {
-    return this.prisma.wisata.update({
-      where: { id },
-      data: { status },
     });
   }
 }

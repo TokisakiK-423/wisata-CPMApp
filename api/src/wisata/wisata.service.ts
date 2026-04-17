@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import type { Express } from 'express';
 import * as fs from 'fs';
@@ -17,6 +17,7 @@ export class WisataService {
         alamat: data.alamat,
         jamBuka: data.jamBuka,
         hargaTiket: Number(data.hargaTiket),
+        status: true, // default aktif
       },
     });
 
@@ -34,52 +35,37 @@ export class WisataService {
 
   async findAll() {
     return this.prisma.wisata.findMany({
-      include: { galeri: true },
+      include: {
+        galeri: true,
+        _count: {
+          select: { bookings: true },
+        },
+      },
     });
   }
 
   async findOne(id: number) {
     return this.prisma.wisata.findUnique({
       where: { id },
-      include: { galeri: true },
+      include: {
+        galeri: true,
+        _count: {
+          select: { bookings: true },
+        },
+      },
     });
   }
 
-  async delete(id: number) {
-  // 🔥 cek apakah ada booking
-  const booking = await this.prisma.booking.findFirst({
-    where: { wisataId: id },
-  });
+  async update(id: number, data: any, file?: Express.Multer.File) {
+    const wisata = await this.prisma.wisata.findUnique({
+      where: { id },
+      include: { galeri: true },
+    });
 
-  if (booking) {
-    throw new Error('Wisata tidak bisa dihapus karena masih ada booking');
-  }
-
-  // 🔥 ambil galeri
-  const galeri = await this.prisma.galeri.findMany({
-    where: { wisataId: id },
-  });
-
-  // 🔥 hapus file fisik
-  galeri.forEach((g) => {
-    const filePath = path.join(process.cwd(), 'public', g.url);
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
+    if (!wisata) {
+      throw new BadRequestException('Data tidak ditemukan');
     }
-  });
 
-  // 🔥 hapus DB galeri
-  await this.prisma.galeri.deleteMany({
-    where: { wisataId: id },
-  });
-
-  // 🔥 hapus wisata
-  return this.prisma.wisata.delete({
-    where: { id },
-  });
-}
-
-    // 🔥 update data utama
     const updated = await this.prisma.wisata.update({
       where: { id },
       data: {
@@ -89,12 +75,12 @@ export class WisataService {
         alamat: data.alamat,
         jamBuka: data.jamBuka,
         hargaTiket: Number(data.hargaTiket),
+        status: data.status === 'false' ? false : true,
       },
     });
 
-    // 🔥 kalau ada gambar baru → replace
+    // 🔥 replace gambar
     if (file) {
-      // hapus file lama
       wisata.galeri.forEach((g) => {
         const filePath = path.join(process.cwd(), 'public', g.url);
         if (fs.existsSync(filePath)) {
@@ -102,12 +88,10 @@ export class WisataService {
         }
       });
 
-      // hapus DB lama
       await this.prisma.galeri.deleteMany({
         where: { wisataId: id },
       });
 
-      // simpan gambar baru
       await this.prisma.galeri.create({
         data: {
           wisataId: id,
@@ -117,5 +101,49 @@ export class WisataService {
     }
 
     return updated;
+  }
+
+  async delete(id: number) {
+    const booking = await this.prisma.booking.findFirst({
+      where: { wisataId: id },
+    });
+
+    if (booking) {
+      throw new BadRequestException(
+        'Wisata tidak bisa dihapus karena masih ada booking',
+      );
+    }
+
+    const galeri = await this.prisma.galeri.findMany({
+      where: { wisataId: id },
+    });
+
+    galeri.forEach((g) => {
+      const filePath = path.join(process.cwd(), 'public', g.url);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    });
+
+    await this.prisma.galeri.deleteMany({
+      where: { wisataId: id },
+    });
+
+    return this.prisma.wisata.delete({
+      where: { id },
+    });
+  }
+
+  async toggleStatus(id: number) {
+    const wisata = await this.prisma.wisata.findUnique({
+      where: { id },
+    });
+
+    return this.prisma.wisata.update({
+      where: { id },
+      data: {
+        status: !wisata?.status,
+      },
+    });
   }
 }

@@ -35,22 +35,31 @@ export default function AdminWisata() {
   }, []));
 
   const deleteWisata = async (id: number) => {
-    const token = await AsyncStorage.getItem('token');
+  const token = await AsyncStorage.getItem('token');
 
-    Alert.alert('Konfirmasi', 'Hapus data ini?', [
-      { text: 'Batal' },
-      {
-        text: 'Hapus',
-        onPress: async () => {
-          await fetch(`http://10.0.2.2:3000/wisata/${id}`, {
-            method: 'DELETE',
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          fetchWisata();
+  Alert.alert('Konfirmasi', 'Hapus data ini?', [
+    { text: 'Batal' },
+    {
+      text: 'Hapus',
+      onPress: async () => {
+        const res = await fetch(`http://10.0.2.2:3000/wisata/${id}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const result = await res.json();
+
+        if (!res.ok) {
+          Alert.alert('Gagal', result.message);
+          return;
         }
-      }
-    ]);
-  };
+
+        Alert.alert('Sukses', 'Data berhasil dihapus');
+        fetchWisata();
+      },
+    },
+  ]);
+};
 
   if (loading) return <ActivityIndicator style={{ marginTop: 50 }} />;
 

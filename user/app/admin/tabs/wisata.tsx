@@ -11,7 +11,8 @@ export default function AdminWisata() {
   const [wisata, setWisata] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [image, setImage] = useState<any>(null);
-  const [showForm, setShowForm] = useState(true); // 🔥 toggle form
+  const [showForm, setShowForm] = useState(true);
+  const [expandedId, setExpandedId] = useState<number | null>(null); // 🔥 toggle list item
 
   const [form, setForm] = useState({
     nama: '',
@@ -106,14 +107,14 @@ export default function AdminWisata() {
   return (
     <SafeAreaView style={styles.container}>
 
-      {/* HEADER + TOGGLE */}
+      {/* HEADER */}
       <TouchableOpacity onPress={() => setShowForm(!showForm)}>
         <Text style={styles.title}>
           {showForm ? '▼ Kelola Wisata' : '▶ Kelola Wisata'}
         </Text>
       </TouchableOpacity>
 
-      {/* FORM (SCROLLABLE + COLLAPSIBLE) */}
+      {/* FORM */}
       {showForm && (
         <ScrollView style={styles.form} showsVerticalScrollIndicator={false}>
           {Object.keys(form).map((key) => (
@@ -147,24 +148,42 @@ export default function AdminWisata() {
         data={wisata}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={{ paddingTop: 10 }}
-        renderItem={({ item }) => (
-          <View style={styles.card}>
-            <Image
-              source={{
-                uri: item.galeri?.[0]?.url
-                  ? `http://10.0.2.2:3000${item.galeri[0].url}`
-                  : 'https://via.placeholder.com/150',
-              }}
-              style={styles.cardImage}
-            />
+        renderItem={({ item }) => {
+          const isExpanded = expandedId === item.id;
 
-            <View style={{ flex: 1 }}>
-              <Text style={styles.nama}>{item.nama}</Text>
-              <Text>{item.lokasi}</Text>
-              <Text>Rp {item.hargaTiket}</Text>
-            </View>
-          </View>
-        )}
+          return (
+            <TouchableOpacity
+              style={styles.card}
+              onPress={() =>
+                setExpandedId(isExpanded ? null : item.id)
+              }
+            >
+              <Image
+                source={{
+                  uri: item.galeri?.[0]?.url
+                    ? `http://10.0.2.2:3000${item.galeri[0].url}`
+                    : 'https://via.placeholder.com/150',
+                }}
+                style={styles.cardImage}
+              />
+
+              <View style={{ flex: 1 }}>
+                <Text style={styles.nama}>{item.nama}</Text>
+                <Text>{item.lokasi}</Text>
+                <Text>Rp {item.hargaTiket}</Text>
+
+                {/* 🔥 DETAIL MUNCUL SAAT EXPAND */}
+                {isExpanded && (
+                  <View style={styles.detail}>
+                    <Text>📍 {item.alamat}</Text>
+                    <Text>🕒 {item.jamBuka}</Text>
+                    <Text>📝 {item.deskripsi}</Text>
+                  </View>
+                )}
+              </View>
+            </TouchableOpacity>
+          );
+        }}
       />
 
     </SafeAreaView>
@@ -181,7 +200,7 @@ const styles = StyleSheet.create({
   },
 
   form: {
-    maxHeight: 300, // 🔥 batasi tinggi biar bisa scroll
+    maxHeight: 300,
     marginBottom: 10,
   },
 
@@ -223,7 +242,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     borderRadius: 12,
     gap: 10,
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
 
   cardImage: {
@@ -233,4 +252,11 @@ const styles = StyleSheet.create({
   },
 
   nama: { fontWeight: 'bold', fontSize: 16 },
+
+  detail: {
+    marginTop: 6,
+    backgroundColor: '#f5f5f5',
+    padding: 8,
+    borderRadius: 8,
+  },
 });

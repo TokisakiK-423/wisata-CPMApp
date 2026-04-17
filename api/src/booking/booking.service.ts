@@ -44,9 +44,11 @@ export class BookingService {
     });
   }
 
-  delete(id: number) {
-    return this.prisma.booking.delete({
-      where: { id },
-    });
-  }
+  async delete(id: number) {
+  return this.prisma.wisata.update({
+    where: { id },
+    data: {
+      status: false, // 🔥 nonaktif
+    },
+  });
 }

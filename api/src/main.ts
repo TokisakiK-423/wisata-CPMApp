@@ -1,13 +1,10 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import * as dotenv from 'dotenv';
+import * as multer from 'multer';
+import { diskStorage } from 'multer';
 
-async function bootstrap() {
-  dotenv.config();
-
-  const app = await NestFactory.create(AppModule);
-  app.enableCors();
-
-  await app.listen(3000);
-}
-bootstrap();
+export const storage = diskStorage({
+  destination: './uploads',
+  filename: (req, file, cb) => {
+    const filename = Date.now() + '-' + file.originalname;
+    cb(null, filename);
+  },
+});

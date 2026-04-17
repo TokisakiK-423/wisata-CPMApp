@@ -115,3 +115,44 @@ export default function EditWisata() {
     </LinearGradient>
   );
 }
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+  },
+
+  title: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 10,
+  },
+
+  input: {
+    backgroundColor: '#fff',
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+
+  btn: {
+    backgroundColor: '#ddd',
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 10,
+    alignItems: 'center',
+  },
+
+  preview: {
+    height: 150,
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+
+  submit: {
+    backgroundColor: '#000',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+});

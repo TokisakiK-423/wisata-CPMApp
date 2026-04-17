@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import {
-  View, Text, FlatList, StyleSheet, SafeAreaView,
-  TouchableOpacity, Alert, ActivityIndicator,
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  SafeAreaView,
+  ActivityIndicator,
+  Image,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -14,35 +19,19 @@ export default function AdminReview() {
       const token = await AsyncStorage.getItem('token');
 
       const res = await fetch('http://10.0.2.2:3000/review', {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       const data = await res.json();
       setReviews(Array.isArray(data) ? data : []);
-    } catch {
+    } catch (e) {
+      console.log(e);
       setReviews([]);
     } finally {
       setLoading(false);
     }
-  };
-
-  const deleteReview = async (id: number) => {
-    Alert.alert('Hapus', 'Yakin?', [
-      { text: 'Batal' },
-      {
-        text: 'Hapus',
-        onPress: async () => {
-          const token = await AsyncStorage.getItem('token');
-
-          await fetch(`http://10.0.2.2:3000/review/${id}`, {
-            method: 'DELETE',
-            headers: { Authorization: `Bearer ${token}` },
-          });
-
-          fetchReviews();
-        },
-      },
-    ]);
   };
 
   useEffect(() => {
@@ -50,41 +39,57 @@ export default function AdminReview() {
   }, []);
 
   const renderStars = (rating: number) => {
-    return [...Array(5)].map((_, i) => (
-      <Text key={i}>
-        {i < rating ? '⭐' : '☆'}
-      </Text>
-    ));
+    return '★'.repeat(rating) + '☆'.repeat(5 - rating);
   };
 
-  if (loading) return <ActivityIndicator style={{ marginTop: 50 }} />;
+  if (loading) {
+    return <ActivityIndicator style={{ marginTop: 50 }} />;
+  }
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Kelola Review</Text>
+      <Text style={styles.title}>📊 Review Customer</Text>
 
       <FlatList
         data={reviews}
         keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={{ paddingBottom: 100 }}
+        ListEmptyComponent={
+          <Text style={{ textAlign: 'center', marginTop: 20 }}>
+            Belum ada review
+          </Text>
+        }
         renderItem={({ item }) => (
           <View style={styles.card}>
-            <Text style={styles.nama}>
-              {item.wisata?.nama}
+            {/* Nama Wisata */}
+            <Text style={styles.wisata}>
+              {item.wisata?.nama || '-'}
             </Text>
 
-            <View style={styles.starRow}>
+            {/* Rating */}
+            <Text style={styles.rating}>
               {renderStars(item.rating)}
-            </View>
+            </Text>
 
-            <Text>{item.nama}</Text>
-            <Text>{item.komentar}</Text>
+            {/* Nama Customer */}
+            <Text style={styles.nama}>
+              {item.nama}
+            </Text>
 
-            <TouchableOpacity
-              style={styles.delete}
-              onPress={() => deleteReview(item.id)}
-            >
-              <Text style={{ color: '#fff' }}>Hapus</Text>
-            </TouchableOpacity>
+            {/* Komentar */}
+            <Text style={styles.komentar}>
+              {item.komentar || '-'}
+            </Text>
+
+            {/* Gambar (jika ada) */}
+            {item.image && item.image !== '/uploads/undefined' && (
+              <Image
+                source={{
+                  uri: `http://10.0.2.2:3000${item.image}`,
+                }}
+                style={styles.image}
+              />
+            )}
           </View>
         )}
       />
@@ -93,19 +98,48 @@ export default function AdminReview() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20 },
-  title: { fontSize: 22, fontWeight: 'bold' },
-  card: {
-    borderWidth: 1,
-    padding: 10,
-    marginVertical: 5,
+  container: {
+    flex: 1,
+    backgroundColor: '#f8f9fa',
+    padding: 16,
   },
-  nama: { fontWeight: 'bold' },
-  starRow: { flexDirection: 'row', marginVertical: 5 },
-  delete: {
-    backgroundColor: 'red',
-    padding: 10,
+
+  title: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+
+  card: {
+    backgroundColor: '#fff',
+    padding: 14,
+    borderRadius: 12,
+    marginBottom: 12,
+    elevation: 2,
+  },
+
+  wisata: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+
+  rating: {
+    color: '#FFD700',
+    marginVertical: 4,
+  },
+
+  nama: {
+    fontWeight: '600',
+  },
+
+  komentar: {
+    color: '#555',
+    marginTop: 4,
+  },
+
+  image: {
+    height: 140,
     marginTop: 10,
-    borderRadius: 6,
+    borderRadius: 10,
   },
 });

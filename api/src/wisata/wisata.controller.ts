@@ -14,6 +14,10 @@ export class WisataController {
   findAll() {
     return this.service.findAll();
   }
+  @Get(':id')
+findOne(@Param('id') id: string) {
+  return this.service.findOne(Number(id));
+}
 
   @Delete(':id')
   remove(@Param('id') id: string) {

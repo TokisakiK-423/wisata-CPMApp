@@ -3,7 +3,6 @@ import {
   View,
   Text,
   FlatList,
-  StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
   Image,
@@ -14,39 +13,35 @@ import { useFocusEffect } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { styles, COLORS } from "@/app/lib/admin/styles";
+
 export default function AdminWisata() {
-  const [wisata, setWisata] = useState<any[]>([]);
+  const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [openId, setOpenId] = useState<number | null>(null);
 
   const insets = useSafeAreaInsets();
 
-  const fetchWisata = async () => {
+  const fetchData = async () => {
     try {
-      setLoading(true);
       const token = await AsyncStorage.getItem("token");
-
       const res = await fetch("http://10.0.2.2:3000/wisata", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      const data = await res.json();
-      setWisata(Array.isArray(data) ? data : []);
+      const json = await res.json();
+      setData(Array.isArray(json) ? json : []);
     } finally {
       setLoading(false);
     }
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchWisata();
-    }, [])
-  );
+  useFocusEffect(useCallback(() => { fetchData(); }, []));
 
-  const deleteWisata = async (id: number) => {
+  const remove = async (id: number) => {
     const token = await AsyncStorage.getItem("token");
 
-    Alert.alert("Konfirmasi", "Hapus data ini?", [
+    Alert.alert("Konfirmasi", "Hapus data?", [
       { text: "Batal" },
       {
         text: "Hapus",
@@ -56,56 +51,46 @@ export default function AdminWisata() {
             headers: { Authorization: `Bearer ${token}` },
           });
 
-          const result = await res.json();
+          const r = await res.json();
+          if (!res.ok) return Alert.alert("Error", r.message);
 
-          if (!res.ok) {
-            Alert.alert("Gagal", result.message);
-            return;
-          }
-
-          Alert.alert("Sukses", "Data berhasil dihapus");
-          fetchWisata();
+          fetchData();
         },
       },
     ]);
   };
 
-  const toggleStatus = async (id: number) => {
+  const toggle = async (id: number) => {
     const token = await AsyncStorage.getItem("token");
 
     await fetch(`http://10.0.2.2:3000/wisata/${id}/status`, {
       method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${token}` },
     });
 
-    fetchWisata();
+    fetchData();
   };
 
-  if (loading) {
-    return <ActivityIndicator style={{ marginTop: 50 }} />;
-  }
+  if (loading) return <ActivityIndicator style={{ marginTop: 50 }} />;
 
   return (
     <LinearGradient
-      colors={["#7b2ff7", "#f107a3"]}
+      colors={[COLORS.primary, COLORS.secondary]}
       style={[styles.container, { paddingTop: insets.top + 60 }]}
     >
       <Text style={styles.title}>Data Wisata</Text>
 
       <FlatList
-        data={wisata}
+        data={data}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={{ paddingBottom: 100 }}
         renderItem={({ item }) => {
-          const isExpanded = expandedId === item.id;
+          const open = openId === item.id;
 
           return (
             <TouchableOpacity
               style={styles.card}
-              onPress={() => setExpandedId(isExpanded ? null : item.id)}
+              onPress={() => setOpenId(open ? null : item.id)}
             >
               <Image
                 source={{
@@ -125,9 +110,9 @@ export default function AdminWisata() {
                   {item.status ? "AKTIF" : "NONAKTIF"}
                 </Text>
 
-                <Text>📊 Booking: {item._count?.bookings ?? 0} orang</Text>
+                <Text>📊 Booking: {item._count?.bookings ?? 0}</Text>
 
-                {isExpanded && (
+                {open && (
                   <View style={styles.detail}>
                     <Text>📍 {item.alamat}</Text>
                     <Text>🕒 {item.jamBuka}</Text>
@@ -139,9 +124,13 @@ export default function AdminWisata() {
                   <TouchableOpacity
                     style={[
                       styles.statusBtn,
-                      { backgroundColor: item.status ? "orange" : "green" },
+                      {
+                        backgroundColor: item.status
+                          ? COLORS.warning
+                          : COLORS.success,
+                      },
                     ]}
-                    onPress={() => toggleStatus(item.id)}
+                    onPress={() => toggle(item.id)}
                   >
                     <Text style={styles.btnText}>
                       {item.status ? "Nonaktifkan" : "Aktifkan"}
@@ -150,7 +139,7 @@ export default function AdminWisata() {
 
                   <TouchableOpacity
                     style={styles.deleteBtn}
-                    onPress={() => deleteWisata(item.id)}
+                    onPress={() => remove(item.id)}
                   >
                     <Text style={styles.btnText}>Hapus</Text>
                   </TouchableOpacity>
@@ -167,79 +156,3 @@ export default function AdminWisata() {
     </LinearGradient>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
-
-  title: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#fff",
-    marginBottom: 10,
-  },
-
-  card: {
-    flexDirection: "row",
-    backgroundColor: "#fff",
-    padding: 12,
-    borderRadius: 12,
-    marginBottom: 10,
-  },
-
-  cardImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 10,
-    marginRight: 10,
-  },
-
-  nama: {
-    fontWeight: "bold",
-    fontSize: 16,
-  },
-
-  detail: {
-    marginTop: 6,
-    backgroundColor: "#f5f5f5",
-    padding: 8,
-    borderRadius: 8,
-  },
-
-  row: {
-    flexDirection: "row",
-    marginTop: 8,
-    gap: 10,
-  },
-
-  deleteBtn: {
-    backgroundColor: "red",
-    padding: 6,
-    borderRadius: 6,
-  },
-
-  statusBtn: {
-    padding: 6,
-    borderRadius: 6,
-  },
-
-  btnText: {
-    color: "#fff",
-  },
-
-  fab: {
-    position: "absolute",
-    right: 20,
-    bottom: 20,
-    backgroundColor: "#000",
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  fabText: {
-    color: "#fff",
-    fontSize: 30,
-  },
-});

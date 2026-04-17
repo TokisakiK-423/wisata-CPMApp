@@ -1,7 +1,6 @@
 import {
   Controller,
   Post,
-  Get,
   Body,
   Req,
   UseGuards,
@@ -9,15 +8,27 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ReviewService } from './review.service';
-import { JwtGuard } from '../auth/jwt.guard';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 
 @Controller('review')
 export class ReviewController {
   constructor(private service: ReviewService) {}
 
   @UseGuards(JwtGuard)
-  @UseInterceptors(FileInterceptor('image')) // 🔥 INI PENTING
+  @UseInterceptors(
+    FileInterceptor('image', {
+      storage: diskStorage({
+        destination: './public/uploads',
+        filename: (req, file, cb) => {
+          const uniqueName =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+
+          cb(null, uniqueName + extname(file.originalname));
+        },
+      }),
+    }),
+  )
   @Post()
   create(
     @UploadedFile() file: Express.Multer.File,
@@ -25,10 +36,5 @@ export class ReviewController {
     @Req() req: any,
   ) {
     return this.service.create(body, req.user.id, file);
-  }
-
-  @Get()
-  findAll() {
-    return this.service.findAll();
   }
 }

@@ -54,41 +54,64 @@ export default function CustomerHomeScreen() {
   };
 
   const renderWisata = ({ item }: { item: WisataItem }) => {
-    const { avg, total } = getRating(item.reviews);
+  const { avg, total } = getRating(item.reviews);
+  const isNonaktif = item.status === false;
 
-    const imageUrl =
-      item.galeri && item.galeri.length > 0
-        ? `http://10.0.2.2:3000${item.galeri[0].url}`
-        : 'https://via.placeholder.com/300x200';
+  return (
+    <TouchableOpacity
+      style={[
+        styles.card,
+        isNonaktif && { opacity: 0.5 }
+      ]}
+      onPress={() => {
+        if (isNonaktif) {
+          Alert.alert("Info", "Wisata ini sedang nonaktif!");
+          return;
+        }
+        router.push(`/wisata/${item.id}`);
+      }}
+    >
+      <Image
+        source={{
+          uri: item.galeri?.[0]?.url
+            ? `http://10.0.2.2:3000${item.galeri[0].url}`
+            : 'https://via.placeholder.com/300x200',
+        }}
+        style={styles.image}
+      />
 
-    return (
-      <TouchableOpacity
-        style={styles.card}
-        onPress={() => router.push(`/wisata/${item.id}`)}
-      >
-        <Image source={{ uri: imageUrl }} style={styles.image} />
+      <View style={styles.content}>
+        <Text style={styles.nama}>{item.nama || '-'}</Text>
+        <Text style={styles.lokasi}>📍 {item.lokasi || '-'}</Text>
 
-        <View style={styles.content}>
-          <Text style={styles.nama}>{item.nama}</Text>
-          <Text style={styles.lokasi}>📍 {item.lokasi}</Text>
+        {isNonaktif && (
+          <Text style={{ color: 'red', fontWeight: 'bold' }}>
+            NONAKTIF
+          </Text>
+        )}
 
-          <View style={styles.footer}>
-            <View style={styles.ratingContainer}>
-              <Ionicons name="star" size={16} color="#FFD700" />
-              <Text style={styles.rating}> {avg.toFixed(1)}</Text>
-              <Text style={styles.reviewCount}> ({total})</Text>
-            </View>
+        <View style={styles.footer}>
+          <View style={styles.ratingContainer}>
+            <Ionicons name="star" size={16} color="#FFD700" />
+            <Text style={styles.rating}>
+              {Number(avg || 0).toFixed(1)}
+            </Text>
+            <Text style={styles.reviewCount}>
+              ({total})
+            </Text>
+          </View>
 
-            {item.hargaTiket && (
+          {item.hargaTiket !== null &&
+            item.hargaTiket !== undefined && (
               <Text style={styles.harga}>
-                Rp {item.hargaTiket.toLocaleString()}
+                Rp {Number(item.hargaTiket).toLocaleString()}
               </Text>
             )}
-          </View>
         </View>
-      </TouchableOpacity>
-    );
-  };
+      </View>
+    </TouchableOpacity>
+  );
+};
 
   if (loading) {
     return <ActivityIndicator style={{ marginTop: 50 }} />;

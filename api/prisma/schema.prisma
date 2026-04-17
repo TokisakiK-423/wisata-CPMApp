@@ -1,8 +1,12 @@
 
 model Booking {
   id        Int     @id @default(autoincrement())
+
   wisataId  Int
-  wisata    Wisata @relation(fields: [wisataId], references: [id])
+  wisata    Wisata  @relation(fields: [wisataId], references: [id])
+
+  customerId Int?
+  customer   Customer? @relation(fields: [customerId], references: [id])
 }
 
 model Wisata {

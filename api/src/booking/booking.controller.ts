@@ -43,4 +43,10 @@ export class BookingController {
   delete(@Param('id') id: string) {
     return this.service.delete(+id);
   }
+  @Get()
+@UseGuards(JwtGuard)
+findAll(@Req() req) {
+  console.log('🔥 USER:', req.user);
+  return this.service.findAll();
+}
 }

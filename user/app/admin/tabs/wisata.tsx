@@ -1,38 +1,47 @@
-import React, { useState, useCallback } from 'react';
 import {
-  View, Text, FlatList, StyleSheet,
-  TouchableOpacity, ActivityIndicator, Image, Alert
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  Image,
+  StyleSheet,
+  Alert,
 } from 'react-native';
+import { useEffect, useState, useCallback } from 'react';
+import { useRouter, useFocusEffect } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect, router } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
 
-export default function AdminWisata() {
-  const [wisata, setWisata] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function WisataAdmin() {
+  const [data, setData] = useState<any[]>([]);
+  const [expandedId, setExpandedId] = useState<number | null>(null);
+  const router = useRouter();
 
-  const fetchWisata = async () => {
+  const fetchData = async () => {
     try {
-      setLoading(true);
       const token = await AsyncStorage.getItem('token');
 
       const res = await fetch('http://10.0.2.2:3000/wisata', {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      const data = await res.json();
-      setWisata(Array.isArray(data) ? data : []);
-    } finally {
-      setLoading(false);
+      const json = await res.json();
+      setData(json);
+    } catch (err) {
+      console.log(err);
+      Alert.alert('Error', 'Gagal ambil data');
     }
   };
 
-  useFocusEffect(useCallback(() => { fetchWisata(); }, []));
+  useFocusEffect(
+    useCallback(() => {
+      fetchData();
+    }, [])
+  );
 
   const deleteWisata = async (id: number) => {
     const token = await AsyncStorage.getItem('token');
 
-    Alert.alert('Konfirmasi', 'Hapus data ini?', [
+    Alert.alert('Konfirmasi', 'Yakin mau hapus?', [
       { text: 'Batal' },
       {
         text: 'Hapus',
@@ -41,150 +50,146 @@ export default function AdminWisata() {
             method: 'DELETE',
             headers: { Authorization: `Bearer ${token}` },
           });
-          fetchWisata();
-        }
-      }
+
+          fetchData();
+        },
+      },
     ]);
   };
 
-  if (loading) return <ActivityIndicator style={{ marginTop: 50 }} />;
-
   return (
-    <LinearGradient colors={['#7b2ff7', '#f107a3']} style={styles.container}>
-      <Text style={styles.title}>Data Wisata</Text>
+    <View style={styles.container}>
+      <FlatList
+        data={data}
+        keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={{ paddingBottom: 100 }}
+        renderItem={({ item }) => {
+          const isExpanded = expandedId === item.id;
 
-      renderItem={({ item }) => {
-  const isExpanded = expandedId === item.id;
+          return (
+            <TouchableOpacity
+              style={styles.card}
+              onPress={() =>
+                setExpandedId(isExpanded ? null : item.id)
+              }
+            >
+              <Image
+                source={{
+                  uri: item.galeri?.[0]?.url
+                    ? `http://10.0.2.2:3000${item.galeri[0].url}`
+                    : 'https://via.placeholder.com/150',
+                }}
+                style={styles.cardImage}
+              />
 
-  return (
-    <TouchableOpacity
-      style={styles.card}
-      onPress={() =>
-        setExpandedId(isExpanded ? null : item.id)
-      }
-    >
-      <Image
-        source={{
-          uri: item.galeri?.[0]?.url
-            ? `http://10.0.2.2:3000${item.galeri[0].url}`
-            : 'https://via.placeholder.com/150',
+              <View style={{ flex: 1 }}>
+                <Text style={styles.nama}>{item.nama}</Text>
+                <Text>{item.lokasi}</Text>
+                <Text>Rp {item.hargaTiket}</Text>
+
+                {isExpanded && (
+                  <View style={styles.detail}>
+                    <Text>📍 {item.alamat}</Text>
+                    <Text>🕒 {item.jamBuka}</Text>
+                    <Text>📝 {item.deskripsi}</Text>
+                  </View>
+                )}
+
+                <View style={styles.row}>
+                  <TouchableOpacity
+                    style={styles.editBtn}
+                    onPress={() =>
+                      router.push(`/admin/tabs/edit?id=${item.id}`)
+                    }
+                  >
+                    <Text style={styles.btnText}>Edit</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={styles.deleteBtn}
+                    onPress={() => deleteWisata(item.id)}
+                  >
+                    <Text style={styles.btnText}>Hapus</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </TouchableOpacity>
+          );
         }}
-        style={styles.cardImage}
       />
 
-      <View style={{ flex: 1 }}>
-        <Text style={styles.nama}>{item.nama}</Text>
-        <Text>{item.lokasi}</Text>
-        <Text>Rp {item.hargaTiket}</Text>
-
-        {/* 🔥 DETAIL EXPAND */}
-        {isExpanded && (
-          <View style={styles.detail}>
-            <Text>📍 {item.alamat}</Text>
-            <Text>🕒 {item.jamBuka}</Text>
-            <Text>📝 {item.deskripsi}</Text>
-          </View>
-        )}
-
-        {/* 🔥 ACTION */}
-        <View style={styles.row}>
-          <TouchableOpacity
-            style={styles.editBtn}
-            onPress={() =>
-              router.push(`/admin/tabs/edit?id=${item.id}`)
-            }
-          >
-            <Text style={styles.btnText}>Edit</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.deleteBtn}
-            onPress={() => deleteWisata(item.id)}
-          >
-            <Text style={styles.btnText}>Hapus</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
-}}
-
-      {/* FAB */}
       <TouchableOpacity
         style={styles.fab}
-        onPress={() => router.push('/admin/tabs/edit')}
+        onPress={() => router.push('/admin/tabs/create')}
       >
-        <Text style={styles.fabText}>＋</Text>
+        <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
-    </LinearGradient>
+    </View>
   );
 }
+
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
-
-  title: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 10,
+  container: {
+    flex: 1,
+    padding: 10,
+    backgroundColor: '#f3e5f5',
   },
-
   card: {
     flexDirection: 'row',
     backgroundColor: '#fff',
-    padding: 12,
-    borderRadius: 12,
     marginBottom: 10,
+    borderRadius: 12,
+    padding: 10,
+    elevation: 3,
   },
-
   cardImage: {
-    width: 80,
-    height: 80,
+    width: 90,
+    height: 90,
     borderRadius: 10,
     marginRight: 10,
   },
-
   nama: {
     fontWeight: 'bold',
     fontSize: 16,
   },
-
+  detail: {
+    marginTop: 8,
+    backgroundColor: '#fce4ec',
+    padding: 8,
+    borderRadius: 8,
+  },
   row: {
     flexDirection: 'row',
     marginTop: 8,
-    gap: 10,
   },
-
   editBtn: {
-    backgroundColor: '#7b2ff7',
+    backgroundColor: '#8e24aa',
     padding: 6,
     borderRadius: 6,
+    marginRight: 6,
   },
-
   deleteBtn: {
-    backgroundColor: 'red',
+    backgroundColor: '#e53935',
     padding: 6,
     borderRadius: 6,
   },
-
   btnText: {
     color: '#fff',
   },
-
   fab: {
     position: 'absolute',
-    right: 20,
     bottom: 20,
-    backgroundColor: '#000',
+    right: 20,
+    backgroundColor: '#d81b60',
     width: 60,
     height: 60,
     borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
+    elevation: 5,
   },
-
   fabText: {
     color: '#fff',
-    fontSize: 30,
+    fontSize: 24,
   },
 });

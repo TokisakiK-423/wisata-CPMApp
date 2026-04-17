@@ -53,6 +53,10 @@ export class WisataController {
   ) {
     return this.service.update(Number(id), body, file);
   }
+  @Patch(':id/status')
+updateStatus(@Param('id') id: string, @Body() body: any) {
+  return this.service.updateStatus(Number(id), body.status);
+}
 
   @Delete(':id')
   remove(@Param('id') id: string) {

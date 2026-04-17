@@ -2,7 +2,6 @@ import {
   Controller,
   Post,
   Get,
-  Delete,
   Param,
   Body,
   UseGuards,
@@ -17,24 +16,12 @@ export class ReviewController {
 
   @UseGuards(JwtGuard)
   @Post()
-  create(@Body() body, @Req() req) {
-    return this.service.create(body, req.user);
+  create(@Body() body: any, @Req() req: any) {
+    return this.service.create(body, req.user.id);
   }
-@Post()
-create(
-  @Body() body: any,
-  @Req() req: any,
-) {
-  const user = req.user; // dari auth guard
-  return this.service.create(body, user.id);
-}
+
   @Get()
   findAll() {
     return this.service.findAll();
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.service.delete(+id);
   }
 }

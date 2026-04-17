@@ -8,6 +8,7 @@ import type { Express } from 'express';
 export class WisataService {
   constructor(private prisma: PrismaService) {}
 
+  // ================= CREATE =================
   async create(data: any, file?: Express.Multer.File) {
     const wisata = await this.prisma.wisata.create({
       data: {
@@ -17,6 +18,7 @@ export class WisataService {
         alamat: data.alamat,
         jamBuka: data.jamBuka,
         hargaTiket: Number(data.hargaTiket),
+        status: true, // 🔥 default aktif
       },
     });
 
@@ -29,34 +31,39 @@ export class WisataService {
       });
     }
 
-    return this.findOne(wisata.id); // 🔥 penting: biar include galeri
+    return this.findOne(wisata.id);
   }
 
+  // ================= GET ALL =================
   async findAll() {
-  return this.prisma.wisata.findMany({
-    include: {
-      galeri: true,
-      _count: {
-        select: {
-          bookings: true,
+    return this.prisma.wisata.findMany({
+      include: {
+        galeri: true,
+        reviews: true,
+        _count: {
+          select: { bookings: true },
         },
       },
-    },
-  });
-}
+    });
+  }
 
+  // ================= GET ONE =================
   async findOne(id: number) {
-  return this.prisma.wisata.findUnique({
-    where: { id },
-    include: {
-      galeri: true,
-      reviews: {
-        orderBy: { createdAt: 'desc' },
+    return this.prisma.wisata.findUnique({
+      where: { id },
+      include: {
+        galeri: true,
+        reviews: {
+          orderBy: { createdAt: 'desc' },
+        },
+        _count: {
+          select: { bookings: true },
+        },
       },
-    },
-  });
-}
+    });
+  }
 
+  // ================= UPDATE =================
   async update(id: number, data: any, file?: Express.Multer.File) {
     const wisata = await this.prisma.wisata.findUnique({
       where: { id },
@@ -67,7 +74,7 @@ export class WisataService {
       throw new BadRequestException('Data tidak ditemukan');
     }
 
-    const updated = await this.prisma.wisata.update({
+    await this.prisma.wisata.update({
       where: { id },
       data: {
         nama: data.nama,
@@ -82,23 +89,19 @@ export class WisataService {
     if (file) {
       // 🔥 hapus file lama
       for (const g of wisata.galeri) {
-        const filePath = path.join(
-          process.cwd(),
-          'public',
-          g.url.replace('/uploads/', 'uploads/')
-        );
+        const filePath = path.join(process.cwd(), 'public', g.url);
 
         if (fs.existsSync(filePath)) {
           fs.unlinkSync(filePath);
         }
       }
 
-      // 🔥 hapus galeri lama
+      // 🔥 hapus data galeri
       await this.prisma.galeri.deleteMany({
         where: { wisataId: id },
       });
 
-      // 🔥 simpan baru
+      // 🔥 simpan gambar baru
       await this.prisma.galeri.create({
         data: {
           wisataId: id,
@@ -110,6 +113,7 @@ export class WisataService {
     return this.findOne(id);
   }
 
+  // ================= DELETE =================
   async delete(id: number) {
     const count = await this.prisma.booking.count({
       where: { wisataId: id },
@@ -117,7 +121,7 @@ export class WisataService {
 
     if (count > 0) {
       throw new BadRequestException(
-        `Wisata tidak bisa dihapus karena masih ada ${count} booking`
+        `Wisata tidak bisa dihapus karena masih ada ${count} booking`,
       );
     }
 
@@ -126,11 +130,7 @@ export class WisataService {
     });
 
     for (const g of galeri) {
-      const filePath = path.join(
-        process.cwd(),
-        'public',
-        g.url.replace('/uploads/', 'uploads/')
-      );
+      const filePath = path.join(process.cwd(), 'public', g.url);
 
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
@@ -145,20 +145,24 @@ export class WisataService {
       where: { id },
     });
   }
+
+  // ================= TOGGLE STATUS =================
   async toggleStatus(id: number) {
-  const wisata = await this.prisma.wisata.findUnique({
-    where: { id },
-  });
+    const wisata = await this.prisma.wisata.findUnique({
+      where: { id },
+    });
 
-  if (!wisata) {
-    throw new Error('Data tidak ditemukan');
+    if (!wisata) {
+      throw new BadRequestException('Data tidak ditemukan');
+    }
+
+    await this.prisma.wisata.update({
+      where: { id },
+      data: {
+        status: !wisata.status,
+      },
+    });
+
+    return this.findOne(id); // 🔥 penting buat UI refresh
   }
-
-  return this.prisma.wisata.update({
-    where: { id },
-    data: {
-      status: !wisata.status, // 🔥 dibalik true/false
-    },
-  });
-}
 }

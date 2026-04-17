@@ -54,10 +54,21 @@ export default function EditWisata() {
   };
 
   const submit = async () => {
-    const token = await AsyncStorage.getItem('token');
-    const formData = new FormData();
+  const token = await AsyncStorage.getItem('token');
 
-    Object.entries(form).forEach(([k, v]) => formData.append(k, v as string));
+  let body: any;
+  let headers: any = { Authorization: `Bearer ${token}` };
+
+  // 🔥 kalau edit → pakai JSON (lebih stabil)
+  if (isEdit) {
+    headers['Content-Type'] = 'application/json';
+    body = JSON.stringify(form);
+  } else {
+    // kalau create → tetap FormData (karena upload gambar)
+    const formData = new FormData();
+    Object.entries(form).forEach(([k, v]) =>
+      formData.append(k, v as string)
+    );
 
     if (image) {
       formData.append('image', {
@@ -67,21 +78,25 @@ export default function EditWisata() {
       } as any);
     }
 
-    const url = isEdit
-      ? `http://10.0.2.2:3000/wisata/${id}`
-      : `http://10.0.2.2:3000/wisata`;
+    body = formData;
+  }
 
-    const method = isEdit ? 'PATCH' : 'POST';
+  const url = isEdit
+    ? `http://10.0.2.2:3000/wisata/${id}`
+    : `http://10.0.2.2:3000/wisata`;
 
-    await fetch(url, {
-      method,
-      headers: { Authorization: `Bearer ${token}` },
-      body: formData,
-    });
+  const method = isEdit ? 'PATCH' : 'POST';
 
-    Alert.alert('Sukses', isEdit ? 'Data diupdate' : 'Data ditambah');
-    router.back();
-  };
+  await fetch(url, {
+    method,
+    headers,
+    body,
+  });
+
+  Alert.alert('Sukses', isEdit ? 'Data diupdate' : 'Data ditambah');
+
+  router.back(); // balik → otomatis refetch
+};
 
   return (
     <LinearGradient colors={['#7b2ff7', '#f107a3']} style={styles.container}>

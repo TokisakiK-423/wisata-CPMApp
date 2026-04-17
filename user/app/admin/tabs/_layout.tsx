@@ -2,16 +2,17 @@ import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { logout } from './utils/auth';
-import { styles } from './styles';
-import { COLORS } from './colors';
+import { logout } from '@/app/lib/admin/utils/auth';
+import { styles } from '@/app/lib/admin/styles';
+import { COLORS } from '@/app/lib/admin/colors';
 
 export default function AdminTabsLayout() {
+  const insets = useSafeAreaInsets();
+
   return (
     <View style={{ flex: 1 }}>
-
-      {/* 🔥 BACKGROUND GRADASI GLOBAL */}
       <LinearGradient
         colors={[COLORS.primary, COLORS.secondary]}
         style={styles.background}
@@ -20,9 +21,13 @@ export default function AdminTabsLayout() {
       <Tabs
         screenOptions={{
           headerShown: true,
-
-          // 🔥 HEADER NYATU DENGAN BACKGROUND
           headerTransparent: true,
+
+          // 🔥 FIX UTAMA
+          headerStyle: {
+            height: 80 + insets.top,
+          },
+
           headerTitleStyle: {
             color: COLORS.white,
             fontWeight: 'bold',
@@ -39,35 +44,9 @@ export default function AdminTabsLayout() {
           ),
         }}
       >
-        <Tabs.Screen
-          name="wisata"
-          options={{
-            title: 'Wisata',
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="images-outline" size={size} color={color} />
-            ),
-          }}
-        />
-
-        <Tabs.Screen
-          name="booking"
-          options={{
-            title: 'Booking',
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="calendar-outline" size={size} color={color} />
-            ),
-          }}
-        />
-
-        <Tabs.Screen
-          name="review"
-          options={{
-            title: 'Review',
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="star-outline" size={size} color={color} />
-            ),
-          }}
-        />
+        <Tabs.Screen name="wisata" options={{ title: 'Wisata' }} />
+        <Tabs.Screen name="booking" options={{ title: 'Booking' }} />
+        <Tabs.Screen name="review" options={{ title: 'Review' }} />
       </Tabs>
     </View>
   );

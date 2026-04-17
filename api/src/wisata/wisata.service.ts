@@ -31,14 +31,16 @@ export class WisataService {
     return wisata;
   }
 
-  async findAll() {
-    return this.prisma.wisata.findMany({
-      include: {
-        galeri: true,
-        _count: { select: { bookings: true } }, // 🔥 bonus
+ async findAll() {
+  return this.prisma.wisata.findMany({
+    include: {
+      galeri: true,
+      _count: {
+        select: { bookings: true },
       },
-    });
-  }
+    },
+  });
+}
 
   async findOne(id: number) {
     return this.prisma.wisata.findUnique({

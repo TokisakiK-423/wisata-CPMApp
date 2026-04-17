@@ -6,5 +6,6 @@ import { PrismaService } from '../prisma/prisma.service';
 @Module({
   controllers: [WisataController],
   providers: [WisataService, PrismaService],
+  exports: [WisataService], // 🔥 penting buat dipakai di module lain
 })
 export class WisataModule {}

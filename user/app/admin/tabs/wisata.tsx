@@ -1,47 +1,38 @@
-import React, { useState, useCallback } from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  TouchableOpacity,
-  ActivityIndicator,
-  Image,
-  Alert,
-} from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useFocusEffect } from "expo-router";
-import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { styles, COLORS } from "@/app/lib/admin/styles";
-
 export default function AdminWisata() {
-  const [data, setData] = useState<any[]>([]);
+  const [wisata, setWisata] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [openId, setOpenId] = useState<number | null>(null);
+  const [expandedId, setExpandedId] = useState<number | null>(null);
 
   const insets = useSafeAreaInsets();
 
-  const fetchData = async () => {
+  const fetchWisata = async () => {
     try {
+      setLoading(true);
       const token = await AsyncStorage.getItem("token");
+
       const res = await fetch("http://10.0.2.2:3000/wisata", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      const json = await res.json();
-      setData(Array.isArray(json) ? json : []);
+      const data = await res.json();
+      setWisata(Array.isArray(data) ? data : []);
     } finally {
       setLoading(false);
     }
   };
 
-  useFocusEffect(useCallback(() => { fetchData(); }, []));
+  useFocusEffect(
+    useCallback(() => {
+      fetchWisata();
+    }, [])
+  );
 
-  const remove = async (id: number) => {
+  const deleteWisata = async (id: number) => {
     const token = await AsyncStorage.getItem("token");
 
-    Alert.alert("Konfirmasi", "Hapus data?", [
+    Alert.alert("Konfirmasi", "Hapus data ini?", [
       { text: "Batal" },
       {
         text: "Hapus",
@@ -51,46 +42,55 @@ export default function AdminWisata() {
             headers: { Authorization: `Bearer ${token}` },
           });
 
-          const r = await res.json();
-          if (!res.ok) return Alert.alert("Error", r.message);
+          const result = await res.json();
 
-          fetchData();
+          if (!res.ok) {
+            Alert.alert("Gagal", result.message);
+            return;
+          }
+
+          Alert.alert("Sukses", "Data berhasil dihapus");
+          fetchWisata();
         },
       },
     ]);
   };
 
-  const toggle = async (id: number) => {
+  const toggleStatus = async (id: number, current: boolean) => {
     const token = await AsyncStorage.getItem("token");
 
     await fetch(`http://10.0.2.2:3000/wisata/${id}/status`, {
       method: "PATCH",
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ status: !current }),
     });
 
-    fetchData();
+    fetchWisata();
   };
 
   if (loading) return <ActivityIndicator style={{ marginTop: 50 }} />;
 
   return (
     <LinearGradient
-      colors={[COLORS.primary, COLORS.secondary]}
-      style={[styles.container, { paddingTop: insets.top + 60 }]}
+      colors={["#7b2ff7", "#f107a3"]}
+      style={[styles.container, { paddingTop: insets.top + 70 }]}
     >
       <Text style={styles.title}>Data Wisata</Text>
 
       <FlatList
-        data={data}
+        data={wisata}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={{ paddingBottom: 100 }}
         renderItem={({ item }) => {
-          const open = openId === item.id;
+          const isExpanded = expandedId === item.id;
 
           return (
             <TouchableOpacity
               style={styles.card}
-              onPress={() => setOpenId(open ? null : item.id)}
+              onPress={() => setExpandedId(isExpanded ? null : item.id)}
             >
               <Image
                 source={{
@@ -110,9 +110,9 @@ export default function AdminWisata() {
                   {item.status ? "AKTIF" : "NONAKTIF"}
                 </Text>
 
-                <Text>📊 Booking: {item._count?.bookings ?? 0}</Text>
+                <Text>📊 Booking: {item._count?.bookings ?? 0} orang</Text>
 
-                {open && (
+                {isExpanded && (
                   <View style={styles.detail}>
                     <Text>📍 {item.alamat}</Text>
                     <Text>🕒 {item.jamBuka}</Text>
@@ -124,13 +124,9 @@ export default function AdminWisata() {
                   <TouchableOpacity
                     style={[
                       styles.statusBtn,
-                      {
-                        backgroundColor: item.status
-                          ? COLORS.warning
-                          : COLORS.success,
-                      },
+                      { backgroundColor: item.status ? "orange" : "green" },
                     ]}
-                    onPress={() => toggle(item.id)}
+                    onPress={() => toggleStatus(item.id, item.status)}
                   >
                     <Text style={styles.btnText}>
                       {item.status ? "Nonaktifkan" : "Aktifkan"}
@@ -138,8 +134,17 @@ export default function AdminWisata() {
                   </TouchableOpacity>
 
                   <TouchableOpacity
+                    style={styles.editBtn}
+                    onPress={() =>
+                      router.push(`/admin/tabs/edit?id=${item.id}`)
+                    }
+                  >
+                    <Text style={styles.btnText}>Edit</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
                     style={styles.deleteBtn}
-                    onPress={() => remove(item.id)}
+                    onPress={() => deleteWisata(item.id)}
                   >
                     <Text style={styles.btnText}>Hapus</Text>
                   </TouchableOpacity>
@@ -150,7 +155,10 @@ export default function AdminWisata() {
         }}
       />
 
-      <TouchableOpacity style={styles.fab}>
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => router.push("/admin/tabs/edit")}
+      >
         <Text style={styles.fabText}>＋</Text>
       </TouchableOpacity>
     </LinearGradient>

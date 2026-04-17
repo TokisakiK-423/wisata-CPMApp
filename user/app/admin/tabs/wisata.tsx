@@ -11,6 +11,20 @@ export default function AdminWisata() {
   const [wisata, setWisata] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<number | null>(null);
+  const toggleStatus = async (id: number, current: boolean) => {
+  const token = await AsyncStorage.getItem('token');
+
+  await fetch(`http://10.0.2.2:3000/wisata/${id}/status`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ status: !current }),
+  });
+
+  fetchWisata();
+};
 
   const fetchWisata = async () => {
     try {

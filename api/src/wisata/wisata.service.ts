@@ -139,4 +139,20 @@ export class WisataService {
       where: { id },
     });
   }
+  async toggleStatus(id: number) {
+  const wisata = await this.prisma.wisata.findUnique({
+    where: { id },
+  });
+
+  if (!wisata) {
+    throw new Error('Data tidak ditemukan');
+  }
+
+  return this.prisma.wisata.update({
+    where: { id },
+    data: {
+      status: !wisata.status, // 🔥 dibalik true/false
+    },
+  });
+}
 }

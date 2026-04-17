@@ -16,7 +16,37 @@ export default function CustomerReview() {
     rating: 5,
     komentar: '',
   });
+const [rating, setRating] = useState(5);
+const [komentar, setKomentar] = useState('');
 
+const submitReview = async () => {
+  const token = await AsyncStorage.getItem('token');
+
+  const res = await fetch('http://10.0.2.2:3000/review', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      wisataId: id,
+      rating,
+      komentar,
+    }),
+  });
+
+  const result = await res.json();
+
+  if (!res.ok) {
+    Alert.alert('Error', result.message);
+    return;
+  }
+
+  Alert.alert('Sukses', 'Review berhasil dikirim');
+
+  setKomentar('');
+  fetchDetail(); // 🔥 reload biar langsung muncul
+};
   const fetchData = async () => {
     try {
       const token = await AsyncStorage.getItem('token');

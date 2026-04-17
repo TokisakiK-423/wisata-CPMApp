@@ -1,4 +1,3 @@
-
 import { Controller, Post, Get, Delete, Param, Body } from '@nestjs/common';
 import { GaleriService } from './galeri.service';
 

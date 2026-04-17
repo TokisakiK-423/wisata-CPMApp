@@ -67,11 +67,11 @@ model Review {
   nama       String
   rating     Int
   komentar   String?
-  image      String? // 🔥 WAJIB ADA
+  image      String?   // 🔥 WAJIB ADA INI
   createdAt  DateTime @default(now())
 
-  wisata   Wisata    @relation(fields: [wisataId], references: [id])
   customer Customer? @relation(fields: [customerId], references: [id])
+  wisata   Wisata    @relation(fields: [wisataId], references: [id])
 }
 
 model Booking {

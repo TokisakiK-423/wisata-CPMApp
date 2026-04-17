@@ -7,8 +7,7 @@ export class AuthService {
   constructor(private prisma: PrismaService) {}
 
   async login(username: string, password: string) {
-    const secret = process.env.JWT_SECRET;
-    if (!secret) throw new Error('JWT_SECRET belum ada');
+    const secret = process.env.JWT_SECRET as string;
 
     const admin = await this.prisma.admin.findUnique({
       where: { username },

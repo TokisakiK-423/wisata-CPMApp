@@ -194,4 +194,43 @@ reviewImage: {
   marginTop: 10,
   borderRadius: 10,
 },
+  editContainer: {
+  flex: 1,
+  padding: 16,
+},
+
+editTitle: {
+  fontSize: 22,
+  fontWeight: 'bold',
+  color: '#fff',
+  marginBottom: 10,
+},
+
+editInput: {
+  backgroundColor: '#fff',
+  padding: 10,
+  borderRadius: 8,
+  marginBottom: 8,
+},
+
+editBtn: {
+  backgroundColor: '#ddd',
+  padding: 10,
+  borderRadius: 8,
+  marginBottom: 10,
+  alignItems: 'center',
+},
+
+editPreview: {
+  height: 150,
+  borderRadius: 10,
+  marginBottom: 10,
+},
+
+editSubmit: {
+  backgroundColor: '#000',
+  padding: 12,
+  borderRadius: 8,
+  alignItems: 'center',
+},
 });

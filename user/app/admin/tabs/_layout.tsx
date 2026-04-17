@@ -23,7 +23,6 @@ export default function AdminTabsLayout() {
           headerShown: true,
           headerTransparent: true,
 
-          // 🔥 FIX UTAMA
           headerStyle: {
             height: 80 + insets.top,
           },
@@ -44,9 +43,35 @@ export default function AdminTabsLayout() {
           ),
         }}
       >
-        <Tabs.Screen name="wisata" options={{ title: 'Wisata' }} />
-        <Tabs.Screen name="booking" options={{ title: 'Booking' }} />
-        <Tabs.Screen name="review" options={{ title: 'Review' }} />
+        <Tabs.Screen
+          name="wisata"
+          options={{
+            title: 'Wisata',
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="images-outline" size={size} color={color} />
+            ),
+          }}
+        />
+
+        <Tabs.Screen
+          name="booking"
+          options={{
+            title: 'Booking',
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="calendar-outline" size={size} color={color} />
+            ),
+          }}
+        />
+
+        <Tabs.Screen
+          name="review"
+          options={{
+            title: 'Review',
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="star-outline" size={size} color={color} />
+            ),
+          }}
+        />
       </Tabs>
     </View>
   );

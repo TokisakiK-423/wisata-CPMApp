@@ -64,65 +64,68 @@ export default function AdminWisata() {
   if (loading) return <ActivityIndicator style={{ marginTop: 50 }} />;
 
   return (
-    <LinearGradient colors={['#7b2ff7', '#f107a3']} style={styles.container}>
-      <Text style={styles.title}>Data Wisata</Text>
+    renderItem={({ item }) => (
+  <TouchableOpacity
+    style={[
+      styles.card,
+      { opacity: item.status ? 1 : 0.5 } // 🔥 kalau nonaktif jadi redup
+    ]}
+  >
+    <Image
+      source={{
+        uri: item.galeri?.[0]?.url
+          ? `http://10.0.2.2:3000${item.galeri[0].url}`
+          : 'https://via.placeholder.com/150',
+      }}
+      style={styles.cardImage}
+    />
 
-      <FlatList
-        data={wisata}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => {
-          const isExpanded = expandedId === item.id;
+    <View style={{ flex: 1 }}>
+      <Text style={styles.nama}>{item.nama}</Text>
+      <Text>{item.lokasi}</Text>
+      <Text>Rp {item.hargaTiket}</Text>
 
-          return (
-            <TouchableOpacity
-              style={styles.card}
-              onPress={() =>
-                setExpandedId(isExpanded ? null : item.id)
-              }
-            >
-              <Image
-                source={{
-                  uri: item.galeri?.[0]?.url
-                    ? `http://10.0.2.2:3000${item.galeri[0].url}`
-                    : 'https://via.placeholder.com/150',
-                }}
-                style={styles.cardImage}
-              />
+      {/* 🔥 jumlah booking */}
+      <Text style={{ color: '#666', marginTop: 4 }}>
+        📦 {item._count?.bookings || 0} booking
+      </Text>
 
-              <View style={{ flex: 1 }}>
-                <Text style={styles.nama}>{item.nama}</Text>
-                <Text>{item.lokasi}</Text>
-                <Text>Rp {item.hargaTiket}</Text>
+      {/* 🔥 status */}
+      <Text style={{
+        color: item.status ? 'green' : 'red',
+        fontWeight: 'bold'
+      }}>
+        {item.status ? 'AKTIF' : 'NONAKTIF'}
+      </Text>
 
-                {/* 🔥 EXPAND DETAIL */}
-                {isExpanded && (
-                  <View style={styles.detail}>
-                    <Text>📍 {item.alamat}</Text>
-                    <Text>🕒 {item.jamBuka}</Text>
-                    <Text>📝 {item.deskripsi}</Text>
-                  </View>
-                )}
+      {/* 🔥 tombol */}
+      <View style={styles.row}>
+        <TouchableOpacity
+          style={styles.editBtn}
+          onPress={() => router.push(`/admin/tabs/edit?id=${item.id}`)}
+        >
+          <Text style={styles.btnText}>Edit</Text>
+        </TouchableOpacity>
 
-                {/* 🔥 BUTTON */}
-                <View style={styles.row}>
-                  <TouchableOpacity
-                    style={styles.editBtn}
-                    onPress={() =>
-                      router.push(`/admin/tabs/edit?id=${item.id}`)
-                    }
-                  >
-                    <Text style={styles.btnText}>Edit</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={styles.deleteBtn}
-                    onPress={() => deleteWisata(item.id)}
-                  >
-                    <Text style={styles.btnText}>Hapus</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </TouchableOpacity>
+        {item.status ? (
+          <TouchableOpacity
+            style={styles.deleteBtn}
+            onPress={() => deleteWisata(item.id)}
+          >
+            <Text style={styles.btnText}>Nonaktifkan</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            style={{ backgroundColor: 'green', padding: 6, borderRadius: 6 }}
+            onPress={() => activateWisata(item.id)}
+          >
+            <Text style={styles.btnText}>Aktifkan</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+    </View>
+  </TouchableOpacity>
+)}
           );
         }}
       />

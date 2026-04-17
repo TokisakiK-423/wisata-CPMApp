@@ -1,4 +1,3 @@
-
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -16,7 +15,6 @@ export class WisataService {
         galeri: true,
         reviews: true,
       },
-      orderBy: { id: 'desc' },
     });
   }
 

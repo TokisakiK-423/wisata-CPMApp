@@ -1,4 +1,3 @@
-
 import {
   Controller,
   Post,
@@ -37,7 +36,7 @@ export class BookingController {
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() body) {
-    return this.service.updateStatus(+id, body.status);
+    return this.service.update(+id, body.status);
   }
 
   @Delete(':id')

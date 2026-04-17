@@ -1,18 +1,50 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { BookingService } from './booking.service';
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
 
-describe('BookingService', () => {
-  let service: BookingService;
+@Injectable()
+export class BookingService {
+  constructor(private prisma: PrismaService) {}
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [BookingService],
-    }).compile();
+  create(dto, user) {
+    return this.prisma.booking.create({
+      data: {
+        wisataId: dto.wisataId,
+        nama: dto.nama,
+        noHp: dto.noHp,
+        jumlahTiket: dto.jumlahTiket,
+        customerId: user.id,
+      },
+    });
+  }
 
-    service = module.get<BookingService>(BookingService);
-  });
+  findAll() {
+    return this.prisma.booking.findMany({
+      include: {
+        wisata: true,
+        customer: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
-  });
-});
+  findMy(user) {
+    return this.prisma.booking.findMany({
+      where: { customerId: user.id },
+      include: { wisata: true },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  updateStatus(id: number, status: string) {
+    return this.prisma.booking.update({
+      where: { id },
+      data: { status },
+    });
+  }
+
+  delete(id: number) {
+    return this.prisma.booking.delete({
+      where: { id },
+    });
+  }
+}

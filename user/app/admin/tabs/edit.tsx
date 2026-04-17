@@ -1,173 +1,119 @@
-import React, { useEffect, useState } from 'react';
 import {
-  View, Text, TextInput, TouchableOpacity,
-  ScrollView, StyleSheet, Image, Alert
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  ScrollView,
 } from 'react-native';
+import { useEffect, useState } from 'react';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as ImagePicker from 'expo-image-picker';
-import { useLocalSearchParams, router } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
 
 export default function EditWisata() {
   const { id } = useLocalSearchParams();
-  const [image, setImage] = useState<any>(null);
+  const router = useRouter();
 
   const [form, setForm] = useState({
     nama: '',
     lokasi: '',
-    deskripsi: '',
     alamat: '',
-    jamBuka: '',
     hargaTiket: '',
+    jamBuka: '',
+    deskripsi: '',
   });
 
-  const isEdit = !!id;
+  useEffect(() => {
+    getDetail();
+  }, []);
 
-  const fetchDetail = async () => {
-    if (!id) return;
-
+  const getDetail = async () => {
     const token = await AsyncStorage.getItem('token');
 
-    const res = await fetch(`http://10.0.2.2:3000/wisata/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const res = await fetch(
+      `http://10.0.2.2:3000/wisata/${id}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
 
-    const data = await res.json();
+    const json = await res.json();
 
     setForm({
-      nama: data.nama,
-      lokasi: data.lokasi,
-      deskripsi: data.deskripsi,
-      alamat: data.alamat,
-      jamBuka: data.jamBuka,
-      hargaTiket: String(data.hargaTiket),
+      nama: json.nama || '',
+      lokasi: json.lokasi || '',
+      alamat: json.alamat || '',
+      hargaTiket: String(json.hargaTiket || ''),
+      jamBuka: json.jamBuka || '',
+      deskripsi: json.deskripsi || '',
     });
-  };
-
-  useEffect(() => {
-    fetchDetail();
-  }, [id]);
-
-  const pickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({});
-    if (!result.canceled) setImage(result.assets[0]);
   };
 
   const submit = async () => {
-  const token = await AsyncStorage.getItem('token');
+    const token = await AsyncStorage.getItem('token');
 
-  let body: any;
-  let headers: any = { Authorization: `Bearer ${token}` };
+    await fetch(`http://10.0.2.2:3000/wisata/${id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(form),
+    });
 
-  // 🔥 kalau edit → pakai JSON (lebih stabil)
-  if (isEdit) {
-    headers['Content-Type'] = 'application/json';
-    body = JSON.stringify(form);
-  } else {
-    // kalau create → tetap FormData (karena upload gambar)
-    const formData = new FormData();
-    Object.entries(form).forEach(([k, v]) =>
-      formData.append(k, v as string)
-    );
-
-    if (image) {
-      formData.append('image', {
-        uri: image.uri,
-        name: 'photo.jpg',
-        type: 'image/jpeg',
-      } as any);
-    }
-
-    body = formData;
-  }
-
-  const url = isEdit
-    ? `http://10.0.2.2:3000/wisata/${id}`
-    : `http://10.0.2.2:3000/wisata`;
-
-  const method = isEdit ? 'PATCH' : 'POST';
-
-  await fetch(url, {
-    method,
-    headers,
-    body,
-  });
-
-  Alert.alert('Sukses', isEdit ? 'Data diupdate' : 'Data ditambah');
-
-  router.back(); // balik → otomatis refetch
-};
+    Alert.alert('Sukses', 'Data berhasil diupdate');
+    router.back();
+  };
 
   return (
-    <LinearGradient colors={['#7b2ff7', '#f107a3']} style={styles.container}>
-      <Text style={styles.title}>
-        {isEdit ? 'Edit' : 'Tambah'} Wisata
-      </Text>
+    <ScrollView style={styles.container}>
+      <Text style={styles.title}>Edit Wisata</Text>
 
-      <ScrollView>
-        {Object.keys(form).map((key) => (
-          <TextInput
-            key={key}
-            style={styles.input}
-            placeholder={key}
-            value={(form as any)[key]}
-            onChangeText={(text) =>
-              setForm({ ...form, [key]: text })
-            }
-          />
-        ))}
+      {Object.keys(form).map((key) => (
+        <TextInput
+          key={key}
+          style={styles.input}
+          placeholder={key}
+          value={(form as any)[key]}
+          onChangeText={(val) =>
+            setForm({ ...form, [key]: val })
+          }
+        />
+      ))}
 
-        <TouchableOpacity style={styles.btn} onPress={pickImage}>
-          <Text>Pilih Gambar</Text>
-        </TouchableOpacity>
-
-        {image && <Image source={{ uri: image.uri }} style={styles.preview} />}
-
-        <TouchableOpacity style={styles.submit} onPress={submit}>
-          <Text style={{ color: '#fff' }}>Simpan</Text>
-        </TouchableOpacity>
-      </ScrollView>
-    </LinearGradient>
+      <TouchableOpacity style={styles.btn} onPress={submit}>
+        <Text style={styles.btnText}>Simpan</Text>
+      </TouchableOpacity>
+    </ScrollView>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+    backgroundColor: '#f3e5f5',
   },
-
   title: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 10,
+    marginBottom: 12,
   },
-
   input: {
+    borderWidth: 1,
+    marginBottom: 10,
+    padding: 10,
+    borderRadius: 8,
     backgroundColor: '#fff',
-    padding: 10,
-    borderRadius: 8,
-    marginBottom: 8,
   },
-
   btn: {
-    backgroundColor: '#ddd',
-    padding: 10,
-    borderRadius: 8,
-    marginBottom: 10,
-    alignItems: 'center',
-  },
-
-  preview: {
-    height: 150,
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-
-  submit: {
-    backgroundColor: '#000',
+    backgroundColor: '#8e24aa',
     padding: 12,
     borderRadius: 8,
-    alignItems: 'center',
+  },
+  btnText: {
+    color: '#fff',
+    textAlign: 'center',
   },
 });

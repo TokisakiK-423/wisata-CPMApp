@@ -106,4 +106,49 @@ export const styles = StyleSheet.create({
   headerRight: {
     marginRight: 16,
   },
+  bookingContainer: {
+  flex: 1,
+  padding: 16,
+},
+
+bookingTitle: {
+  fontSize: 22,
+  fontWeight: 'bold',
+  color: '#fff',
+  marginBottom: 12,
+},
+
+bookingCard: {
+  backgroundColor: '#fff',
+  padding: 14,
+  borderRadius: 12,
+  marginBottom: 10,
+},
+
+bookingName: {
+  fontWeight: 'bold',
+  fontSize: 16,
+  marginBottom: 4,
+},
+
+bookingStatus: {
+  marginTop: 6,
+  fontWeight: 'bold',
+},
+
+bookingActions: {
+  flexDirection: 'row',
+  marginTop: 10,
+  gap: 8,
+},
+
+bookingBtn: {
+  padding: 8,
+  borderRadius: 6,
+},
+
+bookingBtnText: {
+  color: '#fff',
+  fontSize: 12,
+},
 });

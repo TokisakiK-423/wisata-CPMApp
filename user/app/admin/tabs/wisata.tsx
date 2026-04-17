@@ -83,10 +83,8 @@ export default function AdminWisata() {
 
   return (
     <TouchableOpacity
-      style={[styles.card, { opacity: item.status ? 1 : 0.5 }]}
-      onPress={() =>
-        setExpandedId(isExpanded ? null : item.id)
-      }
+      style={styles.card}
+      onPress={() => setExpandedId(isExpanded ? null : item.id)}
     >
       <Image
         source={{
@@ -102,17 +100,16 @@ export default function AdminWisata() {
         <Text>{item.lokasi}</Text>
         <Text>Rp {item.hargaTiket}</Text>
 
-        <Text>📦 {item._count?.bookings || 0} booking</Text>
-
-        <Text style={{
-          color: item.status ? 'green' : 'red',
-          fontWeight: 'bold'
-        }}>
+        {/* 🔥 STATUS */}
+        <Text style={{ color: item.status ? 'green' : 'red' }}>
           {item.status ? 'AKTIF' : 'NONAKTIF'}
         </Text>
 
+        {/* 🔥 JUMLAH BOOKING */}
+        <Text>📊 Booking: {item._count?.bookings || 0}</Text>
+
         {isExpanded && (
-          <View style={{ marginTop: 5 }}>
+          <View style={styles.detail}>
             <Text>📍 {item.alamat}</Text>
             <Text>🕒 {item.jamBuka}</Text>
             <Text>📝 {item.deskripsi}</Text>
@@ -120,6 +117,7 @@ export default function AdminWisata() {
         )}
 
         <View style={styles.row}>
+          {/* EDIT */}
           <TouchableOpacity
             style={styles.editBtn}
             onPress={() =>
@@ -129,26 +127,36 @@ export default function AdminWisata() {
             <Text style={styles.btnText}>Edit</Text>
           </TouchableOpacity>
 
+          {/* DELETE */}
           <TouchableOpacity
-            style={{ backgroundColor: 'orange', padding: 6, borderRadius: 6 }}
-            onPress={() => toggleStatus(item.id)}
+            style={[
+              styles.deleteBtn,
+              item._count?.bookings > 0 && { backgroundColor: 'gray' },
+            ]}
+            disabled={item._count?.bookings > 0}
+            onPress={() => deleteWisata(item.id)}
+          >
+            <Text style={styles.btnText}>Hapus</Text>
+          </TouchableOpacity>
+
+          {/* TOGGLE STATUS */}
+          <TouchableOpacity
+            style={{
+              backgroundColor: item.status ? 'orange' : 'green',
+              padding: 6,
+              borderRadius: 6,
+            }}
+            onPress={() => toggleStatus(item.id, item.status)}
           >
             <Text style={styles.btnText}>
               {item.status ? 'Nonaktifkan' : 'Aktifkan'}
             </Text>
           </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.deleteBtn}
-            onPress={() => deleteWisata(item.id)}
-          >
-            <Text style={styles.btnText}>Hapus</Text>
-          </TouchableOpacity>
         </View>
       </View>
     </TouchableOpacity>
   );
-}}
+}}}
           );
         }}
       />

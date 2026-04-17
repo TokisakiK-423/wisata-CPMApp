@@ -6,39 +6,56 @@ export class ReviewService {
   constructor(private prisma: PrismaService) {}
 
   async create(data: any, customerId: number) {
-  // ambil data customer
-  const customer = await this.prisma.customer.findUnique({
-    where: { id: customerId },
-  });
+    // ambil customer
+    const customer = await this.prisma.customer.findUnique({
+      where: { id: customerId },
+    });
 
-  if (!customer) {
-    throw new Error('Customer tidak ditemukan');
-  }
+    if (!customer) {
+      throw new Error('Customer tidak ditemukan');
+    }
 
-  if (data.rating < 1 || data.rating > 5) {
-    throw new Error('Rating harus 1-5');
-  }
+    // validasi rating
+    if (data.rating < 1 || data.rating > 5) {
+      throw new Error('Rating harus 1-5');
+    }
 
-  return this.prisma.review.create({
-    data: {
-      wisataId: data.wisataId,
-      customerId: customerId,
-      nama: customer.nama, // 🔥 AUTO dari database
-      rating: Number(data.rating),
-      komentar: data.komentar,
-    },
-  });
-}
+    // cek sudah pernah review
+    const existing = await this.prisma.review.findFirst({
+      where: {
+        wisataId: data.wisataId,
+        customerId,
+      },
+    });
 
-  findAll() {
-    return this.prisma.review.findMany({
-      include: { wisata: true, customer: true },
+    if (existing) {
+      throw new Error('Kamu sudah review wisata ini');
+    }
+
+    // create review
+    return this.prisma.review.create({
+      data: {
+        wisataId: Number(data.wisataId),
+        customerId: customerId,
+        nama: customer.nama, // 🔥 auto dari DB
+        rating: Number(data.rating),
+        komentar: data.komentar || null,
+      },
     });
   }
 
-  delete(id: number) {
-    return this.prisma.review.delete({
-      where: { id },
+  async findAll() {
+    return this.prisma.review.findMany({
+      include: {
+        wisata: {
+          select: {
+            nama: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
   }
 }

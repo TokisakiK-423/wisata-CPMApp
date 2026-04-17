@@ -79,11 +79,12 @@ export class WisataService {
     });
   }
 
-  async update(id: number, data: any, file?: Express.Multer.File) {
-    const existing = await this.prisma.wisata.findUnique({
-      where: { id },
-      include: { galeri: true },
-    });
+  async updateStatus(id: number, status: boolean) {
+  return this.prisma.wisata.update({
+    where: { id },
+    data: { status },
+  });
+}
 
     if (!existing) throw new Error('Data tidak ditemukan');
 

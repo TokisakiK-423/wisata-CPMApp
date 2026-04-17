@@ -1,10 +1,12 @@
-import * as multer from 'multer';
-import { diskStorage } from 'multer';
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
-export const storage = diskStorage({
-  destination: './uploads',
-  filename: (req, file, cb) => {
-    const filename = Date.now() + '-' + file.originalname;
-    cb(null, filename);
-  },
-});
+async function bootstrap() {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  app.useStaticAssets('uploads');
+
+  await app.listen(3000);
+}
+bootstrap();

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import type { Express } from 'express';
 
 @Injectable()
 export class WisataService {
@@ -17,11 +18,10 @@ export class WisataService {
       },
     });
 
-    // simpan gambar ke galeri
     if (file) {
       await this.prisma.galeri.create({
         data: {
-          url: `/uploads/${file.filename}`,
+          url: `/uploads/${file.filename}`, // 🔥 URL yang dipakai frontend
           wisataId: wisata.id,
         },
       });
@@ -32,18 +32,14 @@ export class WisataService {
 
   async findAll() {
     return this.prisma.wisata.findMany({
-      include: {
-        galeri: true,
-      },
+      include: { galeri: true },
     });
   }
 
   async findOne(id: number) {
     return this.prisma.wisata.findUnique({
       where: { id },
-      include: {
-        galeri: true,
-      },
+      include: { galeri: true },
     });
   }
 

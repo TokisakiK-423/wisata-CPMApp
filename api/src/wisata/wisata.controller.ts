@@ -1,26 +1,23 @@
-import { Controller, Get, Post, Delete, Param, Body } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  UseInterceptors,
+  UploadedFile,
+  Body,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { WisataService } from './wisata.service';
 
 @Controller('wisata')
 export class WisataController {
-  constructor(private service: WisataService) {}
+  constructor(private readonly wisataService: WisataService) {}
 
   @Post()
-  create(@Body() body) {
-    return this.service.create(body);
-  }
-
-  @Get()
-  findAll() {
-    return this.service.findAll();
-  }
-  @Get(':id')
-findOne(@Param('id') id: string) {
-  return this.service.findOne(Number(id));
-}
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.service.delete(+id);
+  @UseInterceptors(FileInterceptor('image'))
+  create(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body: any,
+  ) {
+    return this.wisataService.create(body, file);
   }
 }

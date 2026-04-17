@@ -151,4 +151,47 @@ bookingBtnText: {
   color: '#fff',
   fontSize: 12,
 },
+  reviewContainer: {
+  flex: 1,
+  padding: 16,
+},
+
+reviewTitle: {
+  fontSize: 22,
+  fontWeight: 'bold',
+  color: '#fff',
+  marginBottom: 10,
+},
+
+reviewCard: {
+  backgroundColor: '#fff',
+  padding: 14,
+  borderRadius: 12,
+  marginBottom: 12,
+},
+
+reviewWisata: {
+  fontSize: 16,
+  fontWeight: 'bold',
+},
+
+reviewRating: {
+  color: '#FFD700',
+  marginVertical: 4,
+},
+
+reviewNama: {
+  fontWeight: '600',
+},
+
+reviewKomentar: {
+  color: '#555',
+  marginTop: 4,
+},
+
+reviewImage: {
+  height: 140,
+  marginTop: 10,
+  borderRadius: 10,
+},
 });

@@ -11,8 +11,8 @@ export default function AdminWisata() {
   const [wisata, setWisata] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [image, setImage] = useState<any>(null);
-  const [showForm, setShowForm] = useState(true);
-  const [expandedId, setExpandedId] = useState<number | null>(null); // 🔥 toggle list item
+  const [mode, setMode] = useState<'list' | 'create'>('list'); // 🔥 MODE UTAMA
+  const [expandedId, setExpandedId] = useState<number | null>(null);
 
   const [form, setForm] = useState({
     nama: '',
@@ -96,6 +96,7 @@ export default function AdminWisata() {
       });
       setImage(null);
 
+      setMode('list'); // 🔥 balik ke list
       fetchWisata();
     } catch (err) {
       console.log(err);
@@ -104,19 +105,16 @@ export default function AdminWisata() {
 
   if (loading) return <ActivityIndicator style={{ marginTop: 50 }} />;
 
-  return (
-    <SafeAreaView style={styles.container}>
+  // =========================
+  // 🔥 MODE TAMBAH DATA
+  // =========================
+  if (mode === 'create') {
+    return (
+      <SafeAreaView style={styles.container}>
 
-      {/* HEADER */}
-      <TouchableOpacity onPress={() => setShowForm(!showForm)}>
-        <Text style={styles.title}>
-          {showForm ? '▼ Kelola Wisata' : '▶ Kelola Wisata'}
-        </Text>
-      </TouchableOpacity>
+        <Text style={styles.title}>Tambah Wisata</Text>
 
-      {/* FORM */}
-      {showForm && (
-        <ScrollView style={styles.form} showsVerticalScrollIndicator={false}>
+        <ScrollView showsVerticalScrollIndicator={false}>
           {Object.keys(form).map((key) => (
             <TextInput
               key={key}
@@ -138,16 +136,33 @@ export default function AdminWisata() {
           )}
 
           <TouchableOpacity style={styles.btn} onPress={createWisata}>
-            <Text style={styles.btnText}>Tambah</Text>
+            <Text style={styles.btnText}>Simpan</Text>
+          </TouchableOpacity>
+
+          {/* 🔙 tombol balik */}
+          <TouchableOpacity
+            style={[styles.btn, { backgroundColor: 'gray', marginTop: 10 }]}
+            onPress={() => setMode('list')}
+          >
+            <Text style={styles.btnText}>Kembali</Text>
           </TouchableOpacity>
         </ScrollView>
-      )}
 
-      {/* LIST */}
+      </SafeAreaView>
+    );
+  }
+
+  // =========================
+  // 🔥 MODE LIST (BERANDA)
+  // =========================
+  return (
+    <SafeAreaView style={styles.container}>
+
+      <Text style={styles.title}>Data Wisata</Text>
+
       <FlatList
         data={wisata}
         keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={{ paddingTop: 10 }}
         renderItem={({ item }) => {
           const isExpanded = expandedId === item.id;
 
@@ -172,7 +187,6 @@ export default function AdminWisata() {
                 <Text>{item.lokasi}</Text>
                 <Text>Rp {item.hargaTiket}</Text>
 
-                {/* 🔥 DETAIL MUNCUL SAAT EXPAND */}
                 {isExpanded && (
                   <View style={styles.detail}>
                     <Text>📍 {item.alamat}</Text>
@@ -186,6 +200,14 @@ export default function AdminWisata() {
         }}
       />
 
+      {/* 🔥 FLOATING BUTTON */}
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => setMode('create')}
+      >
+        <Text style={styles.fabText}>＋</Text>
+      </TouchableOpacity>
+
     </SafeAreaView>
   );
 }
@@ -196,11 +218,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 10,
-  },
-
-  form: {
-    maxHeight: 300,
     marginBottom: 10,
   },
 
@@ -258,5 +275,24 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
     padding: 8,
     borderRadius: 8,
+  },
+
+  fab: {
+    position: 'absolute',
+    right: 20,
+    bottom: 20,
+    backgroundColor: 'blue',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 5,
+  },
+
+  fabText: {
+    color: '#fff',
+    fontSize: 30,
+    fontWeight: 'bold',
   },
 });

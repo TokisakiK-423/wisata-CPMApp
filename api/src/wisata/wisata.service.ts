@@ -46,38 +46,38 @@ export class WisataService {
   }
 
   async delete(id: number) {
-    // 🔥 ambil semua gambar
-    const galeri = await this.prisma.galeri.findMany({
-      where: { wisataId: id },
-    });
+  // 🔥 cek apakah ada booking
+  const booking = await this.prisma.booking.findFirst({
+    where: { wisataId: id },
+  });
 
-    // 🔥 hapus file fisik
-    galeri.forEach((g) => {
-      const filePath = path.join(process.cwd(), 'public', g.url);
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-      }
-    });
-
-    // 🔥 hapus DB
-    await this.prisma.galeri.deleteMany({
-      where: { wisataId: id },
-    });
-
-    return this.prisma.wisata.delete({
-      where: { id },
-    });
+  if (booking) {
+    throw new Error('Wisata tidak bisa dihapus karena masih ada booking');
   }
 
-  async update(id: number, data: any, file?: Express.Multer.File) {
-    const wisata = await this.prisma.wisata.findUnique({
-      where: { id },
-      include: { galeri: true },
-    });
+  // 🔥 ambil galeri
+  const galeri = await this.prisma.galeri.findMany({
+    where: { wisataId: id },
+  });
 
-    if (!wisata) {
-      throw new Error('Data tidak ditemukan');
+  // 🔥 hapus file fisik
+  galeri.forEach((g) => {
+    const filePath = path.join(process.cwd(), 'public', g.url);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
     }
+  });
+
+  // 🔥 hapus DB galeri
+  await this.prisma.galeri.deleteMany({
+    where: { wisataId: id },
+  });
+
+  // 🔥 hapus wisata
+  return this.prisma.wisata.delete({
+    where: { id },
+  });
+}
 
     // 🔥 update data utama
     const updated = await this.prisma.wisata.update({

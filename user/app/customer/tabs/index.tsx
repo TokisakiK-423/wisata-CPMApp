@@ -11,6 +11,7 @@ type WisataItem = {
   nama: string;
   lokasi: string;
   hargaTiket?: number;
+  status: boolean;
   galeri?: { url: string }[];
   reviews?: { rating: number }[];
 };
@@ -25,7 +26,13 @@ export default function CustomerHomeScreen() {
     try {
       const res = await fetch('http://10.0.2.2:3000/wisata');
       const data = await res.json();
-      setWisata(Array.isArray(data) ? data : []);
+
+      // 🔥 FILTER hanya aktif
+      const filtered = Array.isArray(data)
+        ? data.filter((w) => w.status === true)
+        : [];
+
+      setWisata(filtered);
     } catch {
       setWisata([]);
     } finally {
@@ -49,19 +56,17 @@ export default function CustomerHomeScreen() {
   const renderWisata = ({ item }: { item: WisataItem }) => {
     const { avg, total } = getRating(item.reviews);
 
+    const imageUrl =
+      item.galeri && item.galeri.length > 0
+        ? `http://10.0.2.2:3000${item.galeri[0].url}`
+        : 'https://via.placeholder.com/300x200';
+
     return (
       <TouchableOpacity
         style={styles.card}
         onPress={() => router.push(`/wisata/${item.id}`)}
       >
-        <Image
-          source={{
-            uri: item.galeri?.[0]
-              ? `http://10.0.2.2:3000${item.galeri[0].url}`
-              : 'https://via.placeholder.com/300x200',
-          }}
-          style={styles.image}
-        />
+        <Image source={{ uri: imageUrl }} style={styles.image} />
 
         <View style={styles.content}>
           <Text style={styles.nama}>{item.nama}</Text>

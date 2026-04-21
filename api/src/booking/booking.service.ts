@@ -1,18 +1,16 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { BookingHelper } from './booking.helper';
 
 @Injectable()
 export class BookingService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private helper: BookingHelper,
+  ) {}
 
   async create(dto, user) {
-    const wisata = await this.prisma.wisata.findUnique({
-      where: { id: dto.wisataId },
-    });
-
-    if (!wisata) {
-      throw new BadRequestException(process.env.IDWISATA_FAILED);
-    }
+    await this.helper.findWisataOrFail(dto.wisataId);
 
     const booking = await this.prisma.booking.create({
       data: {
@@ -45,13 +43,7 @@ export class BookingService {
   }
 
   async update(id: number, status: string) {
-    const booking = await this.prisma.booking.findUnique({
-      where: { id },
-    });
-
-    if (!booking) {
-      throw new BadRequestException(process.env.UPBOOKING_FAILED);
-    }
+    await this.helper.findBookingOrFail(id);
 
     return this.prisma.booking.update({
       where: { id },
@@ -60,15 +52,8 @@ export class BookingService {
   }
 
   async delete(id: number) {
-    const booking = await this.prisma.booking.findUnique({
-      where: { id },
-    });
+    await this.helper.findBookingOrFail(id);
 
-    if (!booking) {
-      throw new BadRequestException(process.env.IDWISATA_FAILED);
-    }
-
-    // simpan hasil delete
     const deleted = await this.prisma.booking.delete({
       where: { id },
     });

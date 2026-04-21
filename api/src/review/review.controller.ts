@@ -10,6 +10,7 @@ import {
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
+
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
@@ -29,9 +30,7 @@ export class ReviewController {
         filename: (req, file, cb) => {
           const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1e9);
 
-          const ext = extname(file.originalname);
-
-          cb(null, uniqueName + ext);
+          cb(null, uniqueName + extname(file.originalname));
         },
       }),
     }),
@@ -42,8 +41,6 @@ export class ReviewController {
     @Body() body: any,
     @Req() req: any,
   ) {
-    console.log(process.env.FILE_SUCCES, file);
-
     return this.service.create(body, req.user.id, file);
   }
 
@@ -53,8 +50,8 @@ export class ReviewController {
   }
 
   @UseGuards(JwtGuard)
-@Delete(':id')
-remove(@Param('id') id: string, @Req() req: any) {
-  return this.service.delete(+id, req.user.id);
-}
+  @Delete(':id')
+  remove(@Param('id') id: string, @Req() req: any) {
+    return this.service.delete(+id, req.user.id);
+  }
 }

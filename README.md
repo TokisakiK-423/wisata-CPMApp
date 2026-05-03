@@ -176,5 +176,6 @@ Authorization: Bearer <token>
 ---
 
 ## 👤 Developer
-Tokisaki  
+Tokisaki
+Mboten
 https://github.com/TokisakiK-423/wisata-CPMApp.git

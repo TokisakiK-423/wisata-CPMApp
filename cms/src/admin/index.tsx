@@ -65,7 +65,7 @@ export default function AdminHome() {
         padding: 20,
 
         backgroundImage:
-          "url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e')",
+  "url('https://images.unsplash.com/photo-1506744038136-46273834b3fb')",
 
         backgroundSize: "cover",
         backgroundPosition: "center",

@@ -59,19 +59,26 @@ export default function AdminHome() {
   };
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        padding: 20,
+  <div
+    style={{
+      position: "fixed",
+      top: 0,
+      left: 0,
+      width: "100%",
+      height: "100vh",
+      overflowY: "auto",
 
-        backgroundImage:
-  "url('https://images.unsplash.com/photo-1506744038136-46273834b3fb')",
+      padding: 20,
+      boxSizing: "border-box",
 
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-      }}
-    >
+      backgroundImage:
+        "url('https://images.unsplash.com/photo-1506744038136-46273834b3fb')",
+
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      backgroundRepeat: "no-repeat",
+    }}
+  >
       <h2
         style={{
           color: "white",

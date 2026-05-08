@@ -215,6 +215,9 @@ export default function AdminHome() {
       boxShadow: "0 4px 10px rgba(29,78,216,0.3)",
     }}
   >
+    Hapus
+  </button>
+</div>
             <button onClick={() => toggleStatus(w.id)}>
               {w.status ? "Nonaktifkan" : "Aktifkan"}
             </button>

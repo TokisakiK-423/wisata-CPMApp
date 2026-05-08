@@ -113,6 +113,25 @@ export default function AdminHome() {
       boxShadow: "0 4px 10px rgba(37,99,235,0.3)",
     }}
   >
+    Data Review
+  </button>
+
+  <button
+    onClick={logout}
+    style={{
+      background: "#1e40af",
+      color: "white",
+      border: "none",
+      padding: "10px 18px",
+      borderRadius: 8,
+      cursor: "pointer",
+      fontWeight: "bold",
+      boxShadow: "0 4px 10px rgba(30,64,175,0.3)",
+    }}
+  >
+    Logout
+  </button>
+</div>
       <h2>Dashboard Admin</h2>
 
       <button onClick={() => navigate("/admin/wisata")}>

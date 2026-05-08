@@ -42,6 +42,10 @@ export default function CustomerHome() {
         Lihat Booking Saya
       </button>
 
+      <button onClick={() => navigate("/customer/review")}>
+  Lihat Review
+</button>
+
       <hr />
 
       {data.map((w) => {

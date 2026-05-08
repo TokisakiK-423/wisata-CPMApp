@@ -64,6 +64,7 @@ export default function App() {
           <Route index element={<AdminHome />} />
           <Route path="wisata" element={<WisataAdmin />} />
           <Route path="booking" element={<BookingAdmin />} />
+          <Route path="/admin/review" element={<ReviewAdmin />} />
 
           {/* 🔥 EDIT WISATA */}
           <Route path="edit" element={<EditWisata />} />

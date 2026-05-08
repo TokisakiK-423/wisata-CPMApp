@@ -11,24 +11,18 @@ export default function Login({ setRole }: any) {
     e.preventDefault();
 
     try {
-      console.log("KIRIM:", { username, password });
-
       const res = await API.post("/auth/login", {
         username: username.trim(),
         password: password.trim(),
       });
 
-      console.log("HASIL:", res.data);
-
       const { token, role } = res.data;
-
 
       localStorage.setItem("token", token);
       localStorage.setItem("role", role);
 
       setRole(role);
       setToken(token);
-      
 
       if (role === "admin") {
         navigate("/admin");
@@ -36,40 +30,74 @@ export default function Login({ setRole }: any) {
         navigate("/customer");
       }
     } catch (err: any) {
-      console.log("ERROR FULL:", err);
-
       if (err.response) {
-        console.log("ERROR DATA:", err.response.data);
         alert(err.response.data.message || "Login gagal");
       } else {
-        alert("Server tidak bisa diakses (cek backend nyala atau tidak)");
+        alert("Server tidak bisa diakses");
       }
     }
   };
 
   return (
-    <div style={{ padding: 20 }}>
-      <h2>Login</h2>
+    <div
+      style={{
+        height: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        background: "#f5f5f5",
+      }}
+    >
+      <form
+        onSubmit={handleLogin}
+        style={{
+          background: "white",
+          padding: 30,
+          borderRadius: 10,
+          boxShadow: "0 0 10px rgba(0,0,0,0.1)",
+          width: 300,
+          textAlign: "center",
+        }}
+      >
+        <h2 style={{ marginBottom: 20 }}>Login</h2>
 
-      <form onSubmit={handleLogin}>
         <input
           placeholder="Username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
+          style={{
+            width: "100%",
+            padding: 10,
+            marginBottom: 15,
+          }}
         />
-
-        <br /><br />
 
         <input
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          style={{
+            width: "100%",
+            padding: 10,
+            marginBottom: 20,
+          }}
         />
 
-        <br /><br />
-
-        <button type="submit">Login</button>
+        <button
+          type="submit"
+          style={{
+            width: "100%",
+            padding: 10,
+            background: "#2563eb",
+            color: "white",
+            border: "none",
+            borderRadius: 5,
+            cursor: "pointer",
+          }}
+        >
+          Login
+        </button>
       </form>
     </div>
   );

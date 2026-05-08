@@ -9,6 +9,7 @@ import AdminHome from "./admin/index";
 import WisataAdmin from "./admin/wisata";
 import BookingAdmin from "./admin/booking";
 import EditWisata from "./admin/edit";
+import ReviewAdmin from "./admin/review";
 
 // CUSTOMER
 import CustomerLayout from "./customer/_layout";

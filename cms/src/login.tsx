@@ -40,40 +40,43 @@ export default function Login({ setRole }: any) {
 
   return (
     <div
-  style={{
-    height: "100vh",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
+      style={{
+        height: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
 
-    backgroundImage:
-      "url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e')",
+        backgroundImage:
+          "url(https://ik.imagekit.io/tvlk/blog/2024/12/shutterstock_2474928225.jpg)",
 
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    backgroundRepeat: "no-repeat",
-  }}
->
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
       <form
         onSubmit={handleLogin}
         style={{
-          background: "white",
+          background: "rgba(255,255,255,0.15)",
+          backdropFilter: "blur(10px)",
+          WebkitBackdropFilter: "blur(10px)",
           padding: 30,
-          borderRadius: 10,
-          boxShadow: "0 0 10px rgba(0,0,0,0.1)",
+          borderRadius: 15,
+          boxShadow: "0 0 20px rgba(0,0,0,0.3)",
           width: 300,
           textAlign: "center",
+          border: "1px solid rgba(255,255,255,0.3)",
         }}
       >
         <h2
-  style={{
-    marginBottom: 20,
-    textAlign: "center",
-    color: "#2563eb",
-  }}
->
-  CPMApp
-</h2>
+          style={{
+            marginBottom: 20,
+            textAlign: "center",
+            color: "white",
+          }}
+        >
+          CPMApp
+        </h2>
 
         <input
           placeholder="Username"
@@ -83,6 +86,11 @@ export default function Login({ setRole }: any) {
             width: "100%",
             padding: 10,
             marginBottom: 15,
+            borderRadius: 5,
+            border: "1px solid #ccc",
+            background: "rgba(255,255,255,0.2)",
+            color: "white",
+            outline: "none",
           }}
         />
 
@@ -95,6 +103,11 @@ export default function Login({ setRole }: any) {
             width: "100%",
             padding: 10,
             marginBottom: 20,
+            borderRadius: 5,
+            border: "1px solid #ccc",
+            background: "rgba(255,255,255,0.2)",
+            color: "white",
+            outline: "none",
           }}
         />
 
@@ -108,6 +121,7 @@ export default function Login({ setRole }: any) {
             border: "none",
             borderRadius: 5,
             cursor: "pointer",
+            fontWeight: "bold",
           }}
         >
           Login

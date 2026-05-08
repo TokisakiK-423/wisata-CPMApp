@@ -97,6 +97,22 @@ export default function AdminHome() {
       boxShadow: "0 4px 10px rgba(37,99,235,0.3)",
     }}
   >
+    Data Booking
+  </button>
+
+  <button
+    onClick={() => navigate("/admin/review")}
+    style={{
+      background: "#2563eb",
+      color: "white",
+      border: "none",
+      padding: "10px 18px",
+      borderRadius: 8,
+      cursor: "pointer",
+      fontWeight: "bold",
+      boxShadow: "0 4px 10px rgba(37,99,235,0.3)",
+    }}
+  >
       <h2>Dashboard Admin</h2>
 
       <button onClick={() => navigate("/admin/wisata")}>

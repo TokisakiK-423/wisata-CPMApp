@@ -59,7 +59,15 @@ export default function Login({ setRole }: any) {
           textAlign: "center",
         }}
       >
-        <h2 style={{ marginBottom: 20 }}>Login</h2>
+        <h2
+  style={{
+    marginBottom: 20,
+    textAlign: "center",
+    color: "#2563eb",
+  }}
+>
+  CPMApp
+</h2>
 
         <input
           placeholder="Username"

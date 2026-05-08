@@ -83,15 +83,15 @@ export default function Login({ setRole }: any) {
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           style={{
-            width: "100%",
-            padding: 10,
-            marginBottom: 15,
-            borderRadius: 5,
-            border: "1px solid #ccc",
-            background: "rgba(255,255,255,0.2)",
-            color: "white",
-            outline: "none",
-          }}
+  width: "100%",
+  padding: 10,
+  marginBottom: 15,
+  borderRadius: 5,
+  border: "1px solid #ccc",
+  background: "white",
+  color: "black",
+  outline: "none",
+}}
         />
 
         <input

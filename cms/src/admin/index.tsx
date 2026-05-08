@@ -162,6 +162,14 @@ export default function AdminHome() {
             <p>Status: {w.status ? "Aktif" : "Nonaktif"}</p>
 
             {/* 🔥 BUTTON */}
+            <div
+  style={{
+    display: "flex",
+    gap: 10,
+    marginTop: 10,
+    flexWrap: "wrap",
+  }}
+>
             <button onClick={() => toggleStatus(w.id)}>
               {w.status ? "Nonaktifkan" : "Aktifkan"}
             </button>

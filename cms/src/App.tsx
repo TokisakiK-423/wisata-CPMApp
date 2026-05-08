@@ -81,6 +81,7 @@ export default function App() {
           <Route index element={<CustomerHome />} />
           <Route path="wisata" element={<WisataCustomer />} />
           <Route path="booking" element={<BookingCustomer />} />
+          <Route path="/customer/review" element={<CustomerReview />} />
         </Route>
 
         {/* 🔥 fallback */}

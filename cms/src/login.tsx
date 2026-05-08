@@ -40,20 +40,26 @@ export default function Login({ setRole }: any) {
 
   return (
     <div
-      style={{
-        height: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
+  style={{
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100vh",
 
-        backgroundImage:
-          "url(https://ik.imagekit.io/tvlk/blog/2024/12/shutterstock_2474928225.jpg)",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
 
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-      }}
-    >
+    backgroundImage:
+      "url(https://ik.imagekit.io/tvlk/blog/2024/12/shutterstock_2474928225.jpg)",
+
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+    overflow: "hidden",
+  }}
+>
       <form
         onSubmit={handleLogin}
         style={{

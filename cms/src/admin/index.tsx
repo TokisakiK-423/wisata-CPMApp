@@ -170,6 +170,19 @@ export default function AdminHome() {
     flexWrap: "wrap",
   }}
 >
+              <button
+    onClick={() => toggleStatus(w.id)}
+    style={{
+      background: "#2563eb",
+      color: "white",
+      border: "none",
+      padding: "8px 14px",
+      borderRadius: 8,
+      cursor: "pointer",
+      fontWeight: "bold",
+      boxShadow: "0 4px 10px rgba(37,99,235,0.3)",
+    }}
+  >
             <button onClick={() => toggleStatus(w.id)}>
               {w.status ? "Nonaktifkan" : "Aktifkan"}
             </button>

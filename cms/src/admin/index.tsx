@@ -176,16 +176,14 @@ export default function AdminHome() {
           <div
             key={w.id}
             style={{
-              background: "rgba(255,255,255,0.15)",
-              backdropFilter: "blur(10px)",
-              WebkitBackdropFilter: "blur(10px)",
-              border: "1px solid rgba(255,255,255,0.3)",
-              padding: 15,
-              marginBottom: 15,
-              borderRadius: 15,
-              color: "white",
-              boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
-            }}
+  background: "white",
+  border: "1px solid #e5e7eb",
+  padding: 15,
+  marginBottom: 15,
+  borderRadius: 15,
+  color: "black",
+  boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
+}}
           >
             {imageUrl && (
               <img

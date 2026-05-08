@@ -218,23 +218,7 @@ export default function AdminHome() {
     Hapus
   </button>
 </div>
-            <button onClick={() => toggleStatus(w.id)}>
-              {w.status ? "Nonaktifkan" : "Aktifkan"}
-            </button>
-
-            <button
-              onClick={() => navigate(`/admin/edit?id=${w.id}`)}
-              style={{ marginLeft: 5 }}
-            >
-              Edit
-            </button>
-
-            <button
-              onClick={() => handleDelete(w.id)}
-              style={{ marginLeft: 5, color: "red" }}
-            >
-              Hapus
-            </button>
+            
           </div>
         );
       })}

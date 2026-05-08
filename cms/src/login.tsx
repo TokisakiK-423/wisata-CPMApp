@@ -72,7 +72,7 @@ export default function Login({ setRole }: any) {
           style={{
             marginBottom: 20,
             textAlign: "center",
-            color: "white",
+            color: "#2563eb",
           }}
         >
           CPMApp

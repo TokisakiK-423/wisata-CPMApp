@@ -134,19 +134,6 @@ export default function AdminHome() {
 </div>
       <h2>Dashboard Admin</h2>
 
-      <button onClick={() => navigate("/admin/wisata")}>
-        + Tambah Wisata
-      </button>
-
-      <button onClick={() => navigate("/admin/booking")}>
-        Data Booking
-      </button>
-
-      <button onClick={() => navigate("/admin/review")}>
-  Data Review
-</button>
-
-      <button onClick={logout}>Logout</button>
 
       <hr />
 

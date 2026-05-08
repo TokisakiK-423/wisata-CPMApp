@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import API from "../lib/api";
 import { useNavigate } from "react-router-dom";
+import { logout } from "../lib/auth";
 
 type Galeri = {
   id: number;

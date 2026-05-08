@@ -70,6 +70,10 @@ export default function AdminHome() {
         Data Booking
       </button>
 
+      <button onClick={() => navigate("/admin/review")}>
+  Data Review
+</button>
+
       <button onClick={logout}>Logout</button>
 
       <hr />

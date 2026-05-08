@@ -16,6 +16,7 @@ import CustomerLayout from "./customer/_layout";
 import CustomerHome from "./customer/index";
 import WisataCustomer from "./customer/wisata";
 import BookingCustomer from "./customer/booking";
+import CustomerReview from "./customer/review";
 
 // AUTH & API
 import { getToken, getRole } from "./lib/auth";

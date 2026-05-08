@@ -59,7 +59,14 @@ export default function AdminHome() {
   };
 
   return (
-    <div>
+    <div
+      style={{
+    display: "flex",
+    gap: 10,
+    marginBottom: 20,
+    flexWrap: "wrap",
+  }}
+>
       <h2>Dashboard Admin</h2>
 
       <button onClick={() => navigate("/admin/wisata")}>

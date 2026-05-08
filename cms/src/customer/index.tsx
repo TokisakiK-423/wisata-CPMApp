@@ -43,6 +43,13 @@ export default function CustomerHome() {
         Lihat Booking Saya
       </button>
 
+      <button
+  onClick={logout}
+  style={{ marginLeft: 10 }}
+>
+  Logout
+</button>
+
       <button onClick={() => navigate("/customer/review")}>
   Lihat Review
 </button>

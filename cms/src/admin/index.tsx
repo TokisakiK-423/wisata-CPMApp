@@ -199,6 +199,22 @@ export default function AdminHome() {
       boxShadow: "0 4px 10px rgba(59,130,246,0.3)",
     }}
   >
+    Edit
+  </button>
+
+  <button
+    onClick={() => handleDelete(w.id)}
+    style={{
+      background: "#1d4ed8",
+      color: "white",
+      border: "none",
+      padding: "8px 14px",
+      borderRadius: 8,
+      cursor: "pointer",
+      fontWeight: "bold",
+      boxShadow: "0 4px 10px rgba(29,78,216,0.3)",
+    }}
+  >
             <button onClick={() => toggleStatus(w.id)}>
               {w.status ? "Nonaktifkan" : "Aktifkan"}
             </button>

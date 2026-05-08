@@ -40,14 +40,20 @@ export default function Login({ setRole }: any) {
 
   return (
     <div
-      style={{
-        height: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        background: "#f5f5f5",
-      }}
-    >
+  style={{
+    height: "100vh",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+
+    backgroundImage:
+      "url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e')",
+
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+  }}
+>
       <form
         onSubmit={handleLogin}
         style={{

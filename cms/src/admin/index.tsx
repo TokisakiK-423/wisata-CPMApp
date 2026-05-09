@@ -79,24 +79,114 @@ export default function AdminHome() {
       backgroundRepeat: "no-repeat",
     }}
   >
-      <h2
-        style={{
-          color: "white",
-          marginBottom: 20,
-          textShadow: "0 2px 5px rgba(0,0,0,0.5)",
-        }}
-      >
-        Dashboard Admin
-      </h2>
+      {/* HEADER */}
+<div
+  style={{
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingBottom: 15,
+    borderBottom: "2px solid rgba(255,255,255,0.3)",
+    marginBottom: 20,
+  }}
+>
+  {/* LOGO */}
+  <h1
+    style={{
+      color: "#60a5fa",
+      margin: 0,
+      fontWeight: "bold",
+      fontSize: 32,
+      textShadow: "0 2px 5px rgba(0,0,0,0.5)",
+    }}
+  >
+    CPMApp
+  </h1>
 
-      <div
-        style={{
-          display: "flex",
-          gap: 10,
-          marginBottom: 20,
-          flexWrap: "wrap",
-        }}
-      >
+  {/* MENU BUTTON */}
+  <div
+    style={{
+      display: "flex",
+      gap: 10,
+      flexWrap: "wrap",
+    }}
+  >
+    <button
+      onClick={() => navigate("/admin/wisata")}
+      style={{
+        background: "#2563eb",
+        color: "white",
+        border: "none",
+        padding: "10px 18px",
+        borderRadius: 8,
+        cursor: "pointer",
+        fontWeight: "bold",
+        boxShadow: "0 4px 10px rgba(37,99,235,0.3)",
+      }}
+    >
+      + Tambah Wisata
+    </button>
+
+    <button
+      onClick={() => navigate("/admin/booking")}
+      style={{
+        background: "#2563eb",
+        color: "white",
+        border: "none",
+        padding: "10px 18px",
+        borderRadius: 8,
+        cursor: "pointer",
+        fontWeight: "bold",
+        boxShadow: "0 4px 10px rgba(37,99,235,0.3)",
+      }}
+    >
+      Data Booking
+    </button>
+
+    <button
+      onClick={() => navigate("/admin/review")}
+      style={{
+        background: "#2563eb",
+        color: "white",
+        border: "none",
+        padding: "10px 18px",
+        borderRadius: 8,
+        cursor: "pointer",
+        fontWeight: "bold",
+        boxShadow: "0 4px 10px rgba(37,99,235,0.3)",
+      }}
+    >
+      Data Review
+    </button>
+
+    <button
+      onClick={logout}
+      style={{
+        background: "#1e40af",
+        color: "white",
+        border: "none",
+        padding: "10px 18px",
+        borderRadius: 8,
+        cursor: "pointer",
+        fontWeight: "bold",
+        boxShadow: "0 4px 10px rgba(30,64,175,0.3)",
+      }}
+    >
+      Logout
+    </button>
+  </div>
+</div>
+
+{/* TITLE */}
+<h2
+  style={{
+    color: "white",
+    marginBottom: 20,
+    textShadow: "0 2px 5px rgba(0,0,0,0.5)",
+  }}
+>
+  Dashboard Admin
+</h2>
         <button
           onClick={() => navigate("/admin/wisata")}
           style={{

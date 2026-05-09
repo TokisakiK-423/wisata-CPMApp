@@ -77,17 +77,19 @@ return (
         backgroundRepeat: "no-repeat",
       }}
     >
-      {/* HEADER */}
-<div
-  style={{
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingBottom: 15,
-    borderBottom: "2px solid rgba(255,255,255,0.3)",
-    marginBottom: 20,
-  }}
->
+     {/* HEADER */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          paddingBottom: 15,
+          borderBottom: "2px solid rgba(255,255,255,0.3)",
+          marginBottom: 20,
+          flexWrap: "wrap",
+          gap: 10,
+        }}
+      >
   {/* LOGO */}
   <h1
     style={{

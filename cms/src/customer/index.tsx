@@ -140,7 +140,7 @@ export default function CustomerHome() {
   Lihat Review
 </button>
 
-      <hr />
+      
 
       {data.map((w) => {
         const imageUrl =

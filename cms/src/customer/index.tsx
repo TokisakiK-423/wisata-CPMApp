@@ -55,16 +55,36 @@ export default function CustomerHome() {
         }}
       >
         {/* LOGO */}
-        <h1
-          style={{
-            color: "#2563eb",
-            margin: 0,
-            fontWeight: "bold",
-            fontSize: 30,
-          }}
-        >
-          CPMApp
-        </h1>
+        <div
+  style={{
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+  }}
+>
+  <h1
+    style={{
+      color: "#2563eb",
+      margin: 0,
+      fontWeight: "bold",
+      fontSize: 30,
+    }}
+  >
+    CPMApp
+  </h1>
+
+  <img
+    src="https://images.unsplash.com/photo-1506744038136-46273834b3fb"
+    alt="Waterfall"
+    style={{
+      width: 50,
+      height: 50,
+      objectFit: "cover",
+      borderRadius: "50%",
+      boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
+    }}
+  />
+</div>
 
         {/* MENU BUTTON */}
         <div

@@ -162,6 +162,23 @@ export default function BookingCustomer() {
           )}
         </div>
       ))}
+    <div style={{ marginTop: 20 }}>
+  <button
+    onClick={() => navigate("/customer")}
+    style={{
+      background: "#2563eb",
+      color: "white",
+      border: "none",
+      padding: "10px 18px",
+      borderRadius: 8,
+      cursor: "pointer",
+      fontWeight: "bold",
+      boxShadow: "0 4px 10px rgba(37,99,235,0.3)",
+    }}
+  >
+    Kembali
+  </button>
+</div>
     </div>
   );
 }

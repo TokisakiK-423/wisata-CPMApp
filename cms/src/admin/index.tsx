@@ -34,7 +34,7 @@ export default function AdminHome() {
     }
   };
 
-  // 🔥 TOGGLE STATUS
+   // 🔥 TOGGLE STATUS
   const toggleStatus = async (id: number) => {
     try {
       await API.patch(`/wisata/${id}/status`);

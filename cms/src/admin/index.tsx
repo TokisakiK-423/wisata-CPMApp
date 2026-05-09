@@ -91,17 +91,17 @@ return (
         }}
       >
   {/* LOGO */}
-  <h1
-    style={{
-      color: "#60a5fa",
-      margin: 0,
-      fontWeight: "bold",
-      fontSize: 32,
-      textShadow: "0 2px 5px rgba(0,0,0,0.5)",
-    }}
-  >
-    CPMApp
-  </h1>
+        <h1
+          style={{
+            color: "#60a5fa",
+            margin: 0,
+            fontWeight: "bold",
+            fontSize: 32,
+            textShadow: "0 2px 5px rgba(0,0,0,0.5)",
+          }}
+        >
+          CPMApp
+        </h1>
 
   {/* MENU BUTTON */}
   <div

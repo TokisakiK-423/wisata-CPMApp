@@ -29,7 +29,7 @@ export default function WisataCustomer() {
         return;
       }
 
-     await API.post("/booking", {
+      await API.post("/booking", {
         wisataId: Number(wisataId),
         nama: form.nama,
         noHp: form.noHp,

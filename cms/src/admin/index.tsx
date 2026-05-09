@@ -175,14 +175,14 @@ export default function AdminHome() {
 
       {/* TITLE */}
       <h2
-        style={{
-          color: "white",
-          marginBottom: 20,
-          textShadow: "0 2px 5px rgba(0,0,0,0.5)",
-        }}
-      >
-        Dashboard Admin
-      </h2>
+  style={{
+    color: "#111827",
+    marginBottom: 20,
+    fontWeight: "bold",
+  }}
+>
+  Dashboard Admin
+</h2>
 
       {/* DATA */}
       <h3

@@ -57,28 +57,26 @@ export default function AdminHome() {
       alert(err.response?.data?.message || "Gagal hapus");
     }
   };
+return (
+    <div
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100%",
+        height: "100vh",
+        overflowY: "auto",
+        padding: 20,
+        boxSizing: "border-box",
 
-  return (
-  <div
-    style={{
-      position: "fixed",
-      top: 0,
-      left: 0,
-      width: "100%",
-      height: "100vh",
-      overflowY: "auto",
+        backgroundImage:
+          "url('https://images.unsplash.com/photo-1506744038136-46273834b3fb')",
 
-      padding: 20,
-      boxSizing: "border-box",
-
-      backgroundImage:
-        "url('https://images.unsplash.com/photo-1506744038136-46273834b3fb')",
-
-      backgroundSize: "cover",
-      backgroundPosition: "center",
-      backgroundRepeat: "no-repeat",
-    }}
-  >
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
       {/* HEADER */}
 <div
   style={{

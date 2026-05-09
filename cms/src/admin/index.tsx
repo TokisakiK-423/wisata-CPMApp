@@ -70,12 +70,7 @@ export default function AdminHome() {
         padding: 20,
         boxSizing: "border-box",
 
-        backgroundImage:
-          "url('https://images.unsplash.com/photo-1506744038136-46273834b3fb')",
-
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
+        background: "#f5f7fb",
       }}
     >
       {/* HEADER */}

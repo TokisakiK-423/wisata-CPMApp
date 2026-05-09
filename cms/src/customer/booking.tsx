@@ -43,11 +43,58 @@ export default function BookingCustomer() {
   };
 
   return (
+    <div
+  style={{
+    minHeight: "100vh",
+    padding: 20,
+    background: "#f5f7fb",
+  }}
+>
+  {/* HEADER */}
+  <div
+    style={{
+      paddingBottom: 15,
+      borderBottom: "2px solid #e5e7eb",
+      marginBottom: 20,
+    }}
+  >
+    {/* LOGO */}
     <div>
-      <h2>Booking Saya</h2>
+      <h1
+        style={{
+          color: "#2563eb",
+          margin: 0,
+          fontWeight: "bold",
+          fontSize: 30,
+          marginBottom: 10,
+        }}
+      >
+        CPMApp
+      </h1>
 
-     <button
-  onClick={() => navigate("/customer")}
+      <img
+        src="https://images.unsplash.com/photo-1506744038136-46273834b3fb"
+        alt="Waterfall"
+        style={{
+          width: 220,
+          height: 90,
+          objectFit: "cover",
+          borderRadius: 12,
+          boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+        }}
+      />
+    </div>
+  </div>
+
+  {/* TITLE */}
+  <h2
+    style={{
+      marginBottom: 20,
+      color: "#111827",
+    }}
+  >
+    Booking Saya
+  </h2>
   style={{
     background: "#2563eb",
     color: "white",

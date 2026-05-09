@@ -78,10 +78,21 @@ export default function CustomerHome() {
             <p>Rp {w.hargaTiket}</p>
 
             <button
-              onClick={() => navigate(`/customer/wisata?id=${w.id}`)}
-            >
-              Booking Sekarang
-            </button>
+  onClick={() => navigate(`/customer/wisata?id=${w.id}`)}
+  style={{
+    background: "#2563eb",
+    color: "white",
+    border: "none",
+    padding: "10px 18px",
+    borderRadius: 8,
+    cursor: "pointer",
+    fontWeight: "bold",
+    boxShadow: "0 4px 10px rgba(37,99,235,0.3)",
+    marginTop: 10,
+  }}
+>
+  Booking Sekarang
+</button>
           </div>
         );
       })}

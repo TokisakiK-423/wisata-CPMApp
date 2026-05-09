@@ -36,17 +36,103 @@ export default function CustomerHome() {
   };
 
   return (
-    <div>
-      <h1>Daftar Wisata</h1>
+    <div
+  style={{
+    minHeight: "100vh",
+    padding: 20,
+    background: "#f5f7fb",
+  }}
+>
+  {/* HEADER */}
+  <div
+    style={{
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      paddingBottom: 15,
+      borderBottom: "2px solid #e5e7eb",
+      marginBottom: 20,
+    }}
+  >
+    {/* LOGO */}
+    <h1
+      style={{
+        color: "#2563eb",
+        margin: 0,
+        fontWeight: "bold",
+        fontSize: 30,
+      }}
+    >
+      CPMApp
+    </h1>
 
-      <button onClick={() => navigate("/customer/booking")}>
+    {/* MENU BUTTON */}
+    <div
+      style={{
+        display: "flex",
+        gap: 10,
+        flexWrap: "wrap",
+      }}
+    >
+      <button
+        onClick={() => navigate("/customer/booking")}
+        style={{
+          background: "#2563eb",
+          color: "white",
+          border: "none",
+          padding: "10px 18px",
+          borderRadius: 8,
+          cursor: "pointer",
+          fontWeight: "bold",
+          boxShadow: "0 4px 10px rgba(37,99,235,0.3)",
+        }}
+      >
         Lihat Booking Saya
       </button>
 
       <button
-  onClick={logout}
-  style={{ marginLeft: 10 }}
->
+        onClick={() => navigate("/customer/review")}
+        style={{
+          background: "#2563eb",
+          color: "white",
+          border: "none",
+          padding: "10px 18px",
+          borderRadius: 8,
+          cursor: "pointer",
+          fontWeight: "bold",
+          boxShadow: "0 4px 10px rgba(37,99,235,0.3)",
+        }}
+      >
+        Lihat Review
+      </button>
+
+      <button
+        onClick={logout}
+        style={{
+          background: "#1e40af",
+          color: "white",
+          border: "none",
+          padding: "10px 18px",
+          borderRadius: 8,
+          cursor: "pointer",
+          fontWeight: "bold",
+          boxShadow: "0 4px 10px rgba(30,64,175,0.3)",
+        }}
+      >
+        Logout
+      </button>
+    </div>
+  </div>
+
+  {/* TITLE */}
+  <h2
+    style={{
+      marginBottom: 20,
+      color: "#111827",
+    }}
+  >
+    Daftar Wisata
+  </h2>
   Logout
 </button>
 

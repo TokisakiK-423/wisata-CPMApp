@@ -17,6 +17,18 @@ export default function EditWisata() {
   });
 
   const [image, setImage] = useState<File | null>(null);
+  const buttonStyle = {
+  backgroundColor: "#2563eb",
+  color: "white",
+  border: "none",
+  padding: "10px 18px",
+  borderRadius: "10px",
+  cursor: "pointer",
+  fontWeight: "600",
+  fontSize: "14px",
+  transition: "0.2s",
+  boxShadow: "0 4px 10px rgba(37, 99, 235, 0.2)",
+};
 
   useEffect(() => {
     if (id) fetchData();

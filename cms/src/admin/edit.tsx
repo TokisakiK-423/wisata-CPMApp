@@ -176,7 +176,10 @@ export default function EditWisata() {
 <br />
 <br />
 
-<button onClick={() => navigate("/admin")}>
+<button
+  onClick={() => navigate("/admin")}
+  style={buttonStyle}
+>
   Kembali
 </button>
     </div>

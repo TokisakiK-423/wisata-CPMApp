@@ -148,13 +148,20 @@ export default function EditWisata() {
 
       <hr />
 
-      {/* 🔥 DELETE */}
-      <button
-        onClick={handleDelete}
-        style={{ backgroundColor: "red", color: "white" }}
-      >
-        Hapus Wisata
-      </button>
+{/* 🔥 DELETE */}
+<button
+  onClick={handleDelete}
+  style={{ backgroundColor: "red", color: "white" }}
+>
+  Hapus Wisata
+</button>
+
+<br />
+<br />
+
+<button onClick={() => navigate("/admin")}>
+  Kembali
+</button>
     </div>
   );
 }

@@ -155,7 +155,12 @@ export default function EditWisata() {
         />
         <br />
 
-        <button type="submit">Update</button>
+        <button
+  type="submit"
+  style={buttonStyle}
+>
+  Update
+</button>
       </form>
 
       <hr />

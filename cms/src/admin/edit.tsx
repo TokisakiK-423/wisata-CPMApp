@@ -168,7 +168,7 @@ export default function EditWisata() {
 {/* 🔥 DELETE */}
 <button
   onClick={handleDelete}
-  style={{ backgroundColor: "red", color: "white" }}
+  style={buttonStyle}
 >
   Hapus Wisata
 </button>

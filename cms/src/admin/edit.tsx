@@ -85,7 +85,6 @@ export default function EditWisata() {
     <div>
       <h2>Edit Wisata</h2>
 
-      <button onClick={() => navigate("/admin")}>Kembali</button>
 
       <hr />
 

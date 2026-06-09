@@ -17,18 +17,46 @@ export default function EditWisata() {
   });
 
   const [image, setImage] = useState<File | null>(null);
+
   const buttonStyle = {
-  backgroundColor: "#2563eb",
-  color: "white",
-  border: "none",
-  padding: "10px 18px",
-  borderRadius: "10px",
-  cursor: "pointer",
-  fontWeight: "600",
-  fontSize: "14px",
-  transition: "0.2s",
-  boxShadow: "0 4px 10px rgba(37, 99, 235, 0.2)",
-};
+    backgroundColor: "#2563eb",
+    color: "white",
+    border: "none",
+    padding: "10px 18px",
+    borderRadius: "10px",
+    cursor: "pointer",
+    fontWeight: "600",
+    fontSize: "14px",
+    transition: "0.2s",
+    boxShadow: "0 4px 10px rgba(37, 99, 235, 0.2)",
+  };
+
+  const inputStyle = {
+    width: "100%",
+    padding: "12px 14px",
+    borderRadius: "10px",
+    border: "1px solid #d1d5db",
+    outline: "none",
+    fontSize: "14px",
+    marginTop: "6px",
+    boxSizing: "border-box" as const,
+    backgroundColor: "#f9fafb",
+  };
+
+  const labelStyle = {
+    fontWeight: "600",
+    fontSize: "14px",
+    color: "#374151",
+  };
+
+  const containerStyle = {
+    maxWidth: "600px",
+    margin: "40px auto",
+    padding: "30px",
+    borderRadius: "16px",
+    backgroundColor: "white",
+    boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+  };
 
   useEffect(() => {
     if (id) fetchData();
@@ -94,94 +122,130 @@ export default function EditWisata() {
   };
 
   return (
-    <div>
+    <div style={containerStyle}>
       <h2>Edit Wisata</h2>
-
 
       <hr />
 
       <form onSubmit={handleUpdate}>
-        <input
-          name="nama"
-          placeholder="Nama"
-          value={form.nama}
-          onChange={handleChange}
-        />
+        <div>
+          <label style={labelStyle}>Nama Wisata</label>
+          <input
+            name="nama"
+            placeholder="Masukkan nama wisata"
+            value={form.nama}
+            onChange={handleChange}
+            style={inputStyle}
+          />
+        </div>
+
         <br />
 
-        <input
-          name="lokasi"
-          placeholder="Lokasi"
-          value={form.lokasi}
-          onChange={handleChange}
-        />
+        <div>
+          <label style={labelStyle}>Lokasi</label>
+          <input
+            name="lokasi"
+            placeholder="Masukkan lokasi"
+            value={form.lokasi}
+            onChange={handleChange}
+            style={inputStyle}
+          />
+        </div>
+
         <br />
 
-        <input
-          name="alamat"
-          placeholder="Alamat"
-          value={form.alamat}
-          onChange={handleChange}
-        />
+        <div>
+          <label style={labelStyle}>Alamat</label>
+          <input
+            name="alamat"
+            placeholder="Masukkan alamat"
+            value={form.alamat}
+            onChange={handleChange}
+            style={inputStyle}
+          />
+        </div>
+
         <br />
 
-        <input
-          name="jamBuka"
-          placeholder="Jam"
-          value={form.jamBuka}
-          onChange={handleChange}
-        />
+        <div>
+          <label style={labelStyle}>Jam Buka</label>
+          <input
+            name="jamBuka"
+            placeholder="Contoh: 08:00 - 17:00"
+            value={form.jamBuka}
+            onChange={handleChange}
+            style={inputStyle}
+          />
+        </div>
+
         <br />
 
-        <input
-          name="hargaTiket"
-          placeholder="Harga"
-          value={form.hargaTiket}
-          onChange={handleChange}
-        />
+        <div>
+          <label style={labelStyle}>Harga Tiket</label>
+          <input
+            name="hargaTiket"
+            placeholder="Masukkan harga tiket"
+            value={form.hargaTiket}
+            onChange={handleChange}
+            style={inputStyle}
+          />
+        </div>
+
         <br />
 
-        <textarea
-          name="deskripsi"
-          placeholder="Deskripsi"
-          value={form.deskripsi}
-          onChange={handleChange}
-        />
+        <div>
+          <label style={labelStyle}>Deskripsi</label>
+          <textarea
+            name="deskripsi"
+            placeholder="Masukkan deskripsi wisata"
+            value={form.deskripsi}
+            onChange={handleChange}
+            rows={5}
+            style={inputStyle}
+          />
+        </div>
+
         <br />
 
-        <input
-          type="file"
-          onChange={(e) => setImage(e.target.files?.[0] || null)}
-        />
-        <br />
+        <div>
+          <label style={labelStyle}>Upload Gambar</label>
+          <input
+            type="file"
+            onChange={(e) => setImage(e.target.files?.[0] || null)}
+            style={{ marginTop: "10px" }}
+          />
+        </div>
 
-        <button
-  type="submit"
-  style={buttonStyle}
->
-  Update
-</button>
+        <hr />
+
+        <div
+          style={{
+            display: "flex",
+            gap: "12px",
+            marginTop: "20px",
+          }}
+        >
+          <button type="submit" style={buttonStyle}>
+            Update
+          </button>
+
+          <button
+            type="button"
+            onClick={handleDelete}
+            style={buttonStyle}
+          >
+            Hapus Wisata
+          </button>
+
+          <button
+            type="button"
+            onClick={() => navigate("/admin")}
+            style={buttonStyle}
+          >
+            Kembali
+          </button>
+        </div>
       </form>
-
-      <hr />
-
-{/* 🔥 DELETE */}
-<button
-  onClick={handleDelete}
-  style={buttonStyle}
->
-  Hapus Wisata
-</button>
-
-<br />
-<br />
-
-<button
-  onClick={() => navigate("/admin")}
-  style={buttonStyle}
->
-  Kembali
-</button>
     </div>
   );
 }

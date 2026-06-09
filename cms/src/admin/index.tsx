@@ -12,6 +12,9 @@ type Wisata = {
   id: number;
   nama: string;
   lokasi: string;
+  alamat: string;
+  jamBuka: string;
+  deskripsi: string;
   hargaTiket: number;
   status: boolean;
   galeri: Galeri[];
@@ -58,6 +61,18 @@ export default function AdminHome() {
     }
   };
 
+  const buttonStyle = {
+    background: "#2563eb",
+    color: "white",
+    border: "none",
+    padding: "10px 18px",
+    borderRadius: 10,
+    cursor: "pointer",
+    fontWeight: "bold" as const,
+    boxShadow: "0 4px 10px rgba(37,99,235,0.3)",
+    transition: "0.2s",
+  };
+
   return (
     <div
       style={{
@@ -67,9 +82,8 @@ export default function AdminHome() {
         width: "100%",
         height: "100vh",
         overflowY: "auto",
-        padding: 20,
+        padding: 25,
         boxSizing: "border-box",
-
         background: "#f5f7fb",
       }}
     >
@@ -79,21 +93,20 @@ export default function AdminHome() {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          paddingBottom: 15,
-          borderBottom: "2px solid rgba(255,255,255,0.3)",
-          marginBottom: 20,
+          paddingBottom: 20,
+          borderBottom: "1px solid #dbeafe",
+          marginBottom: 30,
           flexWrap: "wrap",
-          gap: 10,
+          gap: 15,
         }}
       >
         {/* LOGO */}
         <h1
           style={{
-            color: "#60a5fa",
+            color: "#2563eb",
             margin: 0,
-            fontWeight: "bold",
-            fontSize: 32,
-            textShadow: "0 2px 5px rgba(0,0,0,0.5)",
+            fontWeight: "700",
+            fontSize: 34,
           }}
         >
           CPMApp
@@ -103,54 +116,27 @@ export default function AdminHome() {
         <div
           style={{
             display: "flex",
-            gap: 10,
+            gap: 12,
             flexWrap: "wrap",
           }}
         >
           <button
             onClick={() => navigate("/admin/wisata")}
-            style={{
-              background: "#2563eb",
-              color: "white",
-              border: "none",
-              padding: "10px 18px",
-              borderRadius: 8,
-              cursor: "pointer",
-              fontWeight: "bold",
-              boxShadow: "0 4px 10px rgba(37,99,235,0.3)",
-            }}
+            style={buttonStyle}
           >
             + Tambah Wisata
           </button>
 
           <button
             onClick={() => navigate("/admin/booking")}
-            style={{
-              background: "#2563eb",
-              color: "white",
-              border: "none",
-              padding: "10px 18px",
-              borderRadius: 8,
-              cursor: "pointer",
-              fontWeight: "bold",
-              boxShadow: "0 4px 10px rgba(37,99,235,0.3)",
-            }}
+            style={buttonStyle}
           >
             Data Booking
           </button>
 
           <button
             onClick={() => navigate("/admin/review")}
-            style={{
-              background: "#2563eb",
-              color: "white",
-              border: "none",
-              padding: "10px 18px",
-              borderRadius: 8,
-              cursor: "pointer",
-              fontWeight: "bold",
-              boxShadow: "0 4px 10px rgba(37,99,235,0.3)",
-            }}
+            style={buttonStyle}
           >
             Data Review
           </button>
@@ -158,14 +144,8 @@ export default function AdminHome() {
           <button
             onClick={logout}
             style={{
-              background: "#1e40af",
-              color: "white",
-              border: "none",
-              padding: "10px 18px",
-              borderRadius: 8,
-              cursor: "pointer",
-              fontWeight: "bold",
-              boxShadow: "0 4px 10px rgba(30,64,175,0.3)",
+              ...buttonStyle,
+              background: "#1d4ed8",
             }}
           >
             Logout
@@ -175,25 +155,29 @@ export default function AdminHome() {
 
       {/* TITLE */}
       <h2
-  style={{
-    color: "#111827",
-    marginBottom: 20,
-    fontWeight: "bold",
-  }}
->
-  Dashboard Admin
-</h2>
+        style={{
+          color: "#111827",
+          marginBottom: 35,
+          fontWeight: "700",
+          fontSize: "32px",
+          textAlign: "center",
+          letterSpacing: "0.5px",
+        }}
+      >
+        Dashboard Admin
+      </h2>
 
       {/* DATA */}
-     <h3
-  style={{
-    color: "#111827",
-    marginBottom: 20,
-    fontWeight: "bold",
-  }}
->
-  Data Wisata
-</h3>
+      <h3
+        style={{
+          color: "#111827",
+          marginBottom: 25,
+          fontWeight: "700",
+          fontSize: "28px",
+        }}
+      >
+        Data Wisata
+      </h3>
 
       {wisata.map((w) => {
         const imageUrl =
@@ -207,67 +191,88 @@ export default function AdminHome() {
             style={{
               background: "white",
               border: "1px solid #e5e7eb",
-              padding: 15,
-              marginBottom: 15,
-              borderRadius: 15,
+              padding: 22,
+              marginBottom: 20,
+              borderRadius: 18,
               color: "black",
-              boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
+              boxShadow: "0 6px 20px rgba(0,0,0,0.08)",
             }}
           >
             {imageUrl && (
               <img
                 src={imageUrl}
-                width="200"
+                width="240"
                 style={{
-                  borderRadius: 10,
-                  marginBottom: 10,
+                  borderRadius: 14,
+                  marginBottom: 18,
                   objectFit: "cover",
                 }}
               />
             )}
 
-            <h4>{w.nama}</h4>
-            <p>{w.lokasi}</p>
-            <p>Rp {w.hargaTiket}</p>
-            <p>Status: {w.status ? "Aktif" : "Nonaktif"}</p>
+            <h4
+              style={{
+                fontSize: "24px",
+                marginBottom: "18px",
+                color: "#111827",
+              }}
+            >
+              {w.nama}
+            </h4>
+
+            <div style={{ marginBottom: "10px" }}>
+              <strong>Lokasi:</strong> {w.lokasi}
+            </div>
+
+            <div style={{ marginBottom: "10px" }}>
+              <strong>Alamat:</strong> {w.alamat}
+            </div>
+
+            <div style={{ marginBottom: "10px" }}>
+              <strong>Jam Buka:</strong> {w.jamBuka}
+            </div>
+
+            <div style={{ marginBottom: "10px" }}>
+              <strong>Harga Tiket:</strong> Rp {w.hargaTiket}
+            </div>
+
+            <div style={{ marginBottom: "10px" }}>
+              <strong>Status:</strong>{" "}
+              {w.status ? "Aktif" : "Nonaktif"}
+            </div>
+
+            <div
+              style={{
+                marginTop: "14px",
+                marginBottom: "18px",
+                lineHeight: "1.7",
+                color: "#374151",
+              }}
+            >
+              <strong>Deskripsi:</strong>
+              <br />
+              {w.deskripsi}
+            </div>
 
             {/* BUTTON */}
             <div
               style={{
                 display: "flex",
-                gap: 10,
-                marginTop: 10,
+                gap: 12,
+                marginTop: 15,
                 flexWrap: "wrap",
               }}
             >
               <button
                 onClick={() => toggleStatus(w.id)}
-                style={{
-                  background: "#2563eb",
-                  color: "white",
-                  border: "none",
-                  padding: "8px 14px",
-                  borderRadius: 8,
-                  cursor: "pointer",
-                  fontWeight: "bold",
-                  boxShadow: "0 4px 10px rgba(37,99,235,0.3)",
-                }}
+                style={buttonStyle}
               >
                 {w.status ? "Nonaktifkan" : "Aktifkan"}
               </button>
 
               <button
                 onClick={() => navigate(`/admin/edit?id=${w.id}`)}
-                style={{
-                  background: "#3b82f6",
-                  color: "white",
-                  border: "none",
-                  padding: "8px 14px",
-                  borderRadius: 8,
-                  cursor: "pointer",
-                  fontWeight: "bold",
-                  boxShadow: "0 4px 10px rgba(59,130,246,0.3)",
-                }}
+                style={buttonStyle}
               >
                 Edit
               </button>
@@ -275,14 +280,8 @@ export default function AdminHome() {
               <button
                 onClick={() => handleDelete(w.id)}
                 style={{
+                  ...buttonStyle,
                   background: "#1d4ed8",
-                  color: "white",
-                  border: "none",
-                  padding: "8px 14px",
-                  borderRadius: 8,
-                  cursor: "pointer",
-                  fontWeight: "bold",
-                  boxShadow: "0 4px 10px rgba(29,78,216,0.3)",
                 }}
               >
                 Hapus

@@ -15,49 +15,15 @@ export default function WisataAdmin() {
   });
 
   const [image, setImage] = useState<File | null>(null);
+  const [notif, setNotif] = useState("");
+  const [showNotif, setShowNotif] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(true);
 
   const handleChange = (e: any) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const buttonStyle = {
-    backgroundColor: "#2563eb",
-    color: "white",
-    border: "none",
-    padding: "10px 18px",
-    borderRadius: "10px",
-    cursor: "pointer",
-    fontWeight: "600",
-    fontSize: "14px",
-    transition: "0.2s",
-    boxShadow: "0 4px 10px rgba(37, 99, 235, 0.2)",
-  };
-
-  const inputStyle = {
-    width: "100%",
-    padding: "12px 14px",
-    borderRadius: "10px",
-    border: "1px solid #d1d5db",
-    outline: "none",
-    fontSize: "14px",
-    marginTop: "6px",
-    boxSizing: "border-box" as const,
-    backgroundColor: "#f9fafb",
-  };
-
-  const labelStyle = {
-    fontWeight: "600",
-    fontSize: "14px",
-    color: "#374151",
-  };
-
-  const containerStyle = {
-    maxWidth: "600px",
-    margin: "40px auto",
-    padding: "30px",
-    borderRadius: "16px",
-    backgroundColor: "white",
-    boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
   };
 
   const handleSubmit = async (e: any) => {
@@ -66,7 +32,9 @@ export default function WisataAdmin() {
     const formData = new FormData();
 
     Object.entries(form).forEach(([key, value]) => {
-      formData.append(key, value);
+      if (value !== "") {
+        formData.append(key, value);
+      }
     });
 
     if (image) {
@@ -74,125 +42,108 @@ export default function WisataAdmin() {
     }
 
     try {
-      await API.post("/wisata", formData);
-      alert("Berhasil tambah wisata");
-      navigate("/admin");
-    } catch {
-      alert("Gagal");
+      await API.post("/wisata", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      setIsSuccess(true);
+      setNotif("Data wisata berhasil ditambahkan");
+      setShowNotif(true);
+
+      setTimeout(() => {
+        setShowNotif(false);
+        navigate("/admin");
+      }, 2000);
+    } catch (err: any) {
+      setIsSuccess(false);
+
+      setNotif(
+        err.response?.data?.message ||
+        "Gagal menambahkan data wisata"
+      );
+
+      setShowNotif(true);
+
+      setTimeout(() => {
+        setShowNotif(false);
+      }, 3000);
     }
   };
 
-  return (
-    <div style={containerStyle}>
-      <h2>Tambah Wisata</h2>
-
-      <hr />
-
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label style={labelStyle}>Nama Wisata</label>
+  
+    return (
+      <div>
+        {showNotif && (
+          <div>
+            <div>
+              <div>
+                {isSuccess ? "✅" : "❌"}
+              </div>
+              <p>{notif}</p>
+            </div>
+          </div>
+        )}
+    
+        <h2>Tambah Wisata</h2>
+    
+        <form onSubmit={handleSubmit}>
           <input
             name="nama"
-            placeholder="Masukkan nama wisata"
+            placeholder="Nama Wisata"
             onChange={handleChange}
-            style={inputStyle}
           />
-        </div>
-
-        <br />
-
-        <div>
-          <label style={labelStyle}>Lokasi</label>
+    
           <input
             name="lokasi"
-            placeholder="Masukkan lokasi"
+            placeholder="Lokasi"
             onChange={handleChange}
-            style={inputStyle}
           />
-        </div>
-
-        <br />
-
-        <div>
-          <label style={labelStyle}>Alamat</label>
+    
           <input
             name="alamat"
-            placeholder="Masukkan alamat"
+            placeholder="Alamat"
             onChange={handleChange}
-            style={inputStyle}
           />
-        </div>
-
-        <br />
-
-        <div>
-          <label style={labelStyle}>Jam Buka</label>
+    
           <input
             name="jamBuka"
-            placeholder="Contoh: 08:00 - 17:00"
+            placeholder="Jam Buka"
             onChange={handleChange}
-            style={inputStyle}
           />
-        </div>
-
-        <br />
-
-        <div>
-          <label style={labelStyle}>Harga Tiket</label>
+    
           <input
             name="hargaTiket"
-            placeholder="Masukkan harga tiket"
+            placeholder="Harga Tiket"
             onChange={handleChange}
-            style={inputStyle}
           />
-        </div>
-
-        <br />
-
-        <div>
-          <label style={labelStyle}>Deskripsi</label>
+    
           <textarea
             name="deskripsi"
-            placeholder="Masukkan deskripsi wisata"
+            placeholder="Deskripsi"
             onChange={handleChange}
-            rows={5}
-            style={inputStyle}
           />
-        </div>
-
-        <br />
-
-        <div>
-          <label style={labelStyle}>Upload Gambar</label>
+    
           <input
             type="file"
-            onChange={(e) => setImage(e.target.files?.[0] || null)}
-            style={{ marginTop: "10px" }}
+            onChange={(e) =>
+              setImage(e.target.files?.[0] || null)
+            }
           />
-        </div>
-
-        <hr />
-
-        <div
-          style={{
-            display: "flex",
-            gap: "12px",
-            marginTop: "20px",
-          }}
-        >
-          <button type="submit" style={buttonStyle}>
+    
+          <button type="submit">
             Simpan
           </button>
-
+    
           <button
             type="button"
             onClick={() => navigate("/admin")}
-            style={buttonStyle}
           >
             Kembali
           </button>
-        </div>
-      </form>
-    </div>
-  );
+        </form>
+      </div>
+    );
 }
+

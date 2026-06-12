@@ -2,7 +2,6 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 
 import Login from "./login";
-import Register from "./register";
 
 // ADMIN
 import AdminLayout from "./admin/_layout";
@@ -19,15 +18,16 @@ import WisataCustomer from "./customer/wisata";
 import BookingCustomer from "./customer/booking";
 import CustomerReview from "./customer/review";
 
-// AUTH
+// AUTH & API
 import { getToken, getRole } from "./lib/auth";
 import { setToken } from "./lib/api";
 
 export default function App() {
-  const [role, setRole] = useState(null);
+  const [role, setRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // 🔥 ambil role & token dari localStorage
     const storedRole = getRole();
     const token = getToken();
 
@@ -37,12 +37,13 @@ export default function App() {
     setLoading(false);
   }, []);
 
+  // 🔥 penting: cegah render sebelum role siap
   if (loading) return <div>Loading...</div>;
 
   return (
     <BrowserRouter>
       <Routes>
-        {/* ================= AUTH ================= */}
+        {/* LOGIN */}
         <Route
           path="/"
           element={
@@ -54,44 +55,37 @@ export default function App() {
           }
         />
 
-        <Route path="/register" element={<Register />} />
-
-        {/* ================= ADMIN ================= */}
+        {/* ADMIN */}
         <Route
           path="/admin"
           element={
-            role === "admin" ? (
-              <AdminLayout />
-            ) : (
-              <Navigate to="/" />
-            )
+            role === "admin" ? <AdminLayout /> : <Navigate to="/" />
           }
         >
           <Route index element={<AdminHome />} />
           <Route path="wisata" element={<WisataAdmin />} />
           <Route path="booking" element={<BookingAdmin />} />
-          <Route path="review" element={<ReviewAdmin />} />
+          <Route path="/admin/review" element={<ReviewAdmin />} />
+
+          {/* 🔥 EDIT WISATA */}
           <Route path="edit" element={<EditWisata />} />
         </Route>
 
-        {/* ================= CUSTOMER ================= */}
+        {/* CUSTOMER */}
         <Route
           path="/customer"
           element={
-            role === "customer" ? (
-              <CustomerLayout />
-            ) : (
-              <Navigate to="/" />
-            )
+            role === "customer" ? <CustomerLayout /> : <Navigate to="/" />
           }
         >
           <Route index element={<CustomerHome />} />
           <Route path="wisata" element={<WisataCustomer />} />
           <Route path="booking" element={<BookingCustomer />} />
-          <Route path="review" element={<CustomerReview />} />
+          <Route path="/customer/review" element={<CustomerReview />} />
+          
         </Route>
 
-        {/* ================= FALLBACK ================= */}
+        {/* 🔥 fallback */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </BrowserRouter>

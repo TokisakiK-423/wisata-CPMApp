@@ -23,22 +23,20 @@ import { getToken, getRole } from "./lib/auth";
 import { setToken } from "./lib/api";
 
 export default function App() {
-  const [role, setRole] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  // ✅ 1. Inisialisasi state secara langsung (Lazy Initialization)
+  // Ini menghindari render ulang tambahan dan menghilangkan pesan error ESLint
+  const [role, setRole] = useState<string | null>(() => getRole());
 
   useEffect(() => {
-    // 🔥 ambil role & token dari localStorage
-    const storedRole = getRole();
+    // ✅ 2. Token untuk API dikonfigurasi di sini
     const token = getToken();
-
-    setRole(storedRole);
-    setToken(token);
-
-    setLoading(false);
+    if (token) {
+      setToken(token);
+    }
   }, []);
 
-  // 🔥 penting: cegah render sebelum role siap
-  if (loading) return <div>Loading...</div>;
+  // ✅ 3. Tdak butuh state 'loading' lagi karena role sudah di-load 
+  // secara sinkron dari localStorage saat awal startup.
 
   return (
     <BrowserRouter>
@@ -48,7 +46,7 @@ export default function App() {
           path="/"
           element={
             role ? (
-              <Navigate to={`/${role}`} />
+              <Navigate to={`/${role}`} replace />
             ) : (
               <Login setRole={setRole} />
             )
@@ -59,15 +57,13 @@ export default function App() {
         <Route
           path="/admin"
           element={
-            role === "admin" ? <AdminLayout /> : <Navigate to="/" />
+            role === "admin" ? <AdminLayout /> : <Navigate to="/" replace />
           }
         >
           <Route index element={<AdminHome />} />
           <Route path="wisata" element={<WisataAdmin />} />
           <Route path="booking" element={<BookingAdmin />} />
-          <Route path="/admin/review" element={<ReviewAdmin />} />
-
-          {/* 🔥 EDIT WISATA */}
+          <Route path="review" element={<ReviewAdmin />} />
           <Route path="edit" element={<EditWisata />} />
         </Route>
 
@@ -75,18 +71,17 @@ export default function App() {
         <Route
           path="/customer"
           element={
-            role === "customer" ? <CustomerLayout /> : <Navigate to="/" />
+            role === "customer" ? <CustomerLayout /> : <Navigate to="/" replace />
           }
         >
           <Route index element={<CustomerHome />} />
           <Route path="wisata" element={<WisataCustomer />} />
           <Route path="booking" element={<BookingCustomer />} />
-          <Route path="/customer/review" element={<CustomerReview />} />
-          
+          <Route path="review" element={<CustomerReview />} />
         </Route>
 
-        {/* 🔥 fallback */}
-        <Route path="*" element={<Navigate to="/" />} />
+        {/* FALLBACK */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );

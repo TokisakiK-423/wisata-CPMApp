@@ -2,16 +2,12 @@ import { useEffect, useState } from "react";
 import API from "../lib/api";
 import { useNavigate } from "react-router-dom";
 
-type Booking = {
-  id: number;
-  nama: string;
-  jumlahTiket: number;
-  status: string;
-  wisata: { nama: string };
-};
-
 export default function BookingCustomer() {
-  const [data, setData] = useState<Booking[]>([]);
+  const [data, setData] = useState([]);
+  const [notif, setNotif] = useState("");
+  const [showNotif, setShowNotif] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(true);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,125 +23,71 @@ export default function BookingCustomer() {
     }
   };
 
-  // 🔥 DELETE BOOKING
-  const handleDelete = async (id: number) => {
-    const confirmDelete = confirm("Yakin ingin menghapus booking ini?");
-    if (!confirmDelete) return;
-
+  const handleDelete = async (id) => {
     try {
       await API.delete(`/booking/${id}`);
-      alert("Booking berhasil dihapus");
+
+      setIsSuccess(true);
+      setNotif("Booking berhasil dihapus");
+      setShowNotif(true);
+
       fetchData();
+
+      setTimeout(() => {
+        setShowNotif(false);
+      }, 2000);
     } catch (err) {
-      console.log(err);
-      alert("Gagal menghapus booking");
+      setIsSuccess(false);
+      setNotif(err.response?.data?.message || "Gagal menghapus booking");
+      setShowNotif(true);
+
+      setTimeout(() => {
+        setShowNotif(false);
+      }, 3000);
     }
   };
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        padding: 20,
-        background: "#f5f7fb",
-      }}
-    >
-      {/* HEADER */}
-      <div
-        style={{
-          paddingBottom: 15,
-          borderBottom: "2px solid #e5e7eb",
-          marginBottom: 20,
-        }}
-      >
-        {/* LOGO */}
-        <div>
-          <h1
-            style={{
-              color: "#2563eb",
-              margin: 0,
-              fontWeight: "bold",
-              fontSize: 30,
-            }}
-          >
-            CPMApp
-          </h1>
+    <div style={styles.page}>
+      {/* NOTIFIKASI */}
+      {showNotif && (
+        <div style={styles.overlay}>
+          <div style={styles.notifBox}>
+            <div style={styles.icon}>
+              {isSuccess ? "✅" : "❌"}
+            </div>
+            <p style={styles.notifText}>{notif}</p>
+          </div>
         </div>
+      )}
+
+      {/* HEADER */}
+      <div style={styles.header}>
+        <h1 style={styles.logo}>CPMApp</h1>
       </div>
 
       {/* TITLE */}
-      <h2
-        style={{
-          marginBottom: 20,
-          color: "#111827",
-        }}
-      >
-        Booking Saya
-      </h2>
+      <h2 style={styles.title}>Booking Saya</h2>
 
+      {/* LIST BOOKING */}
       {data.map((b) => (
-        <div
-          key={b.id}
-          style={{
-            background: "white",
-            border: "1px solid #e5e7eb",
-            padding: 15,
-            marginBottom: 15,
-            borderRadius: 15,
-            boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
-          }}
-        >
-          <b style={{ fontSize: 18 }}>{b.nama}</b>
+        <div key={b.id} style={styles.card}>
+          <b style={styles.name}>{b.nama}</b>
 
-          <br />
-          <br />
+          <div style={styles.text}>{b.wisata?.nama}</div>
+          <div style={styles.text}>{b.jumlahTiket} tiket</div>
 
-          <span style={{ color: "#374151" }}>
-            {b.wisata?.nama}
-          </span>
+          <div>
+            Status:{" "}
+            <span style={getStatusStyle(b.status)}>
+              {b.status}
+            </span>
+          </div>
 
-          <br />
-          <br />
-
-          <span style={{ color: "#374151" }}>
-            {b.jumlahTiket} tiket
-          </span>
-
-          <br />
-          <br />
-
-          Status:{" "}
-          <span
-            style={{
-              fontWeight: "bold",
-              color:
-                b.status === "approved"
-                  ? "green"
-                  : b.status === "rejected"
-                  ? "red"
-                  : "orange",
-            }}
-          >
-            {b.status}
-          </span>
-
-          <br />
-
-          {/* 🔥 TOMBOL HAPUS */}
           {b.status === "pending" && (
             <button
               onClick={() => handleDelete(b.id)}
-              style={{
-                marginTop: 15,
-                background: "#2563eb",
-                color: "white",
-                border: "none",
-                padding: "10px 18px",
-                borderRadius: 8,
-                cursor: "pointer",
-                fontWeight: "bold",
-                boxShadow: "0 4px 10px rgba(37,99,235,0.3)",
-              }}
+              style={styles.deleteBtn}
             >
               Hapus
             </button>
@@ -153,20 +95,11 @@ export default function BookingCustomer() {
         </div>
       ))}
 
-      {/* BUTTON KEMBALI */}
+      {/* BACK BUTTON */}
       <div style={{ marginTop: 20 }}>
         <button
           onClick={() => navigate("/customer")}
-          style={{
-            background: "#2563eb",
-            color: "white",
-            border: "none",
-            padding: "10px 18px",
-            borderRadius: 8,
-            cursor: "pointer",
-            fontWeight: "bold",
-            boxShadow: "0 4px 10px rgba(37,99,235,0.3)",
-          }}
+          style={styles.backBtn}
         >
           Kembali
         </button>
@@ -174,3 +107,114 @@ export default function BookingCustomer() {
     </div>
   );
 }
+
+/* ================= STYLE ================= */
+const styles = {
+  page: {
+    minHeight: "100vh",
+    padding: 20,
+    background: "#f5f7fb",
+  },
+
+  header: {
+    paddingBottom: 15,
+    borderBottom: "2px solid #e5e7eb",
+    marginBottom: 20,
+  },
+
+  logo: {
+    color: "#2563eb",
+    margin: 0,
+    fontWeight: "bold",
+    fontSize: 30,
+  },
+
+  title: {
+    marginBottom: 20,
+    color: "#111827",
+  },
+
+  card: {
+    background: "white",
+    border: "1px solid #e5e7eb",
+    padding: 15,
+    marginBottom: 15,
+    borderRadius: 15,
+    boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
+  },
+
+  name: {
+    fontSize: 18,
+  },
+
+  text: {
+    color: "#374151",
+    marginBottom: 8,
+  },
+
+  deleteBtn: {
+    marginTop: 15,
+    background: "#2563eb",
+    color: "white",
+    border: "none",
+    padding: "10px 18px",
+    borderRadius: 8,
+    cursor: "pointer",
+    fontWeight: "bold",
+    boxShadow: "0 4px 10px rgba(37,99,235,0.3)",
+  },
+
+  backBtn: {
+    background: "#2563eb",
+    color: "white",
+    border: "none",
+    padding: "10px 18px",
+    borderRadius: 8,
+    cursor: "pointer",
+    fontWeight: "bold",
+    boxShadow: "0 4px 10px rgba(37,99,235,0.3)",
+  },
+
+  overlay: {
+    position: "fixed",
+    inset: 0,
+    background: "rgba(0,0,0,0.15)",
+    backdropFilter: "blur(4px)",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 9999,
+  },
+
+  notifBox: {
+    background: "#fff",
+    padding: "30px 40px",
+    borderRadius: "20px",
+    boxShadow: "0 20px 50px rgba(0,0,0,0.15)",
+    textAlign: "center",
+    minWidth: "320px",
+  },
+
+  icon: {
+    fontSize: "60px",
+    marginBottom: "15px",
+  },
+
+  notifText: {
+    fontSize: "17px",
+    fontWeight: "600",
+    margin: 0,
+    color: "#111827",
+  },
+};
+
+/* ================= STATUS STYLE ================= */
+const getStatusStyle = (status) => ({
+  fontWeight: "bold",
+  color:
+    status === "approved"
+      ? "green"
+      : status === "rejected"
+      ? "red"
+      : "orange",
+});

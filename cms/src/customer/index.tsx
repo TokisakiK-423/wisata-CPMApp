@@ -3,25 +3,8 @@ import API from "../lib/api";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../lib/auth";
 
-type Galeri = {
-  id: number;
-  url: string;
-};
-
-type Wisata = {
-  id: number;
-  nama: string;
-  lokasi: string;
-  alamat: string;
-  jamBuka: string;
-  deskripsi: string;
-  hargaTiket: number;
-  status: boolean;
-  galeri: Galeri[];
-};
-
 export default function CustomerHome() {
-  const [data, setData] = useState<Wisata[]>([]);
+  const [data, setData] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,14 +13,10 @@ export default function CustomerHome() {
 
   const fetchData = async () => {
     try {
-      // 🔥 Ambil data terbaru dari admin
       const res = await API.get("/wisata");
 
-      // 🔥 Hanya tampilkan wisata aktif
-      const aktif = res.data.filter(
-        (w: Wisata) => w.status === true
-      );
-
+      // hanya wisata aktif
+      const aktif = res.data.filter((w) => w.status === true);
       setData(aktif);
     } catch (err) {
       console.log(err);
@@ -51,52 +30,17 @@ export default function CustomerHome() {
     padding: "10px 18px",
     borderRadius: 10,
     cursor: "pointer",
-    fontWeight: "bold" as const,
+    fontWeight: "bold",
     boxShadow: "0 4px 10px rgba(37,99,235,0.3)",
-    transition: "0.2s",
   };
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        padding: 25,
-        background: "#f5f7fb",
-      }}
-    >
+    <div style={styles.page}>
       {/* HEADER */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          paddingBottom: 20,
-          borderBottom: "1px solid #dbeafe",
-          marginBottom: 30,
-          flexWrap: "wrap",
-          gap: 15,
-        }}
-      >
-        {/* LOGO */}
-        <h1
-          style={{
-            color: "#2563eb",
-            margin: 0,
-            fontWeight: "700",
-            fontSize: 34,
-          }}
-        >
-          CPMApp
-        </h1>
+      <div style={styles.header}>
+        <h1 style={styles.logo}>CPMApp</h1>
 
-        {/* MENU BUTTON */}
-        <div
-          style={{
-            display: "flex",
-            gap: 12,
-            flexWrap: "wrap",
-          }}
-        >
+        <div style={styles.menu}>
           <button
             onClick={() => navigate("/customer/booking")}
             style={buttonStyle}
@@ -113,10 +57,7 @@ export default function CustomerHome() {
 
           <button
             onClick={logout}
-            style={{
-              ...buttonStyle,
-              background: "#1d4ed8",
-            }}
+            style={{ ...buttonStyle, background: "#1d4ed8" }}
           >
             Logout
           </button>
@@ -124,95 +65,39 @@ export default function CustomerHome() {
       </div>
 
       {/* TITLE */}
-      <h2
-        style={{
-          color: "#111827",
-          marginBottom: 35,
-          fontWeight: "700",
-          fontSize: "32px",
-          textAlign: "center",
-          letterSpacing: "0.5px",
-        }}
-      >
-        Daftar Wisata
-      </h2>
+      <h2 style={styles.title}>Daftar Wisata</h2>
 
-      {/* DATA WISATA */}
+      {/* LIST WISATA */}
       {data.map((w) => {
-        const imageUrl =
-          w.galeri?.length > 0
-            ? `http://localhost:3000${w.galeri[0].url}`
-            : null;
+        const imageUrl = w.galeri?.length
+          ? `http://localhost:3000${w.galeri[0].url}`
+          : null;
 
         return (
-          <div
-            key={w.id}
-            style={{
-              background: "white",
-              border: "1px solid #e5e7eb",
-              padding: 22,
-              marginBottom: 20,
-              borderRadius: 18,
-              color: "black",
-              boxShadow: "0 6px 20px rgba(0,0,0,0.08)",
-            }}
-          >
+          <div key={w.id} style={styles.card}>
             {/* IMAGE */}
             {imageUrl && (
               <img
                 src={imageUrl}
                 width="240"
-                style={{
-                  borderRadius: 14,
-                  marginBottom: 18,
-                  objectFit: "cover",
-                }}
+                style={styles.image}
+                alt={w.nama}
               />
             )}
 
-            {/* NAMA */}
-            <h3
-              style={{
-                fontSize: "24px",
-                marginBottom: "18px",
-                color: "#111827",
-              }}
-            >
-              {w.nama}
-            </h3>
+            <h3 style={styles.nama}>{w.nama}</h3>
 
-            {/* DETAIL */}
-            <div style={{ marginBottom: "10px" }}>
-              <strong>Lokasi:</strong> {w.lokasi}
-            </div>
+            <div style={styles.text}><b>Lokasi:</b> {w.lokasi}</div>
+            <div style={styles.text}><b>Alamat:</b> {w.alamat}</div>
+            <div style={styles.text}><b>Jam Buka:</b> {w.jamBuka}</div>
+            <div style={styles.text}><b>Harga Tiket:</b> Rp {w.hargaTiket}</div>
 
-            <div style={{ marginBottom: "10px" }}>
-              <strong>Alamat:</strong> {w.alamat}
-            </div>
-
-            <div style={{ marginBottom: "10px" }}>
-              <strong>Jam Buka:</strong> {w.jamBuka}
-            </div>
-
-            <div style={{ marginBottom: "10px" }}>
-              <strong>Harga Tiket:</strong> Rp {w.hargaTiket}
-            </div>
-
-            {/* DESKRIPSI */}
-            <div
-              style={{
-                marginTop: "14px",
-                marginBottom: "18px",
-                lineHeight: "1.7",
-                color: "#374151",
-              }}
-            >
-              <strong>Deskripsi:</strong>
+            <div style={styles.desc}>
+              <b>Deskripsi:</b>
               <br />
               {w.deskripsi}
             </div>
 
-            {/* BUTTON */}
             <button
               onClick={() => navigate(`/customer/wisata?id=${w.id}`)}
               style={buttonStyle}
@@ -225,3 +110,77 @@ export default function CustomerHome() {
     </div>
   );
 }
+
+/* ================= STYLE ================= */
+const styles = {
+  page: {
+    minHeight: "100vh",
+    padding: 25,
+    background: "#f5f7fb",
+  },
+
+  header: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingBottom: 20,
+    borderBottom: "1px solid #dbeafe",
+    marginBottom: 30,
+    flexWrap: "wrap",
+    gap: 15,
+  },
+
+  logo: {
+    color: "#2563eb",
+    margin: 0,
+    fontWeight: "700",
+    fontSize: 34,
+  },
+
+  menu: {
+    display: "flex",
+    gap: 12,
+    flexWrap: "wrap",
+  },
+
+  title: {
+    color: "#111827",
+    marginBottom: 35,
+    fontWeight: "700",
+    fontSize: 32,
+    textAlign: "center",
+  },
+
+  card: {
+    background: "white",
+    border: "1px solid #e5e7eb",
+    padding: 22,
+    marginBottom: 20,
+    borderRadius: 18,
+    boxShadow: "0 6px 20px rgba(0,0,0,0.08)",
+  },
+
+  image: {
+    borderRadius: 14,
+    marginBottom: 18,
+    objectFit: "cover",
+  },
+
+  nama: {
+    fontSize: 24,
+    marginBottom: 18,
+    color: "#111827",
+  },
+
+  text: {
+    marginBottom: 10,
+    color: "#374151",
+  },
+
+  desc: {
+    marginTop: 14,
+    marginBottom: 18,
+    lineHeight: 1.7,
+    color: "#374151",
+  },
+};

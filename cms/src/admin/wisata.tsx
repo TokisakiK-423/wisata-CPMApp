@@ -2,10 +2,20 @@ import { useState } from "react";
 import API from "../lib/api";
 import { useNavigate } from "react-router-dom";
 
+type FormState = {
+  nama: string;
+  lokasi: string;
+  deskripsi: string;
+  alamat: string;
+  jamBuka: string;
+  hargaTiket: string;
+};
+
 export default function WisataAdmin() {
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({
+  // STATE
+  const [form, setForm] = useState<FormState>({
     nama: "",
     lokasi: "",
     deskripsi: "",
@@ -15,11 +25,11 @@ export default function WisataAdmin() {
   });
 
   const [image, setImage] = useState<File | null>(null);
+  const [notif, setNotif] = useState("");
+  const [showNotif, setShowNotif] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(true);
 
-  const handleChange = (e: any) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
+  // STYLE
   const buttonStyle = {
     backgroundColor: "#2563eb",
     color: "white",
@@ -60,13 +70,19 @@ export default function WisataAdmin() {
     boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
   };
 
-  const handleSubmit = async (e: any) => {
+  // HANDLER
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const formData = new FormData();
 
     Object.entries(form).forEach(([key, value]) => {
-      formData.append(key, value);
+      if (value !== "") formData.append(key, value);
     });
 
     if (image) {
@@ -74,93 +90,109 @@ export default function WisataAdmin() {
     }
 
     try {
-      await API.post("/wisata", formData);
-      alert("Berhasil tambah wisata");
-      navigate("/admin");
-    } catch {
-      alert("Gagal");
+      await API.post("/wisata", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      setIsSuccess(true);
+      setNotif("Data wisata berhasil ditambahkan");
+      setShowNotif(true);
+
+      setTimeout(() => {
+        setShowNotif(false);
+        navigate("/admin");
+      }, 2000);
+    } catch (err: any) {
+      setIsSuccess(false);
+      setNotif(err.response?.data?.message || "Gagal menambahkan data wisata");
+      setShowNotif(true);
+
+      setTimeout(() => setShowNotif(false), 3000);
     }
   };
 
   return (
     <div style={containerStyle}>
-      <h2>Tambah Wisata</h2>
+      {/* NOTIF */}
+      {showNotif && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.15)",
+            backdropFilter: "blur(4px)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 9999,
+          }}
+        >
+          <div
+            style={{
+              background: "#fff",
+              padding: "30px 40px",
+              borderRadius: "20px",
+              boxShadow: "0 20px 50px rgba(0,0,0,0.15)",
+              textAlign: "center",
+              minWidth: "320px",
+            }}
+          >
+            <div style={{ fontSize: "60px", marginBottom: "15px" }}>
+              {isSuccess ? "✅" : "❌"}
+            </div>
 
+            <p
+              style={{
+                color: isSuccess ? "#16a34a" : "#dc2626",
+                fontSize: "17px",
+                fontWeight: 600,
+                margin: 0,
+              }}
+            >
+              {notif}
+            </p>
+          </div>
+        </div>
+      )}
+
+      <h2>Tambah Wisata</h2>
       <hr />
 
       <form onSubmit={handleSubmit}>
-        <div>
-          <label style={labelStyle}>Nama Wisata</label>
-          <input
-            name="nama"
-            placeholder="Masukkan nama wisata"
-            onChange={handleChange}
-            style={inputStyle}
-          />
-        </div>
-
-        <br />
-
-        <div>
-          <label style={labelStyle}>Lokasi</label>
-          <input
-            name="lokasi"
-            placeholder="Masukkan lokasi"
-            onChange={handleChange}
-            style={inputStyle}
-          />
-        </div>
-
-        <br />
-
-        <div>
-          <label style={labelStyle}>Alamat</label>
-          <input
-            name="alamat"
-            placeholder="Masukkan alamat"
-            onChange={handleChange}
-            style={inputStyle}
-          />
-        </div>
-
-        <br />
-
-        <div>
-          <label style={labelStyle}>Jam Buka</label>
-          <input
-            name="jamBuka"
-            placeholder="Contoh: 08:00 - 17:00"
-            onChange={handleChange}
-            style={inputStyle}
-          />
-        </div>
-
-        <br />
-
-        <div>
-          <label style={labelStyle}>Harga Tiket</label>
-          <input
-            name="hargaTiket"
-            placeholder="Masukkan harga tiket"
-            onChange={handleChange}
-            style={inputStyle}
-          />
-        </div>
-
-        <br />
+        {[
+          { name: "nama", label: "Nama Wisata", placeholder: "Masukkan nama wisata" },
+          { name: "lokasi", label: "Lokasi", placeholder: "Masukkan lokasi" },
+          { name: "alamat", label: "Alamat", placeholder: "Masukkan alamat" },
+          { name: "jamBuka", label: "Jam Buka", placeholder: "08:00 - 17:00" },
+          { name: "hargaTiket", label: "Harga Tiket", placeholder: "Masukkan harga tiket" },
+        ].map((field) => (
+          <div key={field.name}>
+            <label style={labelStyle}>{field.label}</label>
+            <input
+              name={field.name}
+              placeholder={field.placeholder}
+              value={(form as any)[field.name]}
+              onChange={handleChange}
+              style={inputStyle}
+            />
+            <br />
+            <br />
+          </div>
+        ))}
 
         <div>
           <label style={labelStyle}>Deskripsi</label>
           <textarea
             name="deskripsi"
             placeholder="Masukkan deskripsi wisata"
+            value={form.deskripsi}
             onChange={handleChange}
             rows={5}
             style={inputStyle}
           />
+          <br />
+          <br />
         </div>
-
-        <br />
 
         <div>
           <label style={labelStyle}>Upload Gambar</label>
@@ -173,13 +205,7 @@ export default function WisataAdmin() {
 
         <hr />
 
-        <div
-          style={{
-            display: "flex",
-            gap: "12px",
-            marginTop: "20px",
-          }}
-        >
+        <div style={{ display: "flex", gap: "12px", marginTop: "20px" }}>
           <button type="submit" style={buttonStyle}>
             Simpan
           </button>

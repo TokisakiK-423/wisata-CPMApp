@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 
 import Login from "./login";
+import Register from "./register";
 
 // ADMIN
 import AdminLayout from "./admin/_layout";
@@ -18,46 +19,52 @@ import WisataCustomer from "./customer/wisata";
 import BookingCustomer from "./customer/booking";
 import CustomerReview from "./customer/review";
 
-// AUTH & API
+// AUTH
 import { getToken, getRole } from "./lib/auth";
 import { setToken } from "./lib/api";
 
 export default function App() {
-  // ✅ 1. Inisialisasi state secara langsung (Lazy Initialization)
-  // Ini menghindari render ulang tambahan dan menghilangkan pesan error ESLint
-  const [role, setRole] = useState<string | null>(() => getRole());
+  const [role, setRole] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // ✅ 2. Token untuk API dikonfigurasi di sini
+    const storedRole = getRole();
     const token = getToken();
-    if (token) {
-      setToken(token);
-    }
+
+    setRole(storedRole);
+    setToken(token);
+
+    setLoading(false);
   }, []);
 
-  // ✅ 3. Tdak butuh state 'loading' lagi karena role sudah di-load 
-  // secara sinkron dari localStorage saat awal startup.
+  if (loading) return <div>Loading...</div>;
 
   return (
     <BrowserRouter>
       <Routes>
-        {/* LOGIN */}
+        {/* ================= AUTH ================= */}
         <Route
           path="/"
           element={
             role ? (
-              <Navigate to={`/${role}`} replace />
+              <Navigate to={`/${role}`} />
             ) : (
               <Login setRole={setRole} />
             )
           }
         />
 
-        {/* ADMIN */}
+        <Route path="/register" element={<Register />} />
+
+        {/* ================= ADMIN ================= */}
         <Route
           path="/admin"
           element={
-            role === "admin" ? <AdminLayout /> : <Navigate to="/" replace />
+            role === "admin" ? (
+              <AdminLayout />
+            ) : (
+              <Navigate to="/" />
+            )
           }
         >
           <Route index element={<AdminHome />} />
@@ -67,11 +74,15 @@ export default function App() {
           <Route path="edit" element={<EditWisata />} />
         </Route>
 
-        {/* CUSTOMER */}
+        {/* ================= CUSTOMER ================= */}
         <Route
           path="/customer"
           element={
-            role === "customer" ? <CustomerLayout /> : <Navigate to="/" replace />
+            role === "customer" ? (
+              <CustomerLayout />
+            ) : (
+              <Navigate to="/" />
+            )
           }
         >
           <Route index element={<CustomerHome />} />
@@ -80,8 +91,8 @@ export default function App() {
           <Route path="review" element={<CustomerReview />} />
         </Route>
 
-        {/* FALLBACK */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        {/* ================= FALLBACK ================= */}
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </BrowserRouter>
   );

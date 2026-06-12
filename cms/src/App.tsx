@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 import Login from "./login";
 
@@ -23,22 +23,14 @@ import { getToken, getRole } from "./lib/auth";
 import { setToken } from "./lib/api";
 
 export default function App() {
-  const [role, setRole] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  // ✅ langsung ambil dari localStorage (tanpa useEffect)
+  const [role] = useState<string | null>(() => getRole());
 
-  useEffect(() => {
-    // 🔥 ambil role & token dari localStorage
-    const storedRole = getRole();
-    const token = getToken();
-
-    setRole(storedRole);
+  // ✅ set token sekali saja
+  const token = getToken();
+  if (token) {
     setToken(token);
-
-    setLoading(false);
-  }, []);
-
-  // 🔥 penting: cegah render sebelum role siap
-  if (loading) return <div>Loading...</div>;
+  }
 
   return (
     <BrowserRouter>
@@ -47,15 +39,11 @@ export default function App() {
         <Route
           path="/"
           element={
-            role ? (
-              <Navigate to={`/${role}`} />
-            ) : (
-              <Login setRole={setRole} />
-            )
+            role ? <Navigate to={`/${role}`} /> : <Login />
           }
         />
 
-        {/* ADMIN */}
+        {/* ================= ADMIN ================= */}
         <Route
           path="/admin"
           element={
@@ -65,13 +53,11 @@ export default function App() {
           <Route index element={<AdminHome />} />
           <Route path="wisata" element={<WisataAdmin />} />
           <Route path="booking" element={<BookingAdmin />} />
-          <Route path="/admin/review" element={<ReviewAdmin />} />
-
-          {/* 🔥 EDIT WISATA */}
+          <Route path="review" element={<ReviewAdmin />} />
           <Route path="edit" element={<EditWisata />} />
         </Route>
 
-        {/* CUSTOMER */}
+        {/* ================= CUSTOMER ================= */}
         <Route
           path="/customer"
           element={
@@ -81,11 +67,10 @@ export default function App() {
           <Route index element={<CustomerHome />} />
           <Route path="wisata" element={<WisataCustomer />} />
           <Route path="booking" element={<BookingCustomer />} />
-          <Route path="/customer/review" element={<CustomerReview />} />
-          
+          <Route path="review" element={<CustomerReview />} />
         </Route>
 
-        {/* 🔥 fallback */}
+        {/* FALLBACK */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </BrowserRouter>

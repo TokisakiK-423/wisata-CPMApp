@@ -13,6 +13,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { apiImageUrl } from "@/app/lib/api";
 import { styles, COLORS } from "@/app/lib/customer/styles";
 import { fetchWisata, getRating } from "@/app/lib/customer/utils";
 
@@ -52,9 +53,8 @@ export default function CustomerHomeScreen() {
       >
         <Image
           source={{
-            uri: item.galeri?.[0]?.url
-              ? `http://10.0.2.2:3000${item.galeri[0].url}`
-              : "https://via.placeholder.com/300x200",
+            uri: apiImageUrl(item.galeri?.[0]?.url) ||
+              "https://via.placeholder.com/300x200",
           }}
           style={styles.imageHorizontal}
         />

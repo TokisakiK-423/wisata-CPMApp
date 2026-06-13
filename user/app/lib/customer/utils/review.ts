@@ -1,16 +1,16 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const BASE_URL = "http://10.0.2.2:3000";
+import { apiUrl } from "@/app/lib/api";
 
 export const fetchReviewData = async () => {
   try {
     const token = await AsyncStorage.getItem("token");
 
     const [r1, r2] = await Promise.all([
-      fetch(`${BASE_URL}/review`, {
+      fetch(apiUrl("/review"), {
         headers: { Authorization: `Bearer ${token}` },
       }),
-      fetch(`${BASE_URL}/wisata`),
+      fetch(apiUrl("/wisata")),
     ]);
 
     const reviews = await r1.json();
@@ -41,7 +41,7 @@ export const submitReview = async (form: any, image: any) => {
     } as any);
   }
 
-  const res = await fetch(`${BASE_URL}/review`, {
+  const res = await fetch(apiUrl("/review"), {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -55,7 +55,7 @@ export const submitReview = async (form: any, image: any) => {
 export const deleteReview = async (id: number) => {
   const token = await AsyncStorage.getItem("token");
 
-  await fetch(`${BASE_URL}/review/${id}`, {
+  await fetch(apiUrl(`/review/${id}`), {
     method: "DELETE",
     headers: {
       Authorization: `Bearer ${token}`,

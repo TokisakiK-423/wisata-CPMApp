@@ -11,6 +11,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 
+import { apiImageUrl } from "@/app/lib/api";
 import { styles, COLORS } from "@/app/lib/wisata/style";
 import { fetchWisataDetail } from "@/app/lib/wisata/utils/wisata";
 
@@ -89,9 +90,8 @@ export default function WisataDetailScreen() {
         {/* IMAGE */}
         <Image
           source={{
-            uri: data.galeri?.[0]?.url
-              ? `http://10.0.2.2:3000${data.galeri[0].url}`
-              : "https://via.placeholder.com/400",
+            uri: apiImageUrl(data.galeri?.[0]?.url) ||
+              "https://via.placeholder.com/400",
           }}
           style={styles.image}
         />

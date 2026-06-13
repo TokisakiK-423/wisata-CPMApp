@@ -14,6 +14,7 @@ import * as ImagePicker from "expo-image-picker";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { apiImageUrl } from "@/app/lib/api";
 import { styles, COLORS } from "@/app/lib/customer/styles";
 import {
   deleteReview,
@@ -160,9 +161,8 @@ export default function CustomerReview() {
                     >
                       <Image
                         source={{
-                          uri: item.galeri?.[0]?.url
-                            ? `http://10.0.2.2:3000${item.galeri[0].url}`
-                            : "https://via.placeholder.com/150",
+                          uri: apiImageUrl(item.galeri?.[0]?.url) ||
+                            "https://via.placeholder.com/150",
                         }}
                         style={styles.wisataImage}
                       />
@@ -234,7 +234,7 @@ export default function CustomerReview() {
             {item.image && (
               <Image
                 source={{
-                  uri: `http://10.0.2.2:3000${item.image}`,
+                  uri: apiImageUrl(item.image),
                 }}
                 style={styles.reviewImage}
               />

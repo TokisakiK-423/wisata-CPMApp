@@ -1,7 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
-
-const BASE_URL = 'http://10.0.2.2:3000';
+import { apiUrl } from '@/app/lib/api';
 
 export const getToken = async () => {
   return await AsyncStorage.getItem('token');
@@ -11,7 +10,7 @@ export const fetchBookingsAPI = async () => {
   try {
     const token = await getToken();
 
-    const res = await fetch(`${BASE_URL}/booking`, {
+    const res = await fetch(apiUrl('/booking'), {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -28,7 +27,7 @@ export const updateBookingStatusAPI = async (id: number, status: string) => {
   try {
     const token = await getToken();
 
-    await fetch(`${BASE_URL}/booking/${id}`, {
+    await fetch(apiUrl(`/booking/${id}`), {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -50,7 +49,7 @@ export const deleteBookingAPI = (id: number, callback: () => void) => {
         try {
           const token = await getToken();
 
-          await fetch(`${BASE_URL}/booking/${id}`, {
+          await fetch(apiUrl(`/booking/${id}`), {
             method: 'DELETE',
             headers: {
               Authorization: `Bearer ${token}`,

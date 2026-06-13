@@ -1,6 +1,8 @@
+import { apiUrl } from "@/app/lib/api";
+
 export const fetchWisata = async () => {
   try {
-    const res = await fetch("http://10.0.2.2:3000/wisata");
+    const res = await fetch(apiUrl("/wisata"));
     const data = await res.json();
 
     return Array.isArray(data)

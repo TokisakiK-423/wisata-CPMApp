@@ -12,6 +12,7 @@ import { useFocusEffect, router } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { apiImageUrl } from "@/app/lib/api";
 import { styles } from "@/app/lib/admin/styles";
 import {
   getWisata,
@@ -92,9 +93,8 @@ export default function AdminWisata() {
             >
               <Image
                 source={{
-                  uri: item.galeri?.[0]?.url
-                    ? `http://10.0.2.2:3000${item.galeri[0].url}`
-                    : "https://via.placeholder.com/150",
+                  uri: apiImageUrl(item.galeri?.[0]?.url) ||
+                    "https://via.placeholder.com/150",
                 }}
                 style={styles.cardImage}
               />

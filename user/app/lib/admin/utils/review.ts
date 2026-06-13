@@ -1,6 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const BASE_URL = 'http://10.0.2.2:3000';
+import { apiUrl } from '@/app/lib/api';
 
 export const getToken = async () => {
   return await AsyncStorage.getItem('token');
@@ -10,7 +9,7 @@ export const fetchReviewsAPI = async () => {
   try {
     const token = await getToken();
 
-    const res = await fetch(`${BASE_URL}/review`, {
+    const res = await fetch(apiUrl('/review'), {
       headers: {
         Authorization: `Bearer ${token}`,
       },

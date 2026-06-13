@@ -1,10 +1,10 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { jwtDecode } from "jwt-decode";
 
-const BASE_URL = "http://10.0.2.2:3000";
+import { apiUrl } from "@/app/lib/api";
 
 export const loginUser = async (username: string, password: string) => {
-  const res = await fetch(`${BASE_URL}/auth/login`, {
+  const res = await fetch(apiUrl("/auth/login"), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -46,7 +46,7 @@ export const loginUser = async (username: string, password: string) => {
 
 // REGISTER
 export const registerUser = async (username: string, password: string) => {
-  const res = await fetch(`${BASE_URL}/auth/register`, {
+  const res = await fetch(apiUrl("/auth/register"), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

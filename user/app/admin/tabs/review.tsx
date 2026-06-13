@@ -9,6 +9,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { apiImageUrl } from '@/app/lib/api';
 import { styles } from '@/app/lib/admin/styles';
 import {
   fetchReviewsAPI,
@@ -73,7 +74,7 @@ export default function AdminReview() {
             {item.image && item.image !== '/uploads/undefined' && (
               <Image
                 source={{
-                  uri: `http://10.0.2.2:3000${item.image}`,
+                  uri: apiImageUrl(item.image),
                 }}
                 style={styles.reviewImage}
               />
